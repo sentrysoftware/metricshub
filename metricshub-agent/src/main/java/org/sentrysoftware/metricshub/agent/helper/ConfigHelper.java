@@ -988,10 +988,10 @@ public class ConfigHelper {
 		for (Map.Entry<String, IConfiguration> entry : protocols.entrySet()) {
 			IConfiguration protocolConfig = entry.getValue();
 			if (protocolConfig != null) {
-				protocolConfig.validateConfiguration(resourceKey);
 				if (protocolConfig.getHostname() == null) {
 					protocolConfig.setHostname(hostname);
 				}
+				protocolConfig.validateConfiguration(resourceKey);
 			}
 		}
 	}

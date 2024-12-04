@@ -45,6 +45,7 @@ import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.JdbcConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
@@ -102,7 +103,8 @@ import picocli.CommandLine.Spec;
 		"@|bold ${ROOT-COMMAND-NAME}|@ " +
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
-		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
+		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --jdbc|@|@|yellow " +
+		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
 )
@@ -165,6 +167,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline JDBC Options|@:%n")
+	JdbcConfigCli jdbcConfigCli;
 
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
@@ -476,12 +481,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				jdbcConfigCli
 			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
-					return protocolConfig.toProtocol(username, password);
+					final IConfiguration protocol = protocolConfig.toConfiguration(username, password);
+					protocol.validateConfiguration(hostname);
+					return protocol;
 				} catch (InvalidConfigurationException e) {
 					throw new IllegalStateException("Invalid configuration detected.", e);
 				}
@@ -513,14 +521,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				jdbcConfigCli
 			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp,--snmpv3,--ssh, --wbem, --wmi, --winrm."
+				"At least one protocol must be specified: --http[s], --ipmi, --jdbc, --snmp, --snmpv3, --ssh, --wbem, --winrm, --wmi."
 			);
 		}
 	}
@@ -582,6 +591,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWinRmPassword(passwordReader);
 
 		tryInteractiveSnmpV3Password(passwordReader);
+
+		tryInteractiveJdbcPassword(passwordReader);
 	}
 
 	/**
@@ -669,6 +680,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	void tryInteractiveSnmpV3Password(final CliPasswordReader<char[]> passwordReader) {
 		if (snmpV3ConfigCli != null && snmpV3ConfigCli.getUsername() != null && snmpV3ConfigCli.getPassword() == null) {
 			snmpV3ConfigCli.setPassword(passwordReader.read("%s password for SNMP V3: ", snmpV3ConfigCli.getUsername()));
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set JDBC password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveJdbcPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (jdbcConfigCli != null && jdbcConfigCli.getUsername() != null && jdbcConfigCli.getPassword() == null) {
+			jdbcConfigCli.setPassword(passwordReader.read("%s password for JDBC connection: ", jdbcConfigCli.getUsername()));
 		}
 	}
 

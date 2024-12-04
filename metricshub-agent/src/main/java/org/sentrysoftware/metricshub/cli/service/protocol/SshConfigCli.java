@@ -125,7 +125,7 @@ public class SshConfigCli implements IProtocolConfigCli {
 	 * @throws InvalidConfigurationException
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+	public IConfiguration toConfiguration(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		// Create an arrayNode that will contain all the sudo commands that the user introduced

@@ -37,5 +37,5 @@ public interface IProtocolConfigCli {
 	 * @return Instance of {@link IConfiguration}
 	 * @throws InvalidConfigurationException if the configuration is invalid.
 	 */
-	IConfiguration toProtocol(String defaultUsername, char[] defaultPassword) throws InvalidConfigurationException;
+	IConfiguration toConfiguration(String defaultUsername, char[] defaultPassword) throws InvalidConfigurationException;
 }

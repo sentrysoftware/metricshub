@@ -39,7 +39,7 @@ class WmiConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create an WmiTestConfiguration and call method toProtocol
-			WmiConfiguration wmiConfiguration = (WmiConfiguration) wmiConfigCli.toProtocol(null, null);
+			WmiConfiguration wmiConfiguration = (WmiConfiguration) wmiConfigCli.toConfiguration(null, null);
 
 			final WmiConfiguration expected = WmiConfiguration
 				.builder()
@@ -54,7 +54,7 @@ class WmiConfigCliTest {
 			// Check null password and null username
 			wmiConfigCli.setPassword(null);
 			wmiConfigCli.setUsername(null);
-			wmiConfiguration = (WmiConfiguration) wmiConfigCli.toProtocol(null, null);
+			wmiConfiguration = (WmiConfiguration) wmiConfigCli.toConfiguration(null, null);
 
 			assertNull(wmiConfiguration.getPassword());
 			assertNull(wmiConfiguration.getUsername());

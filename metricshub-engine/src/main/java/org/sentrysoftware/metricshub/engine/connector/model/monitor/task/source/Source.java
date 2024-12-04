@@ -60,12 +60,13 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 		@JsonSubTypes.Type(value = JawkSource.class, name = "awk"),
 		@JsonSubTypes.Type(value = SnmpGetSource.class, name = "snmpGet"),
 		@JsonSubTypes.Type(value = SnmpTableSource.class, name = "snmpTable"),
-		@JsonSubTypes.Type(value = LocalSqlSource.class, name = "localSql"),
+		@JsonSubTypes.Type(value = InternalDbQuerySource.class, name = "internalDbQuery"),
 		@JsonSubTypes.Type(value = StaticSource.class, name = "static"),
 		@JsonSubTypes.Type(value = TableJoinSource.class, name = "tableJoin"),
 		@JsonSubTypes.Type(value = TableUnionSource.class, name = "tableUnion"),
 		@JsonSubTypes.Type(value = WbemSource.class, name = "wbem"),
-		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi")
+		@JsonSubTypes.Type(value = WmiSource.class, name = "wmi"),
+		@JsonSubTypes.Type(value = SqlSource.class, name = "sql")
 	}
 )
 @Data

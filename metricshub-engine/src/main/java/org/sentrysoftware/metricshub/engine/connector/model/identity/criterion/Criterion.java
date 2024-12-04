@@ -43,6 +43,7 @@ import lombok.NoArgsConstructor;
 		@JsonSubTypes.Type(value = SnmpGetNextCriterion.class, name = "snmpGetNext"),
 		@JsonSubTypes.Type(value = WmiCriterion.class, name = "wmi"),
 		@JsonSubTypes.Type(value = WbemCriterion.class, name = "wbem"),
+		@JsonSubTypes.Type(value = SqlCriterion.class, name = "sql"),
 		@JsonSubTypes.Type(value = ServiceCriterion.class, name = "service"),
 		@JsonSubTypes.Type(value = CommandLineCriterion.class, name = "osCommand"),
 		@JsonSubTypes.Type(value = CommandLineCriterion.class, name = "commandLine")

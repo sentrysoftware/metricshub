@@ -88,7 +88,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 * @throws InvalidConfigurationException If the given configuration JSON node is invalid.
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+	public IConfiguration toConfiguration(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("version", new TextNode(snmpVersion));
