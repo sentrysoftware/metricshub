@@ -47,12 +47,12 @@ import picocli.CommandLine.Spec;
 /**
  * A command-line interface (CLI) for executing SNMP queries.
  * <p>
- * This class supports SNMP operations such as Get, Get Next, and Walk. 
- * It provides validation for configurations and query parameters 
+ * This class supports SNMP operations such as Get, Get Next, and Walk.
+ * It provides validation for configurations and query parameters
  * and integrates with the CLI extension framework to execute SNMP queries.
  * </p>
- * 
- * Implements {@link IQuery} to generate SNMP-specific query JSON 
+ *
+ * Implements {@link IQuery} to generate SNMP-specific query JSON
  * and {@link Callable} to support execution via a command-line tool.
  */
 @Data
@@ -76,7 +76,12 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--snmp-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
 	String walk;
 
-	@Option(names = { "-h", "-?", "--help" }, order = 4, usageHelp = true, description = "Shows this help message and exits")
+	@Option(
+		names = { "-h", "-?", "--help" },
+		order = 4,
+		usageHelp = true,
+		description = "Shows this help message and exits"
+	)
 	boolean usageHelpRequested;
 
 	@Option(names = "-v", order = 5, description = "Verbose mode (repeat the option to increase verbosity)")
