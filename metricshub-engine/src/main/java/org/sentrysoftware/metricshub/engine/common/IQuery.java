@@ -1,7 +1,5 @@
 package org.sentrysoftware.metricshub.engine.common;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Engine
@@ -22,6 +20,8 @@ import com.fasterxml.jackson.databind.JsonNode;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Represents a query to be executed by an extension.

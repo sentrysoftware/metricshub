@@ -104,7 +104,7 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) {
 		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) configuration;
 		final String hostname = configuration.getHostname();
 		String result = "Failed Executing SNMP query";

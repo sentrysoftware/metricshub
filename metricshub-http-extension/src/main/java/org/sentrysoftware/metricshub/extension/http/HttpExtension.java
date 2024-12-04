@@ -217,21 +217,27 @@ public class HttpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) {
 
 		final String hostname = configuration.getHostname();
+		final String method = query.get("method").asText();
 		final JsonNode url = query.get("url");
 		final JsonNode path = query.get("path");
 		final JsonNode header = query.get("header");
 		final JsonNode body = query.get("body");
 		final JsonNode resultContent = query.get("resultContent");
 		final JsonNode authenticationToken = query.get("authenticationToken");
+		final HostConfiguration hostConfiguration = HostConfiguration
+				.builder()
+				.configurations(Map.of(HttpConfiguration.class, configuration))
+				.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		final HttpRequest httpRequest = HttpRequest
 			.builder()
 			.hostname(hostname)
 			.httpConfiguration((HttpConfiguration) configuration)
-			.method(query.get("method").asText())
+			.method(method)
 			.url(notNull(url) ? url.asText() : null)
 			.path(notNull(path) ? path.asText() : null)
 			.header(notNull(header) ? header.asText() : null, Map.of(), "", hostname)
@@ -242,23 +248,28 @@ public class HttpExtension implements IProtocolExtension {
 
 		displayRequest(httpRequest, printWriter);
 
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.configurations(Map.of(HttpConfiguration.class, configuration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 		final String result = httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
-		printWriter.print("\n\u001B[34m");
 		printWriter.println(String.format("Result: %s", result));
-		printWriter.print("\u001B[0m");
 		printWriter.flush();
 		return result;
 	}
 
+	/**
+	 * Checks if a JsonNode is not null and does not represent a JSON null value.
+	 *
+	 * @param jsonNode the JsonNode to check
+	 * @return {@code true} if the JsonNode is not null and not a JSON null; {@code false} otherwise
+	 */
 	boolean notNull(final JsonNode jsonNode) {
 		return jsonNode != null && !jsonNode.isNull();
 	}
 
+	/**
+	 * Displays the details of an HTTP request in a formatted manner.
+	 *
+	 * @param httpRequest the HTTP request to display
+	 * @param printWriter the PrintWriter to output the request details
+	 */
 	void displayRequest(final HttpRequest httpRequest, final PrintWriter printWriter) {
 		final String template = "%s: %s%n";
 		printWriter.println(String.format("Hostname %s - Executing HTTP %s request:", httpRequest.getHostname(), httpRequest.getMethod()));

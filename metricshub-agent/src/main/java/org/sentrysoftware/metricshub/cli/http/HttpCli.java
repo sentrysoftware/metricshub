@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+
 import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
@@ -129,10 +130,13 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	static Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE");
 
-	public JsonNode getQuery(PrintWriter printWriter) {
+	@Override
+	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 
-		queryNode.set("method", new TextNode(method.toUpperCase()));
+		if (method != null) {
+			queryNode.set("method", new TextNode(method.toUpperCase()));
+		}
 
 		if (url != null) {
 			queryNode.set("url", new TextNode(url));
@@ -142,14 +146,22 @@ public class HttpCli implements IQuery, Callable<Integer> {
 			queryNode.set("path", new TextNode(path));
 		}
 
-		final String headerContent = getHeader(printWriter);
-		if (headerContent != null) {
-			queryNode.set("header", new TextNode(headerContent));
+		try {
+			final String headerContent = getHeaderContent();
+			if (headerContent != null) {
+				queryNode.set("header", new TextNode(headerContent));
+			}
+		} catch (IOException e) {
+			
 		}
 
-		final String bodyContent = getBody(printWriter);
-		if (bodyContent != null) {
-			queryNode.set("body", new TextNode(bodyContent));
+		try {
+			final String bodyContent = getBodyContent();
+			if (bodyContent != null) {
+				queryNode.set("body", new TextNode(bodyContent));
+			}
+		} catch (IOException e) {
+			
 		}
 
 		if (resultContent != null) {
@@ -164,45 +176,49 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	}
 
 	/**
-	 *
-	 * @return
+	 * Retrieves the body content for the HTTP request.
+	 * If the body is specified directly, it is returned. 
+	 * If a body file is specified, its contents are read and returned.
+	 * 
+	 * @param printWriter the PrintWriter to log any errors during file reading
+	 * @return the body content as a string, or null if neither body nor body file is set.
+	 * @throws IOException if an error occurs while reading the bodyFile.
 	 */
-	private String getBody(final PrintWriter printWriter) {
+	public String getBodyContent() throws IOException{
 		if (body != null) {
 			return body;
-		} else if (bodyFile != null) {
-			try {
-				return Files.readString(Path.of(bodyFile), StandardCharsets.UTF_8);
-			} catch (IOException e) {
-				printWriter.print(String.format("Error while reading the body file path: %s%n%s", bodyFile, e));
-				printWriter.flush();
-			}
+		} else {
+			return Files.readString(Path.of(bodyFile), StandardCharsets.UTF_8);
 		}
-		return null;
 	}
 
 	/**
-	 *
-	 * @return
+	 * Retrieves the header content for the HTTP request.
+	 * If headers are specified directly, they are formatted and returned.
+	 * If a header file is specified, its contents are read and returned.
+	 * 
+	 * @param printWriter the PrintWriter to log any errors during file reading
+	 * @return the header content as a string, or null if neither headers nor a header file is set.
+	 * @throws IOException if an error occurs while reading the headerFile.
 	 */
-	private String getHeader(final PrintWriter printWriter) {
+	public String getHeaderContent() throws IOException {
 		StringBuilder header = new StringBuilder();
 
 		if (headers != null) {
 			headers.forEach((key, value) -> header.append(String.format("%s: %s%n", key, value)));
 			return header.toString();
-		} else if (headerFile != null) {
-			try {
-				header.append(Files.readString(Path.of(headerFile), StandardCharsets.UTF_8));
-				return header.toString();
-			} catch (IOException e) {
-				printWriter.print(String.format("Error while reading the header file path: %s%n%s", headerFile, e));
-				printWriter.flush();
-			}
+		} else {
+			header.append(Files.readString(Path.of(headerFile), StandardCharsets.UTF_8));
+			return header.toString();
 		}
-		return null;
 	}
 
+	/**
+	 * Validates the HTTP request configuration and parameters.
+	 * Ensures required fields are set and checks for conflicts in headers and body configuration.
+	 * 
+	 * @throws ParameterException if validation fails due to missing or conflicting parameters.
+	 */
 	void validate() throws ParameterException {
 		// Validating HTTP configuration
 		if (httpConfigCli == null) {
@@ -228,6 +244,15 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				spec.commandLine(),
 				"Conflict - Two headers have been configured: --http-header and --http-header-file."
 			);
+		} else if (headerFile != null) {
+			try {
+				getHeaderContent();
+			} catch (IOException e) {
+				throw new ParameterException(
+					spec.commandLine(),
+					String.format("Error while reading header file %s : %s", headerFile, e)
+				);
+			}
 		}
 
 		// Validating body
@@ -236,13 +261,26 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				spec.commandLine(),
 				"Conflict - Two bodies have been configured: --http-body and --http-body-file."
 			);
+		} else if (bodyFile != null) {
+			try {
+				getBodyContent();
+			} catch (IOException e) {
+				throw new ParameterException(
+					spec.commandLine(),
+					String.format("Error while reading body file %s : %s", bodyFile, e)
+				);
+			}
 		}
 
-		if (authenticationToken != null) {
-			ResultContent.detect(authenticationToken);
-		}
+		ResultContent.detect(resultContent);
 	}
 
+	/**
+	 * Entry point for the HTTP CLI application. Initializes necessary configurations,
+	 * processes command line arguments, and executes the CLI.
+	 *
+	 * @param args The command line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
 
@@ -284,7 +322,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				try {
 					IConfiguration protocol = httpConfigCli.toProtocol(null, null);
 					protocol.setHostname(hostname);
-					extension.executeQuery(protocol, getQuery(printWriter), printWriter);
+					extension.executeQuery(protocol, getQuery(), printWriter);
 				} catch (Exception e) {
 					printWriter.print("HTTP - Invalid configuration detected.\n");
 					printWriter.flush();
