@@ -30,7 +30,7 @@ import lombok.ToString;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * AbstractNumberMetricObserver is an extension of AbstractMetricObserver and serves as the base classd
+ * AbstractNumberMetricObserver is an extension of AbstractMetricObserver and serves as the base class
  * for defining generic number metric observers in the MetricsHub agent. It introduces functionality specific
  * to observing metrics with numerical values and is further extended by concrete number metric observer classes.
  *

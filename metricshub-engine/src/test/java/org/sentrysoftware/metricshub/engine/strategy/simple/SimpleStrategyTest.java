@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.simple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -59,7 +60,7 @@ class SimpleStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 
 		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
@@ -227,6 +228,28 @@ class SimpleStrategyTest {
 			"Conclusion:\n" +
 			"Test on ec-02 FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"disk_controller\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"enclosure\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
 		);
 	}
 }
