@@ -16,6 +16,34 @@ To monitor the Microsoft SQL Server process:
 1. In the `config/metricshub.yaml` file, we configure the monitoring on a local Windows machine through `WMI`:
 
     ```yaml
+        resources:
+          localhost:
+            attributes:
+              host.name: localhost
+              host.type: windows
+            protocols:
+              wmi:
+                timeout: 120
+    ```
+
+2. We specify the `mssqlProcess` dedicated instance of the [Windows - Processes (WMI)](../connectors/windowsprocess.html) connector:
+
+    ```yaml
+            additionalConnectors:
+              mssqlProcess:
+                uses: WindowsProcess # Connector used
+    ```
+
+3.  We specify the regular expression that will match with the command line of Microsoft SQL Server processes (note how we escape the dot in `sqlservr.exe`):
+
+    ```yaml
+                variables:
+                  matchCommand: "sqlservr\\.exe"
+    ```
+
+Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the `metricshub` process on a Windows machine:
+
+```yaml
     resources:
       localhost:
         attributes:
@@ -24,37 +52,9 @@ To monitor the Microsoft SQL Server process:
         protocols:
           wmi:
             timeout: 120
-    ```
-
-2. We specify the `mssqlProcess` dedicated instance of the [Windows - Processes (WMI)](../connectors/windowsprocess.html) connector:
-
-    ```yaml
         additionalConnectors:
-          mssqlProcess:
-            uses: WindowsProcess # Connector used
-    ```
-
-3.  We specify the regular expression that will match with the command line of Microsoft SQL Server processes (note how we escape the dot in `sqlservr.exe`):
-
-    ```yaml
+          mssqlProcess: 
+            uses: WindowsProcess 
             variables:
               matchCommand: "sqlservr\\.exe"
-    ```
-
-Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the `metricshub` process on a Windows machine:
-
-```yaml
-resources:
-  localhost:
-    attributes:
-      host.name: localhost
-      host.type: windows
-    protocols:
-      wmi:
-        timeout: 120
-    additionalConnectors:
-      mssqlProcess: 
-        uses: WindowsProcess 
-        variables:
-          matchCommand: "sqlservr\\.exe"
 ```

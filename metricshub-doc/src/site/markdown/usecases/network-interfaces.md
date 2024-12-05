@@ -23,24 +23,26 @@ To monitor our switch:
    * host type: `network`
 
     ```yaml
-    alcatel-switch:
-        attributes: 
-          host.name: alcatel-switch-01
-          host.type: network
+        resources:
+          alcatel-switch:
+            attributes: 
+              host.name: alcatel-switch-01
+              host.type: network
     ```
 2.  We configure **MetricsHub** to connect to the network switch using the SNMP `v2c` protocol and the `public` community
 
     ```yaml
-        protocols:
-          snmp:
-            version: v2c 
-            community: public 
+            protocols:
+              snmp:
+                version: v2c
+                community: public
     ```
 
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the switch:
 
-   ```yaml
-    alcatel-switch:
+```yaml
+    resources:
+      alcatel-switch:
         attributes: 
           host.name: alcatel-switch-01
           host.type: network
@@ -48,4 +50,4 @@ Here is the complete YAML configuration to be added to `config/metricshub.yaml` 
           snmp:
             version: v2c 
             community: public 
-  ```
+```
