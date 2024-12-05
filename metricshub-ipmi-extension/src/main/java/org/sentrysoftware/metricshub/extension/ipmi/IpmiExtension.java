@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -254,5 +255,11 @@ public class IpmiExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

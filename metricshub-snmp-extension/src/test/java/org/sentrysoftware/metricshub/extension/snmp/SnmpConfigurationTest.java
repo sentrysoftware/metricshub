@@ -1,5 +1,6 @@
 package org.sentrysoftware.metricshub.extension.snmp;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -99,6 +100,32 @@ class SnmpConfigurationTest {
 				.build();
 
 			assertThrows(InvalidConfigurationException.class, () -> snmpConfig.validateConfiguration(resourceKey));
+		}
+
+		{
+			final SnmpConfiguration snmpConfig = SnmpConfiguration
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SnmpVersion.V2C)
+				.retryIntervals(null)
+				.build();
+
+			assertDoesNotThrow(() -> snmpConfig.validateConfiguration(resourceKey));
+		}
+
+		{
+			final SnmpConfiguration snmpConfig = SnmpConfiguration
+				.builder()
+				.community(community)
+				.port(1234)
+				.timeout(60L)
+				.version(SnmpVersion.V2C)
+				.retryIntervals(new int[] { 100, 500 })
+				.build();
+
+			assertDoesNotThrow(() -> snmpConfig.validateConfiguration(resourceKey));
 		}
 	}
 
