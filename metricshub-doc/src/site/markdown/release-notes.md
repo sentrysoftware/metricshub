@@ -73,6 +73,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 | ID                                                                                        | Description                                                                                                      |
 |-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| [**\#112**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/112) | **Windows Process**: Retrieve the process user name and allow to select the process by user name                 |
 | [**\#143**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/143) | **Linux OS**: The connector no longer reports services, as these are now handled by the `LinuxService` connector |
 | [**\#148**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/148) | **Linux OS**: Enhanced `filesystem` utilization calculation                                                      |
 
