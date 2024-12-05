@@ -26,6 +26,7 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Arrays;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -74,9 +75,8 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
-	@Default
 	@JsonSetter(nulls = SKIP)
-	private int[] retryIntervals = new int[] { 500, 1000, 2000, 5000, 5000 };
+	private int[] retryIntervals;
 
 	@Override
 	public String toString() {
@@ -175,7 +175,7 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 
 		StringHelper.validateConfigurationAttribute(
 			retryIntervals,
-			attr -> Arrays.stream(attr).allMatch(value -> value < 1),
+			attr -> Objects.nonNull(attr) && Arrays.stream(attr).allMatch(value -> value < 1),
 			() ->
 				String.format(
 					"Resource %s - retryIntervals value is invalid for protocol %s." +

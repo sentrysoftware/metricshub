@@ -116,10 +116,6 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
 	 */
 	void validate() throws ParameterException {
-		if (snmpConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "SNMP protocol must be configured: --snmp.");
-		}
-
 		Stream
 			.of(get, getNext, walk)
 			.filter(Objects::nonNull)
@@ -176,7 +172,10 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 			.findExtensionByType("snmp")
 			.ifPresent(extension -> {
 				try {
-					IConfiguration protocol = snmpConfigCli.toProtocol(null, null);
+					if (snmpConfigCli == null) {
+						new SnmpConfigCli();
+					}
+					IConfiguration protocol = snmpConfigCli.toConfiguration(null, null);
 					protocol.setHostname(hostname);
 					extension.executeQuery(protocol, getQuery(), printWriter);
 				} catch (Exception e) {
