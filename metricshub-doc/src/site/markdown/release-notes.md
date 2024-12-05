@@ -9,87 +9,87 @@ description: Learn more about the new features, changes and improvements, and bu
 
 #### Changes and Improvements
 
-| ID       | Description                                                                  |
-| -------- | ---------------------------------------------------------------------------- |
-| M8BEE-35 | Replace `loggingexporter` with `debugexporter` in `otel-config-example.yaml` |
+| ID       | Description                                                                              |
+|----------|------------------------------------------------------------------------------------------|
+| M8BEE-35 | Replaced deprecated `loggingexporter` with `debugexporter` in `otel-config-example.yaml` |
 
 ### MetricsHub Enterprise Connectors v102
 
 #### Changes and Improvements
 
-| ID    | Description                                                            |
-| ----- | ---------------------------------------------------------------------- |
-| EC-87 | Add LedIndicator value to the `StatusInformation` of the `led` monitor |
+| ID    | Description                                                                       |
+|-------|-----------------------------------------------------------------------------------|
+| EC-87 | The `StatusInformation` of the `led` monitor now reports the `LedIndicator` value |
 
 #### Fixed issues
 
-| ID    | Description                                                                                                        |
-| ----- | ------------------------------------------------------------------------------------------------------------------ |
-| EC-74 | HP Insight Management Agent - Drive Array: The `disk_controller` status is not reported                            |
-| EC-77 | Redfish: Duplicate enclosures for Dell iDRAC and HP                                                                |
-| EC-78 | Dell OpenManage Server Administrator: The `hw.enclosure.energy` metric is not converted to Joules                  |
-| EC-79 | Dell XtremIO REST API: The `hw.parent.type` attribute is reported as `DiskController` instead of `disk_controller` |
-| EC-93 | `high.critical` threshold is not collected by connectors that report voltage metrics                               |
+| ID    | Description                                                                                                            |
+|-------|------------------------------------------------------------------------------------------------------------------------|
+| EC-74 | **HP Insight Management Agent - Drive Array**: The `disk_controller` status is not reported                            |
+| EC-77 | **Redfish**: Enclosures are duplicated for Dell iDRAC and HP                                                           |
+| EC-78 | **Dell OpenManage Server Administrator**: The `hw.enclosure.energy` metric is not converted to Joules                  |
+| EC-79 | **Dell XtremIO REST API**: The `hw.parent.type` attribute is reported as `DiskController` instead of `disk_controller` |
+| EC-93 | Connectors reporting voltage metrics do not set the `high.critical` threshold                                          |
 
 ### MetricsHub Community Edition v0.9.08
 
 #### Changes and Improvements
 
-| ID                                                                   | Description                                                                                      |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [**\#379**](https://github.com/sentrysoftware/metricshub/issues/379) | Add support for escaped macros                                                                   |
-| [**\#422**](https://github.com/sentrysoftware/metricshub/issues/422) | Develop a **JDBC** Extension to enable support for SQL-based connectors                          |
-| [**\#432**](https://github.com/sentrysoftware/metricshub/issues/432) | Standardize the messages for all the criteria tests                                              |
-| [**\#435**](https://github.com/sentrysoftware/metricshub/issues/435) | [BREAKING_CHANGE] Added support for multiple variable values for the same connector              |
-| [**\#468**](https://github.com/sentrysoftware/metricshub/issues/468) | Support shared-characteristics for centralized resource configuration                            |
-| [**\#470**](https://github.com/sentrysoftware/metricshub/issues/470) | Add support for `host.id`, `host.name`, and other attributes as arrays in resource configuration |
-| [**\#472**](https://github.com/sentrysoftware/metricshub/issues/472) | Prevent sensitive configuration details from being displayed in error logs                       |
-| [**\#474**](https://github.com/sentrysoftware/metricshub/issues/474) | Handle blank values when creating INSERT queries for `internalDbQuery` Sources                   |
-| [**\#498**](https://github.com/sentrysoftware/metricshub/issues/498) | Use data from the TableSource when RawData is empty in **Jawk** Sources                          |
+| ID                                                                   | Description                                                                                        |
+|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| [**\#379**](https://github.com/sentrysoftware/metricshub/issues/379) | Added support for escaped macros                                                                   |
+| [**\#422**](https://github.com/sentrysoftware/metricshub/issues/422) | Developed a **JDBC** Extension to enable support for SQL-based connectors                          |
+| [**\#432**](https://github.com/sentrysoftware/metricshub/issues/432) | Standardized the log messages for all the criteria tests                                           |
+| [**\#435**](https://github.com/sentrysoftware/metricshub/issues/435) | [BREAKING_CHANGE] Added support for multiple variable values for the same connector                |
+| [**\#468**](https://github.com/sentrysoftware/metricshub/issues/468) | Added support for shared-characteristics for centralized resource configuration                    |
+| [**\#470**](https://github.com/sentrysoftware/metricshub/issues/470) | Added support for `host.id`, `host.name`, and other attributes as arrays in resource configuration |
+| [**\#472**](https://github.com/sentrysoftware/metricshub/issues/472) | Prevented sensitive configuration details from being displayed in error logs                       |
+| [**\#474**](https://github.com/sentrysoftware/metricshub/issues/474) | Handled blank values when creating INSERT queries for `internalDbQuery` Sources                    |
+| [**\#498**](https://github.com/sentrysoftware/metricshub/issues/498) | Improved monitoring jobs when invoking **Jawk** sources in connectors                              |
 
 #### Fixed issues
 
-| ID                                                                   | Description                                                                  |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| [**\#478**](https://github.com/sentrysoftware/metricshub/issues/478) | Correct `HttpCriterion` toString method                                      |
-| [**\#480**](https://github.com/sentrysoftware/metricshub/issues/480) | IPMITool criteria and source failure due to bad `ipmitool` command           |
-| [**\#500**](https://github.com/sentrysoftware/metricshub/issues/500) | Mono-Instance collect processes only one monitor due to incorrect indexation |
-| [**\#502**](https://github.com/sentrysoftware/metricshub/issues/502) | Incorrect link status check leads to wrong power consumption                 |
+| ID                                                                   | Description                                                             |
+|----------------------------------------------------------------------|-------------------------------------------------------------------------|
+| [**\#478**](https://github.com/sentrysoftware/metricshub/issues/478) | A NullPointerException occurs when processing `HTTP` detection criteria |
+| [**\#480**](https://github.com/sentrysoftware/metricshub/issues/480) | IPMITool criteria and source fail due to invalid `ipmitool` command     |
+| [**\#500**](https://github.com/sentrysoftware/metricshub/issues/500) | Only one monitor is processed due to incorrect indexing                 |
+| [**\#502**](https://github.com/sentrysoftware/metricshub/issues/502) | Incorrect link status check leads to an incorrect power consumption     |
 
 #### Documentation updates
 
-| ID                                                                   | Description                                                                                 |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [**\#462**](https://github.com/sentrysoftware/metricshub/issues/462) | Review **Configure Monitoring** documentation                                               |
-| [**\#462**](https://github.com/sentrysoftware/metricshub/issues/462) | Move CLI documentation to the Appendix section                                              |
-| [**\#463**](https://github.com/sentrysoftware/metricshub/issues/463) | Combine the Linux and Windows Prometheus quick starts into a unified Prometheus quick start |
-| [**\#484**](https://github.com/sentrysoftware/metricshub/issues/484) | Document the Prometheus/Grafana integration                                                 |
-| [**\#494**](https://github.com/sentrysoftware/metricshub/issues/494) | Document the use case: **Monitoring Remote Linux**                                          |
-| [**\#505**](https://github.com/sentrysoftware/metricshub/issues/505) | Update references to the deprecated `loggingexporter`                                       |
+| ID                                                                   | Description                                                                                                                                                                                                                                                                |
+|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [**\#462**](https://github.com/sentrysoftware/metricshub/issues/462) | Reviewed **Configure Monitoring** documentation                                                                                                                                                                                                                            |
+| [**\#462**](https://github.com/sentrysoftware/metricshub/issues/462) | Moved the CLI documentation to the Appendix section                                                                                                                                                                                                                        |
+| [**\#463**](https://github.com/sentrysoftware/metricshub/issues/463) | Combined the Linux and Windows Prometheus quick starts into a unique Prometheus quick start                                                                                                                                                                                |
+| [**\#484**](https://github.com/sentrysoftware/metricshub/issues/484) | Documented the Prometheus/Grafana integration                                                                                                                                                                                                                              |
+| [**\#289**](https://github.com/sentrysoftware/metricshub/issues/289) | Documented the use cases: **Monitoring network interfaces using SNMP**, **Monitoring a process on Windows**, **Monitoring a remote system running on Linux**, **Monitoring a service running on Linux**, **Monitoring the Health of a Service**, and **Pinging resources** |
+| [**\#505**](https://github.com/sentrysoftware/metricshub/issues/505) | Updated references to the deprecated `loggingexporter`                                                                                                                                                                                                                     |
 
 ### MetricsHub Community Connectors v1.0.07
 
 #### Changes and Improvements
 
-| ID                                                                                        | Description                                                                                           |
-| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [**\#143**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/143) | Linux: The connector longer report services, as these are now handled by the `LinuxService` connector |
-| [**\#148**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/148) | Linux: Enhance `filesystem` utilization calculation                                                   |
+| ID                                                                                        | Description                                                                                                      |
+|-------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
+| [**\#143**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/143) | **Linux OS**: The connector no longer reports services, as these are now handled by the `LinuxService` connector |
+| [**\#148**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/148) | **Linux OS**: Enhanced `filesystem` utilization calculation                                                      |
 
 #### Fixed issues
 
-| ID                                                                                        | Description                                                                                                                                   |
-| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**\#140**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/140) | Fix `Platform` typo instead of `Platforms` on `Linux` & `LinuxService` connectors                                                             |
-| [**\#145**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/145) | IpmiTool: The `hw.status` metric is not collected because `enclosure.awk` reports `OK`, `WARN`, `ALARM` instead of `ok`, `degraded`, `failed` |
-| [**\#152**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/152) | `high.critical` threshold is not collected by connectors that report voltage metrics                                                          |
+| ID                                                                                        | Description                                                                                                                                       |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| [**\#140**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/140) | `Platform` mispelling in `Linux` & `LinuxService` connectors                                                                                      |
+| [**\#145**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/145) | **IpmiTool**: The `hw.status` metric is not collected because `enclosure.awk` reports `OK`, `WARN`, `ALARM` instead of `ok`, `degraded`, `failed` |
+| [**\#152**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/152) | Connectors reporting voltage metrics do not set the `high.critical` threshold                                                                     |
 
 #### Documentation updates
 
-| ID                                                                                        | Description                                                                 |
-| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [**\#128**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/128) | Document default connector `variables`                                      |
-| [**\#129**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/129) | Replace all references to `sql` with `internalDbQuery` in the documentation |
+| ID                                                                                        | Description                                             |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| [**\#128**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/128) | Documented default connector `variables`                |
+| [**\#129**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/129) | Replaced all references to `sql` with `internalDbQuery` |
 
 ## MetricsHub Enterprise Edition v1.0.01
 
@@ -98,7 +98,7 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Changes and Improvements
 
 | ID           | Description                                                                                                              |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------ |
+|--------------|--------------------------------------------------------------------------------------------------------------------------|
 | **M8BEE-29** | Removed Otel collector resourcedetection processor to prevent localhost system resource attributes from being overridden |
 | **M8BEE-32** | Moved the localhost resource configuration to the `data center 1` resource group in `metricshub-example.yaml`            |
 
@@ -107,13 +107,13 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Changes and Improvements
 
 | ID       | Description                                                    |
-| -------- | -------------------------------------------------------------- |
+|----------|----------------------------------------------------------------|
 | **EC-9** | The hw.network.bandwidth.limit metric is now reported in bytes |
 
 #### Fixed issues
 
 | ID        | Description                                                            |
-| --------- | ---------------------------------------------------------------------- |
+|-----------|------------------------------------------------------------------------|
 | **EC-73** | Dell iDRAC9 (REST): Some network link physical addresses are incorrect |
 
 ### MetricsHub Community Edition v0.9.07
@@ -121,7 +121,7 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Changes and Improvements
 
 | ID                                                                   | Description                                                                                                              |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | [**\#433**](https://github.com/sentrysoftware/metricshub/issues/433) | [BREAKING_CHANGE] Disabled Automatic Hostname to FQDN resolution                                                         |
 | [**\#427**](https://github.com/sentrysoftware/metricshub/issues/427) | BMC Helix Integration: Added the `StatusInformation` internal text parameter to the connector monitor                    |
 | [**\#421**](https://github.com/sentrysoftware/metricshub/issues/421) | Reduced Alert noise for `hw.status{state="present"}`                                                                     |
@@ -135,7 +135,7 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Fixed issues
 
 | ID                                                                   | Description                                                                      |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+|----------------------------------------------------------------------|----------------------------------------------------------------------------------|
 | [**\#436**](https://github.com/sentrysoftware/metricshub/issues/436) | The log message for SNMP v3 credential validation is incorrect                   |
 | [**\#439**](https://github.com/sentrysoftware/metricshub/issues/439) | Connector default variables are not serializable                                 |
 | [**\#417**](https://github.com/sentrysoftware/metricshub/issues/417) | JavaDoc references are incorrect                                                 |
@@ -148,7 +148,7 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Changes and Improvements
 
 | ID                                                                                        | Description                                                                                                         |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | [**\#125**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/125) | Disabled automatic detection for WindowsProcess, WindowsService, and LinuxService                                   |
 | [**\#122**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/122) | Added default values for connector variables in `WindowsService`, `LinuxService`, `WindowsProcess` & `LinuxProcess` |
 | [**\#114**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/114) | The `hw.network.bandwidth.limit` metric is now displayed in bytes                                                   |
@@ -156,5 +156,5 @@ description: Learn more about the new features, changes and improvements, and bu
 #### Fixed issues
 
 | ID                                                                                        | Description                                                              |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | [**\#120**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/120) | The `hw.vm.power_ratio` unit is incorrect. It should be 1 instead of Cel |
