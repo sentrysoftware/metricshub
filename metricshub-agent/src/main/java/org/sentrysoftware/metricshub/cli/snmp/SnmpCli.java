@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
@@ -118,21 +119,21 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
 	 */
 	void validate() throws ParameterException {
-		Stream
-			.of(get, getNext, walk)
-			.filter(Objects::nonNull)
-			.reduce((a, b) -> {
-				throw new ParameterException(
-					spec.commandLine(),
-					"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
-				);
-			})
-			.orElseThrow(() ->
-				new ParameterException(
-					spec.commandLine(),
-					"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
-				)
+		final long count = Stream.of(get, getNext, walk).filter(Objects::nonNull).count();
+
+		if (count == 0) {
+			throw new ParameterException(
+				spec.commandLine(),
+				"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
 			);
+		}
+
+		if (count > 1) {
+			throw new ParameterException(
+				spec.commandLine(),
+				"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
+			);
+		}
 	}
 
 	/**
@@ -184,8 +185,9 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		final PrintWriter printWriter = spec.commandLine().getOut();
 		validate();
+		MetricsHubCliService.setLogLevel(verbose);
+		final PrintWriter printWriter = spec.commandLine().getOut();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType("snmp")
