@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.cli.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli.DEFAULT_TIMEOUT;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -133,6 +135,23 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 			);
 	}
 
+	/**
+	 * Builds the default SNMP configuration for the {@code SnmpConfigCli} object.
+	 */
+	void buildDefaultConfiguration() {
+		snmpConfigCli = new SnmpConfigCli();
+		snmpConfigCli.setSnmpVersion("v2c");
+		snmpConfigCli.setCommunity("public".toCharArray());
+		snmpConfigCli.setPort(161);
+		snmpConfigCli.setTimeout(String.valueOf(DEFAULT_TIMEOUT));
+	}
+
+	/**
+	 * Entry point for the SNMP CLI application. Initializes necessary configurations,
+	 * processes command line arguments, and executes the CLI.
+	 *
+	 * @param args The command line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
 
@@ -173,7 +192,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 			.ifPresent(extension -> {
 				try {
 					if (snmpConfigCli == null) {
-						new SnmpConfigCli();
+						buildDefaultConfiguration();
 					}
 					IConfiguration protocol = snmpConfigCli.toConfiguration(null, null);
 					protocol.setHostname(hostname);
