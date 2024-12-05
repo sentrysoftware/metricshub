@@ -21,15 +21,17 @@ To monitor a remote machine running on Linux:
 1. In the `config/metricshub.yaml` file, we configure the monitoring on a Linux machine through `SSH`: 
 
     ```yaml
+        resources:
           dev-nvidia-01:
             attributes:
               host.name: dev-nvidia-01
               host.type: linux
     ```
+
 2. Then, we configure the SSH protocol
 
     ```yaml
-          protocols:
+            protocols:
               ssh:
                 username: myusername
                 password: mypassword
@@ -39,6 +41,7 @@ Here is the complete YAML configuration to be added to `config/metricshub.yaml`
 to monitor a remote machine running on Linux:
 
 ```yaml
+    resources:
       dev-nvidia-01:
         attributes:
           host.name: dev-nvidia-01

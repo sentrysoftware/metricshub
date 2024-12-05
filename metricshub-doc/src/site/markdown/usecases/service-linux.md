@@ -16,6 +16,35 @@ To monitor the `metricshub` service running on Linux:
 1. In the `config/metricshub.yaml` file, we configure the monitoring on a Linux machine through `SSH`: 
 
     ```yaml
+        resources:
+          prod-web:
+            attributes:
+              host.name: [prod-web-01, prod-web-02]
+              host.type: linux
+            protocols:
+              ssh:
+                username: monagent
+                password: REDACTED
+                timeout: 30s
+    ```
+2. We specify the `httpd` dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
+
+    ```yaml
+            additionalConnectors:
+              httpd: 
+                uses: LinuxService # Connector used
+    ```
+
+3. We specify the service to be monitored:
+
+    ```yaml
+                variables:
+                  serviceNames: httpd
+    ```
+
+Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the `metricshub` service running on Linux:
+
+```yaml
     resources:
       prod-web:
         attributes:
@@ -26,38 +55,9 @@ To monitor the `metricshub` service running on Linux:
             username: monagent
             password: REDACTED
             timeout: 30
-    ```
-2. We specify the `httpd` dedicated instance of the [Linux - Service (systemctl)](../connectors/linuxservice.html) connector:
-
-    ```yaml
         additionalConnectors:
-          httpd: 
-            uses: LinuxService # Connector used
-    ```
-
-3. We specify the service to be monitored:
-
-    ```yaml
+          httpd:
+            uses: LinuxService
             variables:
               serviceNames: httpd
-    ```
-
-Here is the complete YAML configuration to be added to `config/metricshub.yaml` to monitor the `metricshub` service running on Linux:
-
-```yaml
-resources:
-      prod-web:
-        attributes:
-          host.name: [prod-web-01, prod-web-02]
-          host.type: linux
-        protocols:
-          ssh:
-            username: monagent
-            password: REDACTED
-            timeout: 30
-    additionalConnectors:
-      httpd:
-        uses: LinuxService
-        variables:
-          serviceNames: httpd
 ```

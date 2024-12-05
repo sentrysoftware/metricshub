@@ -38,17 +38,17 @@ To configure the **Ping Check** feature:
     ```yaml
             protocols:
               ping:
-                timeout: 3  
+                timeout: 3s
     ```
 
 Here is the complete YAML configuration to be added to `config/metricshub.yaml` to ping resources:
 
-   ```yaml
-        resources:
-          host-ping:
-            attributes:
-              host.name: [ euclide, ibm-v7k, carnap, dev-nvidia-01, babbage, morgan, toland, ibm-fs900, hmc-ds-1, hmc-ds-2, sup-fuji-01 ]
-            protocols:
-              ping:
-                timeout:  3  
-  ```
+```yaml
+    resources:
+      host-ping:
+        attributes:
+          host.name: [ euclide, ibm-v7k, carnap, dev-nvidia-01, babbage, morgan, toland, ibm-fs900, hmc-ds-1, hmc-ds-2, sup-fuji-01 ]
+        protocols:
+          ping:
+            timeout: 3s  
+```
