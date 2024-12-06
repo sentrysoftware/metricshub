@@ -83,7 +83,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 
 	@Option(
 		names = { "--snmp-retry-intervals", "--retry" },
-		order = 2,
+		order = 5,
 		paramLabel = "RETRYINTERVALS",
 		description = "Timeout in milliseconds after which the elementary operations will be retried"
 	)
@@ -98,7 +98,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	 * @throws InvalidConfigurationException If the given configuration JSON node is invalid.
 	 */
 	@Override
-	public IConfiguration toProtocol(final String defaultUsername, final char[] defaultPassword)
+	public IConfiguration toConfiguration(final String defaultUsername, final char[] defaultPassword)
 		throws InvalidConfigurationException {
 		final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
 		configuration.set("version", new TextNode(snmpVersion));

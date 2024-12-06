@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.cli.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli.DEFAULT_TIMEOUT;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,6 +34,7 @@ import java.util.stream.Stream;
 import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
@@ -44,6 +47,17 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+/**
+ * A command-line interface (CLI) for executing SNMP queries.
+ * <p>
+ * This class supports SNMP operations such as Get, Get Next, and Walk.
+ * It provides validation for configurations and query parameters
+ * and integrates with the CLI extension framework to execute SNMP queries.
+ * </p>
+ *
+ * Implements {@link IQuery} to generate SNMP-specific query JSON
+ * and {@link Callable} to support execution via a command-line tool.
+ */
 @Data
 public class SnmpCli implements IQuery, Callable<Integer> {
 
@@ -52,6 +66,9 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 
 	@Spec
 	CommandSpec spec;
+
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
+	SnmpConfigCli snmpConfigCli;
 
 	@Option(names = "--snmp-get", order = 1, paramLabel = "OID", description = "SNMP Get request")
 	String get;
@@ -62,13 +79,15 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--snmp-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
 	String walk;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
-	SnmpConfigCli snmpConfigCli;
-
-	@Option(names = { "-h", "-?", "--help" }, usageHelp = true, description = "Shows this help message and exits")
+	@Option(
+		names = { "-h", "-?", "--help" },
+		order = 4,
+		usageHelp = true,
+		description = "Shows this help message and exits"
+	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 5, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	@Override
@@ -100,27 +119,40 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
 	 */
 	void validate() throws ParameterException {
-		if (snmpConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "SNMP protocol must be configured: --snmp.");
+		final long count = Stream.of(get, getNext, walk).filter(Objects::nonNull).count();
+
+		if (count == 0) {
+			throw new ParameterException(
+				spec.commandLine(),
+				"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
+			);
 		}
 
-		Stream
-			.of(get, getNext, walk)
-			.filter(Objects::nonNull)
-			.reduce((a, b) -> {
-				throw new ParameterException(
-					spec.commandLine(),
-					"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
-				);
-			})
-			.orElseThrow(() ->
-				new ParameterException(
-					spec.commandLine(),
-					"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
-				)
+		if (count > 1) {
+			throw new ParameterException(
+				spec.commandLine(),
+				"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
 			);
+		}
 	}
 
+	/**
+	 * Builds the default SNMP configuration for the {@code SnmpConfigCli} object.
+	 */
+	void buildDefaultConfiguration() {
+		snmpConfigCli = new SnmpConfigCli();
+		snmpConfigCli.setSnmpVersion("v2c");
+		snmpConfigCli.setCommunity("public".toCharArray());
+		snmpConfigCli.setPort(161);
+		snmpConfigCli.setTimeout(String.valueOf(DEFAULT_TIMEOUT));
+	}
+
+	/**
+	 * Entry point for the SNMP CLI application. Initializes necessary configurations,
+	 * processes command line arguments, and executes the CLI.
+	 *
+	 * @param args The command line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
 
@@ -153,14 +185,18 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		final PrintWriter printWriter = spec.commandLine().getOut();
 		validate();
+		MetricsHubCliService.setLogLevel(verbose);
+		final PrintWriter printWriter = spec.commandLine().getOut();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType("snmp")
 			.ifPresent(extension -> {
 				try {
-					IConfiguration protocol = snmpConfigCli.toProtocol(null, null);
+					if (snmpConfigCli == null) {
+						buildDefaultConfiguration();
+					}
+					IConfiguration protocol = snmpConfigCli.toConfiguration(null, null);
 					protocol.setHostname(hostname);
 					extension.executeQuery(protocol, getQuery(), printWriter);
 				} catch (Exception e) {

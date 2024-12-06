@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
@@ -73,9 +72,6 @@ class SnmpCliTest {
 	@Test
 	void testValidate() {
 		initCli();
-		ParameterException snmpConfigException = assertThrows(ParameterException.class, () -> snmpCli.validate());
-		assertEquals("SNMP protocol must be configured: --snmp.", snmpConfigException.getMessage());
-		snmpCli.setSnmpConfigCli(new SnmpConfigCli());
 		ParameterException noQueriesException = assertThrows(ParameterException.class, () -> snmpCli.validate());
 		assertEquals(
 			"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk.",

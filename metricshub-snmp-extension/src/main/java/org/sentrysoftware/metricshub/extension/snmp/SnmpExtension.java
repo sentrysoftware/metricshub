@@ -128,9 +128,7 @@ public class SnmpExtension extends AbstractSnmpExtension {
 			}
 
 			// Printing the result on the CLI
-			printWriter.print("\n\u001B[34m");
 			printWriter.print("Result: ");
-			printWriter.print("\u001B[0m");
 			printWriter.print(result);
 			printWriter.flush();
 		} catch (Exception e) {

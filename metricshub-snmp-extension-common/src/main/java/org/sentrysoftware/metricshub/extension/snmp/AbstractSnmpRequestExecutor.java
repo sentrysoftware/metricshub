@@ -258,7 +258,8 @@ public abstract class AbstractSnmpRequestExecutor {
 		 */
 		TABLE,
 		/**
-		 *
+		 * Represents an SNMP WALK request.
+		 * Used to traverse and retrieve a sequence of SNMP objects starting from a given OID.
 		 */
 		WALK
 	}

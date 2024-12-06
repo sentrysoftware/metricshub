@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.extension.snmp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -586,6 +587,14 @@ class SnmpExtensionTest {
 				.build(),
 			snmpExtension.buildConfiguration("snmp", configuration, null)
 		);
+
+		final ObjectNode invalidConfiguration = JsonNodeFactory.instance.objectNode();
+		invalidConfiguration.set("version", new TextNode("version un"));
+		final InvalidConfigurationException exception = assertThrows(
+			InvalidConfigurationException.class,
+			() -> snmpExtension.buildConfiguration("snmp", invalidConfiguration, null)
+		);
+		assertTrue(exception.getMessage().contains("Error while reading SNMP Configuration"));
 	}
 
 	@Test
