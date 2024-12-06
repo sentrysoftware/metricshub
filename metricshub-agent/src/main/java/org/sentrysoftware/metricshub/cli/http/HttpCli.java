@@ -64,9 +64,6 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--http-url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
-	@Option(names = "--http-path", order = 2, paramLabel = "PATH", description = "PATH for HTTP request.")
-	private String path;
-
 	@Option(
 		names = "--http-method",
 		order = 3,
@@ -111,14 +108,6 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	)
 	private String authenticationToken;
 
-	@Option(
-		names = "--http-result-content",
-		order = 9,
-		paramLabel = "RESULTCONTENT",
-		description = "The type of content to retrieve from the HTTP response."
-	)
-	private String resultContent;
-
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
 	HttpConfigCli httpConfigCli;
 
@@ -142,10 +131,6 @@ public class HttpCli implements IQuery, Callable<Integer> {
 			queryNode.set("url", new TextNode(url));
 		}
 
-		if (path != null) {
-			queryNode.set("path", new TextNode(path));
-		}
-
 		try {
 			final String headerContent = getHeaderContent();
 			if (headerContent != null) {
@@ -164,9 +149,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 			
 		}
 
-		if (resultContent != null) {
-			queryNode.set("resultContent", new TextNode(resultContent));
-		}
+		queryNode.set("resultContent", new TextNode("all"));
 
 		if (authenticationToken != null) {
 			queryNode.set("authenticationToken", new TextNode(authenticationToken));
