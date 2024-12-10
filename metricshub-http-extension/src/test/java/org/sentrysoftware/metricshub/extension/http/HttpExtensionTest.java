@@ -66,7 +66,7 @@ class HttpExtensionTest {
 	private static final String HTTP_GET = "GET";
 	private static final String TEST_HEADER = "Content-Type: application/xml";
 	private static final String AUTHENTICATION_TOKEN = "AGSDTZE5SZDF5FV7T82S4";
-	private static final String HTTP_STATUS = "httpStatus";
+	private static final String ALL = "all";
 	private static final String HTTP_SUCCESSFUL_RESPONSE = "Successful HTTP query";
 
 	/**
@@ -543,14 +543,17 @@ class HttpExtensionTest {
 	@Test
 	void testExecuteQuery() {
 		initHttp();
-		HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager.getHostConfiguration().getConfigurations().get(HttpConfiguration.class);
+		HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(HttpConfiguration.class);
 		ObjectNode httpQueryConfiguration = JsonNodeFactory.instance.objectNode();
 		httpQueryConfiguration.set("hostname", new TextNode(HOST_NAME));
 		httpQueryConfiguration.set("method", new TextNode("GET"));
 		httpQueryConfiguration.set("url", new TextNode(TEST_URL));
 		httpQueryConfiguration.set("header", new TextNode(TEST_HEADER));
 		httpQueryConfiguration.set("body", new TextNode(TEST_BODY));
-		httpQueryConfiguration.set("resultContent", new TextNode(HTTP_STATUS));
+		httpQueryConfiguration.set("resultContent", new TextNode(ALL));
 		httpQueryConfiguration.set("authenticationToken", new TextNode(AUTHENTICATION_TOKEN));
 
 		HttpRequest httpRequest = HttpRequest
@@ -561,7 +564,7 @@ class HttpExtensionTest {
 			.url(TEST_URL)
 			.header(TEST_HEADER, Map.of(), "", HOST_NAME)
 			.body(TEST_BODY, Map.of(), "", HOST_NAME)
-			.resultContent(ResultContent.detect(HTTP_STATUS))
+			.resultContent(ResultContent.detect(ALL))
 			.authenticationToken(AUTHENTICATION_TOKEN)
 			.build();
 
@@ -571,7 +574,7 @@ class HttpExtensionTest {
 			.executeHttp(eq(httpRequest), anyBoolean(), any(TelemetryManager.class));
 
 		PrintWriter printWriter = new PrintWriter(new StringWriter());
-		
+
 		final String result = httpExtension.executeQuery(httpConfiguration, httpQueryConfiguration, printWriter);
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE, result);
 	}
