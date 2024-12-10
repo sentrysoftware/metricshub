@@ -22,6 +22,8 @@ package org.sentrysoftware.metricshub.cli.http;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -33,30 +35,29 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
 import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
-import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
-import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 @Data
 @Command(name = "httpcli", description = "HTTP client for testing purposes.")
 public class HttpCli implements IQuery, Callable<Integer> {
 
-	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
-	String hostname;
+	public static final String HTTP = "http";
+	public static final String HTTPS = "https";
+	public static final int DEFAULT_HTTP_PORT = 80;
+	public static final int DEFAULT_HTTPS_PORT = 443;
 
 	@Spec
 	CommandSpec spec;
@@ -66,7 +67,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = "--http-method",
-		order = 3,
+		order = 2,
 		paramLabel = "METHOD",
 		description = "HTTP request type (GET|POST|PUT|DELETE)"
 	)
@@ -74,7 +75,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = "--http-header",
-		order = 4,
+		order = 3,
 		paramLabel = "HEADER",
 		split = ",",
 		description = "Headers to be added to the HTTP request."
@@ -83,18 +84,18 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = "--http-header-file",
-		order = 5,
+		order = 4,
 		paramLabel = "HEADERFILE",
 		description = "Path of the file containing header to be added to the HTTP request."
 	)
 	private String headerFile;
 
-	@Option(names = "--http-body", order = 6, paramLabel = "BODY", description = "Body of the HTTP request.")
+	@Option(names = "--http-body", order = 5, paramLabel = "BODY", description = "Body of the HTTP request.")
 	private String body;
 
 	@Option(
 		names = "--http-body-file",
-		order = 7,
+		order = 6,
 		paramLabel = "BODYFILE",
 		description = "Path of the file containing the HTTP request body."
 	)
@@ -102,14 +103,38 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = "--http-authentication-token",
-		order = 8,
+		order = 7,
 		paramLabel = "TOKEN",
 		description = " The authentication token for the HTTP request."
 	)
 	private String authenticationToken;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline HTTP Options|@:%n")
-	HttpConfigCli httpConfigCli;
+	@Option(
+		names = { "--http-username" },
+		order = 8,
+		paramLabel = "USER",
+		description = "Username for HTTP authentication"
+	)
+	private String username;
+
+	@Option(
+		names = { "--http-password" },
+		order = 9,
+		paramLabel = "P4SSW0RD",
+		description = "Password for the HTTP protocol",
+		arity = "0..1",
+		interactive = true
+	)
+	private char[] password;
+
+	@Option(
+		names = "--http-timeout",
+		order = 10,
+		paramLabel = "TIMEOUT",
+		defaultValue = "120",
+		description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
+	)
+	private String timeout;
 
 	@Option(names = { "-h", "-?", "--help" }, usageHelp = true, description = "Shows this help message and exits")
 	boolean usageHelpRequested;
@@ -117,19 +142,17 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
+	java.net.URL parsedUrl;
+
 	static Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE");
 
 	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 
-		if (method != null) {
-			queryNode.set("method", new TextNode(method.toUpperCase()));
-		}
+		queryNode.set("method", new TextNode(method != null ? method.toUpperCase() : "GET"));
 
-		if (url != null) {
-			queryNode.set("url", new TextNode(url));
-		}
+		queryNode.set("url", new TextNode(url));
 
 		try {
 			final String headerContent = getHeaderContent();
@@ -137,7 +160,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				queryNode.set("header", new TextNode(headerContent));
 			}
 		} catch (IOException e) {
-			
+			throw new IllegalStateException("Could not read the header.", e);
 		}
 
 		try {
@@ -146,7 +169,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				queryNode.set("body", new TextNode(bodyContent));
 			}
 		} catch (IOException e) {
-			
+			throw new IllegalStateException("Could not read the body.", e);
 		}
 
 		queryNode.set("resultContent", new TextNode("all"));
@@ -160,18 +183,19 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Retrieves the body content for the HTTP request.
-	 * If the body is specified directly, it is returned. 
+	 * If the body is specified directly, it is returned.
 	 * If a body file is specified, its contents are read and returned.
-	 * 
-	 * @param printWriter the PrintWriter to log any errors during file reading
+	 *
 	 * @return the body content as a string, or null if neither body nor body file is set.
 	 * @throws IOException if an error occurs while reading the bodyFile.
 	 */
-	public String getBodyContent() throws IOException{
+	public String getBodyContent() throws IOException {
 		if (body != null) {
 			return body;
-		} else {
+		} else if (bodyFile != null) {
 			return Files.readString(Path.of(bodyFile), StandardCharsets.UTF_8);
+		} else {
+			return null;
 		}
 	}
 
@@ -179,8 +203,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 * Retrieves the header content for the HTTP request.
 	 * If headers are specified directly, they are formatted and returned.
 	 * If a header file is specified, its contents are read and returned.
-	 * 
-	 * @param printWriter the PrintWriter to log any errors during file reading
+	 *
 	 * @return the header content as a string, or null if neither headers nor a header file is set.
 	 * @throws IOException if an error occurs while reading the headerFile.
 	 */
@@ -190,35 +213,46 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		if (headers != null) {
 			headers.forEach((key, value) -> header.append(String.format("%s: %s%n", key, value)));
 			return header.toString();
-		} else {
+		} else if (headerFile != null) {
 			header.append(Files.readString(Path.of(headerFile), StandardCharsets.UTF_8));
 			return header.toString();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Try to start the interactive mode to request and set HTTP password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
+		if (username != null && password == null) {
+			password = (passwordReader.read("%s password for HTTP: ", username));
 		}
 	}
 
 	/**
 	 * Validates the HTTP request configuration and parameters.
 	 * Ensures required fields are set and checks for conflicts in headers and body configuration.
-	 * 
+	 *
 	 * @throws ParameterException if validation fails due to missing or conflicting parameters.
 	 */
 	void validate() throws ParameterException {
-		// Validating HTTP configuration
-		if (httpConfigCli == null) {
-			throw new ParameterException(spec.commandLine(), "HTTP/HTTPS protocol must be configured: --http, --https.");
+		// Can we ask for passwords interactively?
+		final boolean interactive = ConsoleService.hasConsole();
+
+		// Password
+		if (interactive) {
+			tryInteractivePassword(System.console()::readPassword);
 		}
+
+		// Validating HTTP Url
+		validateUrl();
 
 		// Validating HTTP methods
 		if (method != null && !httpMethods.contains(method.toUpperCase())) {
 			throw new ParameterException(spec.commandLine(), String.format("Unknown HTTP request method: %s.", method));
-		}
-
-		// Validating URL & Path
-		if (url == null && path == null) {
-			throw new ParameterException(
-				spec.commandLine(),
-				"At least one of the parameters must be specified: --http-url or --http-path."
-			);
 		}
 
 		// Validating headers
@@ -254,8 +288,51 @@ public class HttpCli implements IQuery, Callable<Integer> {
 				);
 			}
 		}
+	}
 
-		ResultContent.detect(resultContent);
+	/**
+	 * Validates the URL's syntax using Java's URL and URI classes.
+	 *
+	 * @throws ParameterException if the URL is invalid
+	 */
+	void validateUrl() {
+		try {
+			// Performing a basic validation of the URL format
+			parsedUrl = new java.net.URL(url);
+			// Enforces stricter compliance, catching invalid characters.
+			parsedUrl.toURI();
+		} catch (Exception e) {
+			throw new ParameterException(spec.commandLine(), "Invalid URL: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Resolves the port number from the URL or returns a default value.
+	 *
+	 * @return the resolved or default port number
+	 * @throws ParameterException if the URL is invalid
+	 */
+	int resolvePortFromUrl() {
+		try {
+			// Check if the port is explicitly specified
+			int port = parsedUrl.getPort();
+			if (port != -1) {
+				return port; // Port found in the URL
+			}
+
+			// Determine the default port based on protocol
+			String protocol = parsedUrl.getProtocol();
+			if (HTTP.equalsIgnoreCase(protocol)) {
+				return DEFAULT_HTTP_PORT;
+			} else if (HTTPS.equalsIgnoreCase(protocol)) {
+				return DEFAULT_HTTPS_PORT;
+			}
+		} catch (Exception e) {
+			throw new ParameterException(spec.commandLine(), "Invalid URL: " + e.getMessage(), e);
+		}
+
+		// Default to 443 if no protocol or port is found
+		return DEFAULT_HTTPS_PORT;
 	}
 
 	/**
@@ -300,11 +377,24 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		validate();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("http")
+			.findExtensionByType(HTTP)
 			.ifPresent(extension -> {
 				try {
-					IConfiguration protocol = httpConfigCli.toProtocol(null, null);
-					protocol.setHostname(hostname);
+					final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+
+					configuration.set(HTTPS, BooleanNode.valueOf(parsedUrl.getProtocol().equals(HTTPS)));
+
+					configuration.set("username", new TextNode(username));
+
+					if (password != null) {
+						configuration.set("password", new TextNode(String.valueOf(password)));
+					}
+
+					configuration.set("port", new IntNode(resolvePortFromUrl()));
+					configuration.set("timeout", new TextNode(timeout));
+
+					IConfiguration protocol = extension.buildConfiguration(HTTP, configuration, null);
+					protocol.setHostname(parsedUrl.getHost());
 					extension.executeQuery(protocol, getQuery(), printWriter);
 				} catch (Exception e) {
 					printWriter.print("HTTP - Invalid configuration detected.\n");

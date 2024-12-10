@@ -46,6 +46,8 @@ import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.extension.http.utils.Body;
+import org.sentrysoftware.metricshub.extension.http.utils.Header;
 import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
 /**
@@ -218,19 +220,17 @@ public class HttpExtension implements IProtocolExtension {
 
 	@Override
 	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) {
-
 		final String hostname = configuration.getHostname();
 		final String method = query.get("method").asText();
 		final JsonNode url = query.get("url");
-		final JsonNode path = query.get("path");
 		final JsonNode header = query.get("header");
 		final JsonNode body = query.get("body");
 		final JsonNode resultContent = query.get("resultContent");
 		final JsonNode authenticationToken = query.get("authenticationToken");
 		final HostConfiguration hostConfiguration = HostConfiguration
-				.builder()
-				.configurations(Map.of(HttpConfiguration.class, configuration))
-				.build();
+			.builder()
+			.configurations(Map.of(HttpConfiguration.class, configuration))
+			.build();
 		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
 
 		final HttpRequest httpRequest = HttpRequest
@@ -239,7 +239,6 @@ public class HttpExtension implements IProtocolExtension {
 			.httpConfiguration((HttpConfiguration) configuration)
 			.method(method)
 			.url(notNull(url) ? url.asText() : null)
-			.path(notNull(path) ? path.asText() : null)
 			.header(notNull(header) ? header.asText() : null, Map.of(), "", hostname)
 			.body(notNull(body) ? body.asText() : null, Map.of(), "", hostname)
 			.resultContent(notNull(resultContent) ? ResultContent.detect(resultContent.asText()) : ResultContent.ALL)
@@ -249,7 +248,7 @@ public class HttpExtension implements IProtocolExtension {
 		displayRequest(httpRequest, printWriter);
 
 		final String result = httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
-		printWriter.println(String.format("Result: %s", result));
+		printWriter.println(String.format("Result: %n%s", result));
 		printWriter.flush();
 		return result;
 	}
@@ -271,14 +270,31 @@ public class HttpExtension implements IProtocolExtension {
 	 * @param printWriter the PrintWriter to output the request details
 	 */
 	void displayRequest(final HttpRequest httpRequest, final PrintWriter printWriter) {
-		final String template = "%s: %s%n";
-		printWriter.println(String.format("Hostname %s - Executing HTTP %s request:", httpRequest.getHostname(), httpRequest.getMethod()));
+		final String template = "%s: %s";
+		printWriter.println(
+			String.format(
+				"Hostname %s - Executing %s %s request:",
+				httpRequest.getHostname(),
+				Boolean.TRUE.equals(httpRequest.getHttpConfiguration().getHttps()) ? "HTTPS" : "HTTP",
+				httpRequest.getMethod()
+			)
+		);
+		final Header header = httpRequest.getHeader();
+		final Body body = httpRequest.getBody();
+		final String authenticationToken = httpRequest.getAuthenticationToken();
+
 		printWriter.println(String.format(template, "Url", httpRequest.getUrl()));
-		printWriter.println(String.format(template, "Path", httpRequest.getPath()));
-		printWriter.println(String.format(template, "Header", httpRequest.getHeader()));
-		printWriter.println(String.format(template, "Body", httpRequest.getBody()));
-		printWriter.println(String.format(template, "ResultContent", httpRequest.getResultContent()));
-		printWriter.println(String.format(template, "AuthenticationToken", httpRequest.getAuthenticationToken()));
+		if (header != null) {
+			printWriter.println(String.format(template, "Header", header.description()));
+		}
+
+		if (body != null) {
+			printWriter.println(String.format(template, "Body", body.description()));
+		}
+
+		if (authenticationToken != null) {
+			printWriter.println(String.format(template, "AuthenticationToken", authenticationToken));
+		}
 		printWriter.flush();
 	}
 }
