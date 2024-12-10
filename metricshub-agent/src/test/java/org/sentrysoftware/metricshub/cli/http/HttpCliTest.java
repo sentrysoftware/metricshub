@@ -2,17 +2,14 @@ package org.sentrysoftware.metricshub.cli.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
-
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 
@@ -22,63 +19,41 @@ class HttpCliTest {
 	CommandLine commandLine;
 	PrintWriter printWriter = new PrintWriter(new StringWriter());
 
-	private final static String HOSTNAME = "";
-	private final static String HTTP_GET = "";
-	private final static String URL = "";
-	private final static Map<String, String> HEADERS = Map.of("Content-Type", "application/xml");
-	private final static String BODY = "<aaaLogin inName=\" inPassword=\" />";
-	private final static String AUTHENTICATION_TOKEN = "Q5SD7SDF2BCV8ZER4";
-	private final static String RESULT_CONTENT = "all";
-	private final static String FILE_HEADER = 
-			"Content-Type: application/xml\r\n"
-			+ "User-Agent: Mozilla/5.0\r\n"
-			+ "Accept: text/html\r\n"
-			+ "Accept-Language: en-US\r\n"
-			+ "Cache-Control: no-cache";
+	private static final String HTTP_GET = "GET";
+	private static final String WRONG_HTTP_METHOD = "WrongMethod";
+	private static final String URL = "https://hostname:443/www.test.com";
+	private static final String WRONG_URL = "WrongUrl";
+	private static final String WRONG_URL_WITH_SPACE = "https://hostname:443/www.test.com/path 1/";
+	private static final String WRONG_HEADER_FILE_PATH = "wrong/path/header.txt";
+	private static final String HEADER_FILE_PATH = "src/test/resources/cli/header.txt";
+	private static final Map<String, String> HEADERS = Map.of("Content-Type", "application/xml");
+	private static final String BODY = "<aaaLogin inName=\" inPassword=\" />";
+	private static final String BODY_FILE_PATH = "src/test/resources/cli/body.txt";
+	private static final String WRONG_BODY_FILE_PATH = "wrong/path/body.txt";
+	private static final String AUTHENTICATION_TOKEN = "Q5SD7SDF2BCV8ZER4";
+	private static final String RESULT_CONTENT = "all";
+	private static final String FILE_HEADER = 
+		String.join("\r\n",
+			"Content-Type: application/xml",
+			"User-Agent: Mozilla/5.0",
+			"Accept: text/html",
+			"Accept-Language: en-US",
+			"Cache-Control: no-cache"
+		);
 
 	void initCli() {
 		httpCli = new HttpCli();
 		commandLine = new CommandLine(httpCli);
 	}
 
-	void initHttpCli() {
-		httpCli = new HttpCli();
-		final CommandLine commandLine = new CommandLine(httpCli);
-
-		commandLine.execute(
-			"hostname",
-			"--http",
-			"--http-username",
-			"username",
-			"--http-password",
-			"password",
-			"--http-path",
-			"path",
-			"--http-url",
-			"url",
-			"--http-header",
-			"key1, value1",
-			"--http-header",
-			"key2, value2",
-			"--http-body",
-			"body",
-			"--http-authenticationToken",
-			"authenticationToken",
-			"--http-resultContent",
-			"all"
-		);
-	}
-
 	@Test
 	void testGetQuery() {
 		initCli();
-		httpCli.setHostname(HOSTNAME);
 		httpCli.setMethod(HTTP_GET);
 		httpCli.setUrl(URL);
 		httpCli.setHeaders(HEADERS);
 		httpCli.setBody(BODY);
 		httpCli.setAuthenticationToken(AUTHENTICATION_TOKEN);
-		httpCli.setResultContent(RESULT_CONTENT);
 
 		StringBuilder header = new StringBuilder();
 		HEADERS.forEach((key, value) -> header.append(String.format("%s: %s%n", key, value)));
@@ -94,74 +69,96 @@ class HttpCliTest {
 	}
 
 	@Test
-	void testGetHeader() throws Exception{
+	void testGetHeader() throws Exception {
 		initCli();
 		httpCli.setHeaders(HEADERS);
 		assertEquals("Content-Type: application/xml\r\n", httpCli.getHeaderContent());
 		httpCli.setHeaders(null);
-		httpCli.setHeaderFile("src/test/resources/cli/header.txt");
+		httpCli.setHeaderFile(HEADER_FILE_PATH);
 		assertEquals(FILE_HEADER, httpCli.getHeaderContent());
 	}
 
 	@Test
-	void testGetBody() throws Exception{
+	void testGetBody() throws Exception {
 		initCli();
 		httpCli.setBody(BODY);
 		assertEquals(BODY, httpCli.getBody());
 		httpCli.setBody(null);
-		httpCli.setBodyFile("src/test/resources/cli/body.txt");
+		httpCli.setBodyFile(BODY_FILE_PATH);
 		assertEquals(BODY, httpCli.getBodyContent());
+	}
+
+	@Test
+	void testValidateUrl() {
+		initCli();
+		httpCli.setUrl(WRONG_URL_WITH_SPACE);
+		ParameterException exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validateUrl());
+		assertTrue(exceptionMessage.getMessage().contains("Invalid URL"));
+		httpCli.setUrl(URL);
+		assertDoesNotThrow(() -> httpCli.validateUrl());
+	}
+
+	@Test
+	void testResolvePortFromUrl() throws MalformedURLException {
+		initCli();
+		httpCli.parsedUrl = new java.net.URL(URL);
+		assertEquals(443, httpCli.resolvePortFromUrl());
+
+		httpCli.parsedUrl = new java.net.URL("https://www.test.com");
+		assertEquals(443, httpCli.resolvePortFromUrl());
+
+		httpCli.parsedUrl = new java.net.URL("http://www.test.com");
+		assertEquals(80, httpCli.resolvePortFromUrl());
+
+		httpCli.parsedUrl = new java.net.URL("http://hostname:555/subdomain");
+		assertEquals(555, httpCli.resolvePortFromUrl());
 	}
 
 	@Test
 	void testValidate() {
 		initCli();
 
-		// HttpConfigCli must be configured.
+		// URL must be valid (contains the protocol at the beginning).
+		httpCli.setUrl(WRONG_URL);
 		ParameterException exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals("HTTP/HTTPS protocol must be configured: --http, --https.", exceptionMessage.getMessage());
-		httpCli.setHttpConfigCli(new HttpConfigCli());
-
-		// Method must be : GET/POST/PUT/DELETE or empty (default: GET)
-		httpCli.setMethod("WrongMethod");
-		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals("Unknown HTTP request method: WrongMethod.", exceptionMessage.getMessage());
-		httpCli.setMethod("get");
-
-		// At least URL or Path must be speficied
-		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals("At least one of the parameters must be specified: --http-url or --http-path.", exceptionMessage.getMessage());
+		assertTrue(exceptionMessage.getMessage().contains("Invalid URL:"));
 		httpCli.setUrl(URL);
 
+		// Method must be : GET/POST/PUT/DELETE or empty (default: GET)
+		httpCli.setMethod(WRONG_HTTP_METHOD);
+		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
+		assertEquals("Unknown HTTP request method: WrongMethod.", exceptionMessage.getMessage());
+		httpCli.setMethod(HTTP_GET);
+
 		// Wrong headerFile path
-		httpCli.setHeaderFile("wrong/path/header.txt");
+		httpCli.setHeaderFile(WRONG_HEADER_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
 		assertTrue(exceptionMessage.getMessage().contains("Error while reading header file"));
 
 		// Only one header (headers or headerFile) must be specified.
 		httpCli.setHeaders(HEADERS);
-		httpCli.setHeaderFile("src/test/resources/cli/header.txt");
+		httpCli.setHeaderFile(HEADER_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals("Conflict - Two headers have been configured: --http-header and --http-header-file.", exceptionMessage.getMessage());
+		assertEquals(
+			"Conflict - Two headers have been configured: --http-header and --http-header-file.",
+			exceptionMessage.getMessage()
+		);
 		httpCli.setHeaders(null);
 
 		// Wrong bodyFile path
-		httpCli.setBodyFile("wrong/path/body.txt");
+		httpCli.setBodyFile(WRONG_BODY_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
 		assertTrue(exceptionMessage.getMessage().contains("Error while reading body file"));
 
 		// Only one body (body or bodyFile) must be specified.
 		httpCli.setBody(BODY);
-		httpCli.setBodyFile("src/test/resources/cli/body.txt");
+		httpCli.setBodyFile(BODY_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals("Conflict - Two bodies have been configured: --http-body and --http-body-file.", exceptionMessage.getMessage());
+		assertEquals(
+			"Conflict - Two bodies have been configured: --http-body and --http-body-file.",
+			exceptionMessage.getMessage()
+		);
 		httpCli.setBody(null);
-
-		// Result Content must be : All, Body, Header, httpStatus or http_status
-		httpCli.setResultContent("wrongResultContent");
-		IllegalArgumentException illegalExceptionMessage = assertThrows(IllegalArgumentException.class, () -> httpCli.validate());
-		assertTrue(illegalExceptionMessage.getMessage().contains("is not a supported ResultContent"));
-		httpCli.setResultContent(RESULT_CONTENT);
 
 		assertDoesNotThrow(() -> httpCli.validate());
 	}

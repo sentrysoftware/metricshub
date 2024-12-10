@@ -776,7 +776,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	@FunctionalInterface
-	interface CliPasswordReader<R> {
+	public interface CliPasswordReader<R> {
 		/**
 		 * Applies this function to the given arguments to read a password
 		 *
