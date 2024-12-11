@@ -43,6 +43,10 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 	 */
 	private static final String IDENTIFIER = "snmpv3";
 
+	public static final String GET = "get";
+	public static final String GET_NEXT = "getNext";
+	public static final String WALK = "walk";
+
 	private SnmpV3RequestExecutor snmpV3RequestExecutor;
 
 	/**
@@ -106,7 +110,36 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 
 	@Override
 	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		final SnmpV3Configuration snmpConfiguration = (SnmpV3Configuration) configuration;
+		final String hostname = configuration.getHostname();
+		String result = "Failed Executing SNMPv3 query";
+		final String action = query.get("action").asText();
+		final String oId = query.get("oid").asText();
+
+		// Printing the SNMP request
+		printWriter.println(String.format("Hostname %s - Executing SNMPv3 %s query:", hostname, action));
+		printWriter.println(String.format("OID: %s", oId));
+		printWriter.flush();
+
+		try {
+			if (action.equals(GET)) {
+				result = snmpV3RequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(GET_NEXT)) {
+				result = snmpV3RequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(WALK)) {
+				result = snmpV3RequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
+			} else {
+				throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMPv3 Operation", hostname));
+			}
+
+			// Printing the result on the CLI
+			printWriter.print("Result: ");
+			printWriter.print(result);
+			printWriter.flush();
+		} catch (Exception e) {
+			log.debug("Hostname {} - Error while executing SNMPv3 {} query. Message: {}", hostname, action, e);
+		}
+
+		return result;
 	}
 }

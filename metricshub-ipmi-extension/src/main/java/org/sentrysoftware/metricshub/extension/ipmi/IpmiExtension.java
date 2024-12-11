@@ -262,7 +262,7 @@ public class IpmiExtension implements IProtocolExtension {
 		final String hostname = configuration.getHostname();
 		printWriter.println(String.format("Hostname %s - Executing IPMI request:", hostname));
 		final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, (IpmiConfiguration) configuration);
-		printWriter.println(String.format("Result: %s", result));
+		printWriter.println(String.format("Result: %n%s", result));
 		printWriter.flush();
 		return result;
 	}
