@@ -260,6 +260,8 @@
 								<argument>snmp=metricshub-snmp.properties</argument>
 								<argument>--add-launcher</argument>
 								<argument>Http=metricshub-http.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>Ipmi=metricshub-ipmi.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>

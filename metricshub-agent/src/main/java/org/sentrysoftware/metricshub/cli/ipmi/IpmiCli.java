@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.snmp;
+package org.sentrysoftware.metricshub.cli.ipmi;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -21,45 +21,28 @@ package org.sentrysoftware.metricshub.cli.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli.DEFAULT_TIMEOUT;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
-import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.stream.Stream;
-import lombok.Data;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.cli.service.ConsoleService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
-import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
-/**
- * A command-line interface (CLI) for executing SNMP queries.
- * <p>
- * This class supports SNMP operations such as Get, Get Next, and Walk.
- * It provides validation for configurations and query parameters
- * and integrates with the CLI extension framework to execute SNMP queries.
- * </p>
- *
- * Implements {@link IQuery} to generate SNMP-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
- */
-@Data
-public class SnmpCli implements IQuery, Callable<Integer> {
+public class IpmiCli implements IQuery, Callable<Integer> {
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -67,88 +50,92 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
-	SnmpConfigCli snmpConfigCli;
+	@Option(
+		names = "--ipmi-username",
+		order = 1,
+		paramLabel = "USER",
+		description = "Username for IPMI-over-LAN authentication"
+	)
+	private String username;
 
-	@Option(names = "--snmp-get", order = 1, paramLabel = "OID", description = "SNMP Get request")
-	String get;
+	@Option(
+		names = "--ipmi-password",
+		order = 2,
+		paramLabel = "P4SSW0RD",
+		description = "Password for IPMI-over-LAN authentication",
+		interactive = true,
+		arity = "0..1"
+	)
+	private char[] password;
 
-	@Option(names = "--snmp-getnext", order = 2, paramLabel = "OID", description = "SNMP Get Next request")
-	String getNext;
+	@Option(
+		names = "--ipmi-bmc-key",
+		order = 3,
+		paramLabel = "KEY",
+		description = "BMC key for IPMI-over-LAN two-key authentication (in hexadecimal)"
+	)
+	private String bmcKey;
 
-	@Option(names = "--snmp-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
-	String walk;
+	@Option(
+		names = "--ipmi-skip-auth",
+		order = 4,
+		defaultValue = "false",
+		description = "Skips IPMI-over-LAN authentication"
+	)
+	private boolean skipAuth;
+
+	@Option(
+		names = "--ipmi-timeout",
+		order = 5,
+		paramLabel = "TIMEOUT",
+		defaultValue = "120",
+		description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
+	)
+	private String timeout;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 4,
+		order = 6,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 5, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	@Override
 	public JsonNode getQuery() {
-		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
-		String action;
-		String oid;
-
-		if (get != null) {
-			action = "get";
-			oid = get;
-		} else if (getNext != null) {
-			action = "getNext";
-			oid = getNext;
-		} else {
-			action = "walk";
-			oid = walk;
-		}
-
-		queryNode.set("action", new TextNode(action));
-		queryNode.set("oid", new TextNode(oid));
-
-		return queryNode;
+		return null;
 	}
 
 	/**
-	 * Validates SNMP configuration and ensures exactly one query type (--snmp-get, --snmp-getnext, or --snmp-walk) is specified.
+	 * Try to start the interactive mode to request and set IPMI password
 	 *
-	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
-	void validate() throws ParameterException {
-		final long count = Stream.of(get, getNext, walk).filter(Objects::nonNull).count();
-
-		if (count == 0) {
-			throw new ParameterException(
-				spec.commandLine(),
-				"At least one SNMP query must be specified: --snmp-get, --snmp-getnext, --snmp-walk."
-			);
-		}
-
-		if (count > 1) {
-			throw new ParameterException(
-				spec.commandLine(),
-				"Only one SNMP query can be specified at a time: --snmp-get, --snmp-getnext, --snmp-walk."
-			);
+	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
+		if (username != null && password == null) {
+			password = (passwordReader.read("%s password for IPMI: ", username));
 		}
 	}
 
 	/**
-	 * Builds the default SNMP configuration for the {@code SnmpConfigCli} object.
+	 * Validates the configuration by checking if a console is available
+	 * and prompts the user for a password interactively if possible.
 	 */
-	void buildDefaultConfiguration() {
-		snmpConfigCli = new SnmpConfigCli();
-		snmpConfigCli.setSnmpVersion("v2c");
-		snmpConfigCli.setCommunity("public".toCharArray());
-		snmpConfigCli.setPort(161);
-		snmpConfigCli.setTimeout(String.valueOf(DEFAULT_TIMEOUT));
+	void validate() {
+		// Can we ask for passwords interactively?
+		final boolean interactive = ConsoleService.hasConsole();
+
+		// Password
+		if (interactive) {
+			tryInteractivePassword(System.console()::readPassword);
+		}
 	}
 
 	/**
-	 * Entry point for the SNMP CLI application. Initializes necessary configurations,
+	 * Entry point for the IPMI CLI application. Initializes necessary configurations,
 	 * processes command line arguments, and executes the CLI.
 	 *
 	 * @param args The command line arguments passed to the application.
@@ -159,7 +146,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		// Enable colors on Windows terminal
 		AnsiConsole.systemInstall();
 
-		final CommandLine cli = new CommandLine(new SnmpCli());
+		final CommandLine cli = new CommandLine(new IpmiCli());
 
 		// Keep the below line commented for future reference
 		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
@@ -190,15 +177,23 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		final PrintWriter printWriter = spec.commandLine().getOut();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("snmp")
+			.findExtensionByType("ipmi")
 			.ifPresent(extension -> {
 				try {
-					if (snmpConfigCli == null) {
-						buildDefaultConfiguration();
+					final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+					configuration.set("username", new TextNode(username));
+
+					if (password != null) {
+						configuration.set("password", new TextNode(String.valueOf(password)));
 					}
-					IConfiguration protocol = snmpConfigCli.toConfiguration(null, null);
+
+					configuration.set("timeout", new TextNode(timeout));
+					configuration.set("skipAuth", BooleanNode.valueOf(skipAuth));
+					configuration.set("bmcKey", new TextNode(bmcKey));
+
+					IConfiguration protocol = extension.buildConfiguration("ipmi", configuration, null);
 					protocol.setHostname(hostname);
-					extension.executeQuery(protocol, getQuery(), printWriter);
+					extension.executeQuery(protocol, null, printWriter);
 				} catch (Exception e) {
 					printWriter.println("Invalid configuration detected");
 					printWriter.flush();

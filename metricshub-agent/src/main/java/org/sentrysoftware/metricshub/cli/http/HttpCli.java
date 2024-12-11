@@ -397,7 +397,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 					protocol.setHostname(parsedUrl.getHost());
 					extension.executeQuery(protocol, getQuery(), printWriter);
 				} catch (Exception e) {
-					printWriter.print("HTTP - Invalid configuration detected.\n");
+					printWriter.println("HTTP - Invalid configuration detected.\n");
 					printWriter.flush();
 					throw new IllegalStateException("Invalid configuration detected.", e);
 				}

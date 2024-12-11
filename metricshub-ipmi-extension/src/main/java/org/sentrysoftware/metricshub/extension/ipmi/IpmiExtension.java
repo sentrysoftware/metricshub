@@ -259,7 +259,11 @@ public class IpmiExtension implements IProtocolExtension {
 
 	@Override
 	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		final String hostname = configuration.getHostname();
+		printWriter.println(String.format("Hostname %s - Executing IPMI request:", hostname));
+		final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, (IpmiConfiguration) configuration);
+		printWriter.println(String.format("Result: %s", result));
+		printWriter.flush();
+		return result;
 	}
 }
