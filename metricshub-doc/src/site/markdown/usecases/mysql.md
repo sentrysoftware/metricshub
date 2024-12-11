@@ -5,11 +5,13 @@ description: How to configure MetricsHub MetricsHub to monitor MySQL databases u
 
 **MetricsHub** allows you to monitor MySQL databases running either on Windows or Linux and collect the following metrics:
 
-* `db.io`: The number of bytes sent or received to/from all clients.
-* `db.connections.limit`: The number of connection attempts (successful or not) to the MySQL server.
-* `db.client.connection.count`: The number of client connections to the database
-* `db.uptime`: The total number of seconds the server has been up.
-* `db.queries`: The total number of statements executed by the server, including statements within stored programs but excluding `COM_PING` and `COM_STATISTICS` commands.
+* `db.server.io`: The number of bytes sent or received to/from all clients.
+* `db.server.connections`: The number of connection attempts (successful or not) to the database.
+* `db.server.connection.count`: The number of client connections to the database
+* `db.server.uptime`: The total number of seconds the server has been up.
+* `db.server.queries`: The total number of statements executed by the server, including statements within stored programs but excluding `COM_PING` and `COM_STATISTICS` commands
+* `db.server.tables`: The total number of tables in the database.
+
 
 ![MetricsHub collects MySQL database metrics](../images/db-metrics.png)
 
