@@ -32,12 +32,14 @@ class HttpCliTest {
 	private static final String WRONG_BODY_FILE_PATH = "wrong/path/body.txt";
 	private static final String AUTHENTICATION_TOKEN = "Q5SD7SDF2BCV8ZER4";
 	private static final String RESULT_CONTENT = "all";
-	private static final String FILE_HEADER =
-		"Content-Type: application/xml\r\n" +
-		"User-Agent: Mozilla/5.0\r\n" +
-		"Accept: text/html\r\n" +
-		"Accept-Language: en-US\r\n" +
-		"Cache-Control: no-cache";
+	private static final String FILE_HEADER = 
+		String.join("\r\n",
+			"Content-Type: application/xml",
+			"User-Agent: Mozilla/5.0",
+			"Accept: text/html",
+			"Accept-Language: en-US",
+			"Cache-Control: no-cache"
+		);
 
 	void initCli() {
 		httpCli = new HttpCli();
