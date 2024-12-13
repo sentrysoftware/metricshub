@@ -3,8 +3,8 @@ connector:
     appliesTo: Windows
 
 beforeAll:
-  oscommand1:
-    type: osCommand
+  commandLine1:
+    type: commandLine
     commandLine: myCommand
     timeout: 30
     executeLocally: true

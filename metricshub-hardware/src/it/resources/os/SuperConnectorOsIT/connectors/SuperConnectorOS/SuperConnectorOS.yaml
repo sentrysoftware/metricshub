@@ -22,7 +22,7 @@ connector:
     - VMS
     - OOB
     criteria:
-    - type: osCommand
+    - type: commandLine
       commandLine: echo Criteria testing
       expectedResult: Criteria
       errorMessage: Does not match the criteria
@@ -32,243 +32,243 @@ monitors:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Enclosure
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect Enclosure
   lun:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery LUN
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect LUN
   battery:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Battery
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect Battery
   blade:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Blade
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect Blade
   cpu:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery CPU
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect CPU
   disk_controller:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery DiskController
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo collect DiskController
   fan:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Fan
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect Fan
   led:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery LED
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect LED
   logical_disk:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery LogicalDisk
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect LogicalDisk
   memory:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Memory
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect Memory
   network:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery NetworkCard
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect NetworkCard
   other_device:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery OtherDevice
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect OtherDevice
   physical_disk:
     discovery:
       sources:
         source(1):
           # Using several source to create a tablejoint
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery PhysicalDisk
         source(2):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery PhysicalDisk
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect PhysicalDisk
   power_supply:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery PowerSupply
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect PowerSupply
   robotics:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Robotic
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect Robotic
   tape_drive:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery TapeDrive
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect TapeDrive
   temperature:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Temperature
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect Temperature
   voltage:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery Voltage
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect Voltage
   gpu:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery GPU
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect GPU
   vm:
     discovery:
       sources:
         source(1):
-          type: osCommand
+          type: commandLine
           commandLine: echo Discovery VM
     collect:
       sources:
         source(1):
           # COLLECT
-          type: osCommand
+          type: commandLine
           commandLine: echo Collect VM
