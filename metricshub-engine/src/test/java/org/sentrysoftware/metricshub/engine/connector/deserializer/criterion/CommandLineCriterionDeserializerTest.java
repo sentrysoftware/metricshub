@@ -20,18 +20,18 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/connector/detection/criteria/osCommand/";
+		return "src/test/resources/test-files/connector/detection/criteria/commandLine/";
 	}
 
 	@Test
 	/**
-	 * Checks input properties for os command detection criteria
+	 * Checks input properties for commandLine detection criteria
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeOsCommand() throws IOException {
-		final String testResource = "osCommandCriterion";
-		final Connector osCommand = getConnector(testResource);
+	void testDeserializeCommandLine() throws IOException {
+		final String testResource = "commandLineCriterion";
+		final Connector commandLineConnector = getConnector(testResource);
 
 		List<Criterion> expected = new ArrayList<>();
 
@@ -42,13 +42,13 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 		final Long timeout = 1234L;
 
 		expected.add(
-			new CommandLineCriterion("osCommand", true, commandLine, errorMessage, expectedResult, executeLocally, timeout)
+			new CommandLineCriterion("commandLine", true, commandLine, errorMessage, expectedResult, executeLocally, timeout)
 		);
 
-		assertNotNull(osCommand);
+		assertNotNull(commandLineConnector);
 
-		assertNotNull(osCommand.getConnectorIdentity().getDetection());
-		assertEquals(expected, osCommand.getConnectorIdentity().getDetection().getCriteria());
+		assertNotNull(commandLineConnector.getConnectorIdentity().getDetection());
+		assertEquals(expected, commandLineConnector.getConnectorIdentity().getDetection().getCriteria());
 	}
 
 	@Test
@@ -57,10 +57,10 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeOsCommandNoCommand() throws IOException {
+	void testDeserializeCommandLineNoCommand() throws IOException {
 		// commandLine is null
 		try {
-			getConnector("osCommandCriterionCommandLineNo");
+			getConnector("commandLineCriterionCommandLineNo");
 			Assertions.fail(MISMATCHED_EXCEPTION_MSG);
 		} catch (MismatchedInputException e) {
 			final String message = "Missing required creator property 'commandLine' (index 2)";
@@ -74,9 +74,9 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeOsCommandBlankCommand() throws IOException {
+	void testDeserializeCommandLineBlankCommand() throws IOException {
 		try {
-			getConnector("osCommandCriterionCommandLineBlank");
+			getConnector("commandLineCriterionCommandLineBlank");
 			Assertions.fail(IO_EXCEPTION_MSG);
 		} catch (IOException e) {
 			String message = "Invalid blank value encountered for property 'commandLine'.";
@@ -90,10 +90,10 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	 *
 	 * @throws IOException
 	 */
-	void testDeserializeOsCommandNullCommand() throws IOException {
+	void testDeserializeCommandLineNullCommand() throws IOException {
 		// commandLine is null
 		try {
-			getConnector("osCommandCriterionCommandLineNull");
+			getConnector("commandLineCriterionCommandLineNull");
 			Assertions.fail(INVALID_NULL_EXCEPTION_MSG);
 		} catch (InvalidNullException e) {
 			final String message = "Invalid `null` value encountered for property \"commandLine\"";
@@ -105,9 +105,9 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	/**
 	 * Checks that negative timeout throws exception
 	 */
-	void testDeserializeOsCommandNegativeTimeout() throws IOException {
+	void testDeserializeCommandLineNegativeTimeout() throws IOException {
 		try {
-			getConnector("osCommandCriterionNegativeTimeout");
+			getConnector("commandLineCriterionNegativeTimeout");
 			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
@@ -119,9 +119,9 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	/**
 	 * Checks that zero timeout throws exception
 	 */
-	void testDeserializeOsCommandZeroTimeout() throws IOException {
+	void testDeserializeCommandLineZeroTimeout() throws IOException {
 		try {
-			getConnector("osCommandCriterionZeroTimeout");
+			getConnector("commandLineCriterionZeroTimeout");
 			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid negative or zero value encountered for property 'timeout'";
@@ -133,9 +133,9 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 	/**
 	 * Checks that string timeout throws exception
 	 */
-	void testDeserializeOsCommandStringTimeout() throws IOException {
+	void testDeserializeCommandLineStringTimeout() throws IOException {
 		try {
-			getConnector("osCommandCriterionStringTimeout");
+			getConnector("commandLineCriterionStringTimeout");
 			Assertions.fail(INVALID_FORMAT_EXCEPTION_MSG);
 		} catch (InvalidFormatException e) {
 			final String message = "Invalid value encountered for property 'timeout'";
