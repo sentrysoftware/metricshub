@@ -25,7 +25,7 @@ class CommandLineCriterionDeserializerTest extends DeserializerTest {
 
 	@Test
 	/**
-	 * Checks input properties for os command detection criteria
+	 * Checks input properties for commandLine detection criteria
 	 *
 	 * @throws IOException
 	 */

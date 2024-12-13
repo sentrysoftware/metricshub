@@ -81,7 +81,7 @@ public class WbemRequestExecutor {
 		@NonNull final TelemetryManager telemetryManager
 	) throws ClientException {
 		// handle vCenter case
-		if (wbemConfig.getVCenter() != null && !wbemConfig.getVCenter().isBlank()) {
+		if (wbemConfig.getVCenter() != null) {
 			return doVCenterQuery(hostname, wbemConfig, query, namespace, telemetryManager);
 		} else {
 			return doWbemQuery(hostname, wbemConfig, query, namespace);
