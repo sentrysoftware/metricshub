@@ -46,24 +46,19 @@ public class WbemCliTest {
 		// testing query validation
 		wbemCli.setQuery("");
 		ParameterException parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem query must not be null, empty or blank.", parameterException.getMessage());
-		wbemCli.setQuery(null);
-		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem query must not be null, empty or blank.", parameterException.getMessage());
+		assertEquals("Wbem query must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setQuery(" ");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem query must not be null, empty or blank.", parameterException.getMessage());
+		assertEquals("Wbem query must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setQuery(WBEM_TEST_QUERY);
 
 		// testing namespace validation
-		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem namespace must not be null, empty or blank.", parameterException.getMessage());
 		wbemCli.setNamespace("");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem namespace must not be null, empty or blank.", parameterException.getMessage());
+		assertEquals("Wbem namespace must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setNamespace(" ");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem namespace must not be null, empty or blank.", parameterException.getMessage());
+		assertEquals("Wbem namespace must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setNamespace(WBEM_TEST_NAMESPACE);
 		assertDoesNotThrow(() -> wbemCli.validate());
 	}

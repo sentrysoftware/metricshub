@@ -720,7 +720,10 @@ class WbemExtensionTest {
 			.build();
 		final PrintWriter printWriter = new PrintWriter(new StringWriter());
 		final String result = wbemExtension.executeQuery(configuration, queryNode, printWriter);
-		final String expectedResult = TextTableHelper.generateTextTable(extractColumns(WBEM_TEST_QUERY), EXECUTE_WBEM_RESULT);
+		final String expectedResult = TextTableHelper.generateTextTable(
+			extractColumns(WBEM_TEST_QUERY),
+			EXECUTE_WBEM_RESULT
+		);
 		assertEquals(expectedResult, result);
 	}
 

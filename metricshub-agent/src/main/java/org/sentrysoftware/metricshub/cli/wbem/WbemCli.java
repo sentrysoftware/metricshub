@@ -175,11 +175,11 @@ public class WbemCli implements IQuery, Callable<Integer> {
 		}
 
 		if (query.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "Wbem query must not be blank.");
+			throw new ParameterException(spec.commandLine(), "Wbem query must not be empty nor blank.");
 		}
 
 		if (namespace.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "Wbem namespace must not be blank.");
+			throw new ParameterException(spec.commandLine(), "Wbem namespace must not be empty nor blank.");
 		}
 	}
 
