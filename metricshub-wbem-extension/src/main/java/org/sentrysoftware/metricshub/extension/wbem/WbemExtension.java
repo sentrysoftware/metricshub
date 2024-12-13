@@ -33,8 +33,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
@@ -238,8 +243,55 @@ public class WbemExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public String executeQuery(IConfiguration configuration, JsonNode queryNode, PrintWriter printWriter)
+		throws Exception {
+		final String query = queryNode.get("query").asText();
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) configuration;
+		final String namespace = wbemConfiguration.getNamespace();
+		final String hostname = configuration.getHostname();
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.configurations(Map.of(WbemConfiguration.class, configuration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		printWriter.println(
+			String.format(
+				"Hostname %s - Executing Wbem query through %s:",
+				hostname,
+				wbemConfiguration.getProtocol().toString()
+			)
+		);
+		printWriter.println(String.format("Query: %s%nNamespace: %s", query, namespace));
+		printWriter.flush();
+		final List<List<String>> result = wbemRequestExecutor.executeWbem(
+			hostname,
+			wbemConfiguration,
+			query,
+			namespace,
+			telemetryManager
+		);
+
+		final String stringResult = TextTableHelper.generateTextTable(extractColumns(query), result);
+		printWriter.println(String.format("Result: %n%s", stringResult));
+		printWriter.flush();
+		return stringResult;
+	}
+
+	/**
+	 * Extracts column names from a SQL SELECT query.
+	 *
+	 * @param sqlQuery the SQL query string
+	 * @return an array of column names, or an empty array if none are found
+	 */
+	public static String[] extractColumns(String sqlQuery) {
+		// Normalize the query by ignoring case for SELECT and FROM
+		Pattern pattern = Pattern.compile("(?i)select\\s+(.*?)\\s+from", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(sqlQuery.trim());
+
+		if (matcher.find()) {
+			return Stream.of(matcher.group(1).trim().split(",")).map(String::trim).toArray(String[]::new);
+		}
+		return new String[] {}; // Return empty if no match is found
 	}
 }

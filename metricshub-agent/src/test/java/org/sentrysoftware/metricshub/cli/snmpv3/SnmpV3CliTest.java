@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
-import org.sentrysoftware.metricshub.cli.snmpv3.SnmpV3Cli;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 

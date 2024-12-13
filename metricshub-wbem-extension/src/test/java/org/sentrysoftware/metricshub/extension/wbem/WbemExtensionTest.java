@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.extension.wbem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -14,12 +15,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
-import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.WBEM_TEST_QUERY;
+import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.extractColumns;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,9 +39,11 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.configuration.TransportProtocols;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.WbemSource;
@@ -58,6 +63,7 @@ class WbemExtensionTest {
 	private static final String PASSWORD = "testPassword";
 	private static final String WBEM_CRITERION_TYPE = "wbem";
 	private static final String WBEM_TEST_NAMESPACE = "namespace";
+	public static final String WBEM_TEST_QUERY = "SELECT Name, SerialNumber FROM CIM_NameSpace";
 
 	public static final List<List<String>> EXECUTE_WBEM_RESULT = Arrays.asList(
 		Arrays.asList("value1a", "value2a", "value3a"),
@@ -690,5 +696,55 @@ class WbemExtensionTest {
 				telemetryManager
 			)
 		);
+	}
+
+	@Test
+	void tesExecuteQuery() throws Exception {
+		initWbem();
+
+		doReturn(EXECUTE_WBEM_RESULT)
+			.when(wbemRequestExecutorSpy)
+			.executeWbem(anyString(), any(WbemConfiguration.class), anyString(), anyString(), any(TelemetryManager.class));
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(WBEM_TEST_QUERY));
+		WbemConfiguration configuration = WbemConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.timeout(120L)
+			.namespace(WBEM_TEST_NAMESPACE)
+			.vCenter("vcenter")
+			.protocol(TransportProtocols.HTTPS)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		final String result = wbemExtension.executeQuery(configuration, queryNode, printWriter);
+		final String expectedResult = TextTableHelper.generateTextTable(extractColumns(WBEM_TEST_QUERY), EXECUTE_WBEM_RESULT);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	void tesExecuteQueryThrow() throws Exception {
+		initWbem();
+
+		doThrow(ClientException.class)
+			.when(wbemRequestExecutorSpy)
+			.executeWbem(anyString(), any(WbemConfiguration.class), anyString(), anyString(), any(TelemetryManager.class));
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(WBEM_TEST_QUERY));
+		WbemConfiguration configuration = WbemConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.timeout(120L)
+			.namespace(WBEM_TEST_NAMESPACE)
+			.vCenter("vcenter")
+			.protocol(TransportProtocols.HTTPS)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		assertThrows(ClientException.class, () -> wbemExtension.executeQuery(configuration, queryNode, printWriter));
 	}
 }

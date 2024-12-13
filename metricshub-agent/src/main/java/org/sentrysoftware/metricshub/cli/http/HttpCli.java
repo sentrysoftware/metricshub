@@ -373,8 +373,8 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		final PrintWriter printWriter = spec.commandLine().getOut();
 		validate();
+		final PrintWriter printWriter = spec.commandLine().getOut();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType(HTTP)
