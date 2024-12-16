@@ -55,7 +55,6 @@ import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 		@JsonSubTypes.Type(value = CopySource.class, name = "copy"),
 		@JsonSubTypes.Type(value = HttpSource.class, name = "http"),
 		@JsonSubTypes.Type(value = IpmiSource.class, name = "ipmi"),
-		@JsonSubTypes.Type(value = CommandLineSource.class, name = "osCommand"),
 		@JsonSubTypes.Type(value = CommandLineSource.class, name = "commandLine"),
 		@JsonSubTypes.Type(value = JawkSource.class, name = "awk"),
 		@JsonSubTypes.Type(value = SnmpGetSource.class, name = "snmpGet"),

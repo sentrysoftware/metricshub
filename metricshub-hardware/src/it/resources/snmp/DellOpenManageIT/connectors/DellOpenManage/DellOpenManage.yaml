@@ -42,12 +42,12 @@ monitors:
             valueList: 1
             # Add "Serial Number: " to the ServiceTag column
             # ID;Model;ServiceTag;ServiceCode;
-          - type: leftConcat
+          - type: prepend
             column: 3
             value: "Serial Number: "
             # Add "Alternative Serial Number: " to the ServiceCode column
             # ID;Model;ServiceTag;ServiceCode;
-          - type: leftConcat
+          - type: prepend
             column: 4
             value: "Alternative Serial Number: "
         source(2):
@@ -488,13 +488,13 @@ monitors:
             # Add "Part Number: " to the part number column
             # Add "Alternative Serial Number: " to the AssetTagName column
             # ID;type;location;sizeMB;manufacturer;PartNumber;SerialNumber;AssetTagName;
-          - type: leftConcat
+          - type: prepend
             column: 3
             value: "Location: Slot "
-          - type: leftConcat
+          - type: prepend
             column: 6
             value: "Part Number: "
-          - type: leftConcat
+          - type: prepend
             column: 8
             value: "Alternative Serial Number: "
       mapping:
@@ -586,10 +586,10 @@ monitors:
             existingValue: Intel
             newValue: ""
           # ID;vendor;modelCode;nominalSpeed;processorDeviceBrandName;
-          - type: leftConcat
+          - type: prepend
             column: 5
             value: MSHW
-          - type: rightConcat
+          - type: append
             column: 5
             value: MSHW
           # Replace \"MSHWMSHW\", i.e. a blank column with the modelCode.
@@ -612,7 +612,7 @@ monitors:
           computes:
             # Add "Location: " to the Location column
             # ID;Location;
-          - type: leftConcat
+          - type: prepend
             column: 2
             value: "Location: Slot "
         source(3):
@@ -698,7 +698,7 @@ monitors:
           computes:
             # Add "ESM" and "EventLog" as �nd and 3rd columns
             # DeviceID;DeviceType;AdditionalLabel
-          - type: rightConcat
+          - type: append
             column: 1
             value: ;ESM;EventLog
         source(2):
@@ -722,12 +722,12 @@ monitors:
           computes:
             # Make the ID Unique
             # DeviceID;DeviceType;
-          - type: leftConcat
+          - type: prepend
             column: 1
             value: SDCardUnit-
             # Add a BlankColumn
             # DeviceID;DeviceType;AdditionalLabel;
-          - type: rightConcat
+          - type: append
             column: 2
             value: ;
         source(4):
@@ -739,17 +739,17 @@ monitors:
           computes:
             # Make the ID Unique
             # DeviceID;DeviceType;Size;
-          - type: leftConcat
+          - type: prepend
             column: 1
             value: SDCardDevice-
             # Add "Size : " to the Size Column
             # DeviceID;DeviceType;Size;
-          - type: leftConcat
+          - type: prepend
             column: 3
             value: "Size : "
             # Add "MB" to Size Column, and add a BlankColumn
             # DeviceID;DeviceType;Size;AdditionalLabel;
-          - type: rightConcat
+          - type: append
             column: 3
             value: ' MB ;'
         source(5):
@@ -799,7 +799,7 @@ monitors:
           computes:
             # Make the ID Unique
             # DeviceID;Status;
-          - type: leftConcat
+          - type: prepend
             column: 1
             value: SDCardUnit-
         source(4):
@@ -811,7 +811,7 @@ monitors:
           computes:
             # Make the ID Unique
             # DeviceID;Status;
-          - type: leftConcat
+          - type: prepend
             column: 1
             value: SDCardDevice-
         source(5):

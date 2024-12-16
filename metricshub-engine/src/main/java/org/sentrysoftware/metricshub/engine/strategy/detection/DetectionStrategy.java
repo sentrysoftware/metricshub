@@ -285,7 +285,7 @@ public class DetectionStrategy extends AbstractStrategy {
 	}
 
 	/**
-	 * Verify the given set of sources instances to check if they are OsCommandSources
+	 * Verify the given set of sources instances to check if they are CommandLineSources
 	 *
 	 * @param sourceTypes Connector source types
 	 */
