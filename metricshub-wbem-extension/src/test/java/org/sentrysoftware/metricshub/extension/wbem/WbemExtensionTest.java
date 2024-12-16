@@ -15,7 +15,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mockStatic;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.AUTOMATIC_NAMESPACE;
-import static org.sentrysoftware.metricshub.extension.wbem.WbemExtension.extractColumns;
 
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -721,7 +720,7 @@ class WbemExtensionTest {
 		final PrintWriter printWriter = new PrintWriter(new StringWriter());
 		final String result = wbemExtension.executeQuery(configuration, queryNode, printWriter);
 		final String expectedResult = TextTableHelper.generateTextTable(
-			extractColumns(WBEM_TEST_QUERY),
+			TextTableHelper.extractColumns(WBEM_TEST_QUERY),
 			EXECUTE_WBEM_RESULT
 		);
 		assertEquals(expectedResult, result);

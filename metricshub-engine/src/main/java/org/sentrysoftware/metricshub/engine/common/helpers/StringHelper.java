@@ -265,4 +265,14 @@ public class StringHelper {
 		isTrue(value != null && !value.isEmpty(), "Input string must not be null or empty.");
 		return value.isBlank() ? value : "(?i)" + Pattern.quote(value);
 	}
+
+	/**
+	 * Formats the given string in italic using ANSI escape codes.
+	 *
+	 * @param value the string to format
+	 * @return the formatted string with ANSI italic escape codes applied
+	 */
+	public static String italicString(final String value) {
+		return String.format("\u001B[3m%s\u001B[0m", value);
+	}
 }
