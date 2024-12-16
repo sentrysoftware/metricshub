@@ -95,6 +95,9 @@ public class AgentConfig {
 
 	private boolean sequential;
 
+	@Default
+	private boolean enableSelfMonitoring = Boolean.TRUE;
+
 	private boolean resolveHostnameToFqdn;
 
 	@JsonSetter(nulls = SKIP)

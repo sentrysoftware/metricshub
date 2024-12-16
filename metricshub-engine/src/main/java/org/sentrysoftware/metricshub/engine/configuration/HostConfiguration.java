@@ -60,6 +60,7 @@ public class HostConfiguration {
 
 	private Set<String> connectors;
 	private boolean sequential;
+	private Boolean enableSelfMonitoring;
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
 

@@ -58,6 +58,7 @@ public class ResourceGroupConfig {
 	private Integer discoveryCycle;
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;
+	private Boolean enableSelfMonitoring;
 	private Boolean resolveHostnameToFqdn;
 
 	@JsonSetter(nulls = SKIP)

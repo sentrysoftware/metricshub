@@ -35,6 +35,7 @@ resolveHostnameToFqdn: false
 resourceGroups:
     # Resource Group identifier
   sentry-paris:
+    enableSelfMonitoring: false
     # Adds additional static attributes to all the resources in the group.
     attributes:
       site: Sentry-Paris
