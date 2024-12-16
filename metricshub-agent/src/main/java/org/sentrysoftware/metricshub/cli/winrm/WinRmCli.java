@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.wmi;
+package org.sentrysoftware.metricshub.cli.winrm;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -22,10 +22,13 @@ package org.sentrysoftware.metricshub.cli.wmi;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.concurrent.Callable;
 import lombok.Data;
 import org.fusesource.jansi.Ansi;
@@ -44,22 +47,30 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * A command-line interface (CLI) for executing WMI queries.
+ * A command-line interface (CLI) for executing WinRm queries.
  * <p>
- * This class supports WMI operations. It provides validation for configurations
- * and query parameters and integrates with the CLI extension framework to execute WMI queries.
+ * This class supports WinRm operations. It provides validation for configurations
+ * and query parameters and integrates with the CLI extension framework to execute WinRm queries.
  * </p>
  *
- * Implements {@link IQuery} to generate WMI-specific query JSON
+ * Implements {@link IQuery} to generate WinRm-specific query JSON
  * and {@link Callable} to support execution via a command-line tool.
  */
 @Data
-public class WmiCli implements IQuery, Callable<Integer> {
+public class WinRmCli implements IQuery, Callable<Integer> {
 
 	/**
-	 * Default timeout in seconds for a WMI operation
+	 * Default timeout in seconds for a WinRM operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
+	/**
+	 * Default Http Port
+	 */
+	public static final Integer DEFAULT_HTTP_PORT = 5985;
+	/**
+	 * Default Https port
+	 */
+	public static final Integer DEFAULT_HTTPS_PORT = 5986;
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -67,61 +78,86 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	/**
-	 * Username for WMI authentication
-	 */
-	@Option(names = "--wmi-username", order = 1, paramLabel = "USER", description = "Username for WMI authentication")
+	@Option(
+		names = "--winrm-transport",
+		order = 1,
+		paramLabel = "HTTP|HTTPS",
+		defaultValue = "HTTP",
+		description = "Transport protocol for WinRM (default: ${DEFAULT-VALUE})"
+	)
+	private String protocol;
+
+	@Option(
+		names = { "--winrm-username" },
+		order = 2,
+		paramLabel = "USER",
+		description = "Username for WinRM authentication"
+	)
 	private String username;
 
-	/**
-	 * Password for WMI authentication
-	 */
 	@Option(
-		names = "--wmi-password",
-		order = 2,
+		names = { "--winrm-password" },
+		order = 3,
 		paramLabel = "P4SSW0RD",
-		description = "Password for WMI authentication",
-		interactive = true,
-		arity = "0..1"
+		description = "Password for the WinRM authentication",
+		arity = "0..1",
+		interactive = true
 	)
 	private char[] password;
 
-	/**
-	 * Timeout in seconds for WMI operations
-	 */
 	@Option(
-		names = "--wmi-timeout",
-		order = 3,
+		names = "--winrm-port",
+		order = 4,
+		paramLabel = "PORT",
+		description = "Port for WinRM service (default: 5985 for HTTP, 5986 for HTTPS)"
+	)
+	private Integer port;
+
+	@Option(
+		names = "--winrm-timeout",
+		order = 5,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for WMI operations (default: ${DEFAULT-VALUE} s)"
+		description = "Timeout in seconds for WinRM operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
 
-	@Option(names = "--wmi-query", required = true, order = 4, paramLabel = "QUERY", description = "WMI query to execute")
+	@Option(
+		names = "--winrm-auth",
+		description = "Comma-separated ordered list of authentication schemes." +
+		" Possible values are NTLM and KERBEROS. By default, only NTLM is used",
+		order = 6,
+		paramLabel = "AUTH",
+		split = ","
+	)
+	private List<String> authentications;
+
+	@Option(
+		names = "--winrm-query",
+		required = true,
+		order = 7,
+		paramLabel = "QUERY",
+		description = "WinRm query to execute"
+	)
 	private String query;
 
-	/**
-	 * Forces a specific namespace for connectors that perform namespace auto-detection
-	 */
 	@Option(
-		names = "--wmi-namespace",
-		required = true,
-		order = 5,
+		names = { "--winrm-namespace" },
+		order = 8,
 		paramLabel = "NAMESPACE",
-		description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
+		description = "Forces a specific namespace for connectors that perform namespace auto-detection (advanced)"
 	)
 	private String namespace;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 6,
+		order = 9,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	@Override
@@ -148,27 +184,27 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		}
 
 		if (query.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "WMI query must not be empty nor blank.");
+			throw new ParameterException(spec.commandLine(), "WinRm query must not be empty nor blank.");
 		}
 
 		if (namespace.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "WMI namespace must not be empty nor blank.");
+			throw new ParameterException(spec.commandLine(), "WinRm namespace must not be empty nor blank.");
 		}
 	}
 
 	/**
-	 * Try to start the interactive mode to request and set WMI password
+	 * Try to start the interactive mode to request and set WinRm password
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for WMI: ", username));
+			password = (passwordReader.read("%s password for WinRm: ", username));
 		}
 	}
 
 	/**
-	 * Entry point for the WMI CLI application. Initializes necessary configurations,
+	 * Entry point for the WinRm CLI application. Initializes necessary configurations,
 	 * processes command line arguments, and executes the CLI.
 	 *
 	 * @param args The command line arguments passed to the application.
@@ -179,7 +215,7 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		// Enable colors on Windows terminal
 		AnsiConsole.systemInstall();
 
-		final CommandLine cli = new CommandLine(new WmiCli());
+		final CommandLine cli = new CommandLine(new WinRmCli());
 
 		// Keep the below line commented for future reference
 		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
@@ -209,16 +245,25 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		final PrintWriter printWriter = spec.commandLine().getOut();
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("wmi")
+			.findExtensionByType("winrm")
 			.ifPresent(extension -> {
 				try {
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
 					// Build configuration with necessary parameters
+					configurationNode.set("protocol", new TextNode(protocol));
 					configurationNode.set("username", new TextNode(username));
 					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					configurationNode.set("port", new IntNode(getOrDeducePortNumber()));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
+
+					if (authentications != null) {
+						final ArrayNode authenticationsNode = JsonNodeFactory.instance.arrayNode();
+						authentications.stream().forEach(authenticationsNode::add);
+						configurationNode.set("authentications", authenticationsNode);
+					}
+
 					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
 					configuration.setHostname(hostname);
 
@@ -227,10 +272,19 @@ public class WmiCli implements IQuery, Callable<Integer> {
 					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
 					displayResult(printWriter, result);
 				} catch (Exception e) {
-					throw new IllegalStateException("Failed to execute WMI query.\n", e);
+					throw new IllegalStateException("Failed to execute WinRm query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
+	}
+
+	protected int getOrDeducePortNumber() {
+		if (port != null) {
+			return port;
+		} else if ("https".equals(protocol)) {
+			return DEFAULT_HTTPS_PORT;
+		}
+		return DEFAULT_HTTP_PORT;
 	}
 
 	/**
@@ -239,7 +293,7 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	 * @param printWriter the output writer
 	 */
 	void displayQuery(PrintWriter printWriter) {
-		printWriter.println("Executing WMI request.");
+		printWriter.println("Executing WinRm request.");
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.flush();
