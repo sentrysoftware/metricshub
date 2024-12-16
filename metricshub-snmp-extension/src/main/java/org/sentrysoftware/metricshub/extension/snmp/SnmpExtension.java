@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.extension.snmp;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.PrintWriter;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -41,6 +42,10 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	 * The identifier for the Snmp protocol.
 	 */
 	private static final String IDENTIFIER = "snmp";
+
+	public static final String GET = "get";
+	public static final String GET_NEXT = "getNext";
+	public static final String WALK = "walk";
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
@@ -96,5 +101,40 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	@Override
 	protected AbstractSnmpRequestExecutor getRequestExecutor() {
 		return snmpRequestExecutor;
+	}
+
+	@Override
+	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		String result = "Failed Executing SNMP query";
+		final String action = query.get("action").asText();
+		final String oId = query.get("oid").asText();
+
+		// Printing the SNMP request
+		printWriter.println(String.format("Hostname %s - Executing SNMP %s query:", hostname, action));
+		printWriter.println(String.format("OID: %s", oId));
+		printWriter.flush();
+
+		try {
+			if (action.equals(GET)) {
+				result = snmpRequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(GET_NEXT)) {
+				result = snmpRequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
+			} else if (action.equals(WALK)) {
+				result = snmpRequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
+			} else {
+				throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMP Operation", hostname));
+			}
+
+			// Printing the result on the CLI
+			printWriter.print("Result: ");
+			printWriter.print(result);
+			printWriter.flush();
+		} catch (Exception e) {
+			log.debug("Hostname {} - Error while executing SNMP {} query. Message: {}", hostname, action, e);
+		}
+
+		return result;
 	}
 }

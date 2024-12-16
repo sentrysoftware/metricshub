@@ -1,8 +1,10 @@
-package org.sentrysoftware.metricshub.extension.snmp;
+package org.sentrysoftware.metricshub.engine.common;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub SNMP Extension
+ * MetricsHub Engine
  * ჻჻჻჻჻჻
  * Copyright 2023 - 2024 Sentry Software
  * ჻჻჻჻჻჻
@@ -21,32 +23,14 @@ package org.sentrysoftware.metricshub.extension.snmp;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.io.IOException;
-import org.sentrysoftware.snmp.client.SnmpClient;
-
 /**
- * The SnmpRequestExecutor class extends {@link AbstractSnmpRequestExecutor} and provides utility methods
- * for executing various SNMP requests on local or remote hosts.
+ * Represents a query to be executed by an extension.
  */
-public class SnmpRequestExecutor extends AbstractSnmpRequestExecutor {
-
-	@Override
-	protected SnmpClient createSnmpClient(ISnmpConfiguration protocol, String hostname) throws IOException {
-		final SnmpConfiguration snmpConfig = (SnmpConfiguration) protocol;
-
-		return new SnmpClient(
-			hostname,
-			snmpConfig.getPort(),
-			snmpConfig.getIntVersion(),
-			snmpConfig.getRetryIntervals(),
-			String.valueOf(snmpConfig.getCommunity()),
-			null,
-			null,
-			null,
-			null,
-			null,
-			null,
-			null
-		);
-	}
+public interface IQuery {
+	/**
+	 * Builds and returns the query as a JSON object.
+	 *
+	 * @return the query as a {@link JsonNode}.
+	 */
+	JsonNode getQuery();
 }
