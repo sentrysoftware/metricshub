@@ -266,6 +266,8 @@
 								<argument>SnmpV3=metricshub-snmpv3.properties</argument>
 								<argument>--add-launcher</argument>
 								<argument>Wbem=metricshub-wbem.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>Wmi=metricshub-wmi.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>

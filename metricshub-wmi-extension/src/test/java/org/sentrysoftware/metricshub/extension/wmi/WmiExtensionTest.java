@@ -17,6 +17,8 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -71,6 +74,11 @@ class WmiExtensionTest {
 	private static final String WQL = "SELECT Name from Win32_Process WHERE Name = 'MetricsHub'";
 	private static final String COMMAND_LINE =
 		"naviseccli -User %{USERNAME} -Password %{PASSWORD} -Address %{HOSTNAME} -Scope 1 getagent";
+	public static final List<List<String>> EXECUTE_WMI_RESULT = Arrays.asList(
+		Arrays.asList("value1a", "value2a", "value3a"),
+		Arrays.asList("value1b", "value2b", "value3b")
+	);
+	private static final String WMI_TEST_NAMESPACE = "namespace";
 
 	@Mock
 	private WmiRequestExecutor wmiRequestExecutorMock;
@@ -498,5 +506,54 @@ class WmiExtensionTest {
 		String identifier = wmiExtension.getIdentifier();
 
 		assertEquals("wmi", identifier);
+	}
+
+	@Test
+	void tesExecuteQuery() throws Exception {
+		initWmi();
+
+		doReturn(EXECUTE_WMI_RESULT)
+			.when(wmiRequestExecutorMock)
+			.executeWmi(anyString(), any(WmiConfiguration.class), anyString(), anyString());
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(WQL));
+		WmiConfiguration configuration = WmiConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD)
+			.timeout(120L)
+			.namespace(WMI_TEST_NAMESPACE)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		final String result = wmiExtension.executeQuery(configuration, queryNode, printWriter);
+		final String expectedResult = TextTableHelper.generateTextTable(
+			TextTableHelper.extractColumns(WQL),
+			EXECUTE_WMI_RESULT
+		);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	void tesExecuteQueryThrow() throws Exception {
+		initWmi();
+
+		doThrow(ClientException.class)
+			.when(wmiRequestExecutorMock)
+			.executeWmi(anyString(), any(WmiConfiguration.class), anyString(), anyString());
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(WQL));
+		WmiConfiguration configuration = WmiConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD)
+			.timeout(120L)
+			.namespace(WMI_TEST_NAMESPACE)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		assertThrows(ClientException.class, () -> wmiExtension.executeQuery(configuration, queryNode, printWriter));
 	}
 }

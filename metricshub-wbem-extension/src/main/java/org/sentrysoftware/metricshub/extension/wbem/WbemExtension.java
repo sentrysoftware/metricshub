@@ -33,9 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
@@ -272,26 +269,9 @@ public class WbemExtension implements IProtocolExtension {
 			telemetryManager
 		);
 
-		final String stringResult = TextTableHelper.generateTextTable(extractColumns(query), result);
+		final String stringResult = TextTableHelper.generateTextTable(TextTableHelper.extractColumns(query), result);
 		printWriter.println(String.format("Result: %n%s", stringResult));
 		printWriter.flush();
 		return stringResult;
-	}
-
-	/**
-	 * Extracts column names from a SQL SELECT query.
-	 *
-	 * @param sqlQuery the SQL query string
-	 * @return an array of column names, or an empty array if none are found
-	 */
-	public static String[] extractColumns(String sqlQuery) {
-		// Normalize the query by ignoring case for SELECT and FROM
-		Pattern pattern = Pattern.compile("(?i)select\\s+(.*?)\\s+from", Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(sqlQuery.trim());
-
-		if (matcher.find()) {
-			return Stream.of(matcher.group(1).trim().split(",")).map(String::trim).toArray(String[]::new);
-		}
-		return new String[] {}; // Return empty if no match is found
 	}
 }
