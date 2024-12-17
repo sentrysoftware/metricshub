@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -47,6 +51,10 @@ class JdbcExtensionTest {
 	private static final char[] PASSWORD = "password".toCharArray();
 	private static final String USERNAME = "user";
 	private static final String SQL_QUERY = "SELECT 1";
+	public static final List<List<String>> SQL_RESULT = Arrays.asList(
+		Arrays.asList("value1a", "value2a", "value3a"),
+		Arrays.asList("value1b", "value2b", "value3b")
+	);
 
 	@Mock
 	private SqlRequestExecutor sqlRequestExecutorMock;
@@ -319,5 +327,52 @@ class JdbcExtensionTest {
 	@Test
 	void testIsSupportedConfigurationTypeForUnsupportedType() {
 		assertFalse(jdbcExtension.isSupportedConfigurationType("unsupported_type"));
+	}
+
+	@Test
+	void tesExecuteQuery() throws Exception {
+		initSql();
+
+		doReturn(SQL_RESULT)
+			.when(sqlRequestExecutorMock)
+			.executeSql(anyString(), any(JdbcConfiguration.class), anyString(), anyBoolean());
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(SQL_QUERY));
+		JdbcConfiguration configuration = JdbcConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD)
+			.timeout(120L)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		final String result = jdbcExtension.executeQuery(configuration, queryNode, printWriter);
+		final String expectedResult = TextTableHelper.generateTextTable(
+			TextTableHelper.extractColumns(SQL_QUERY),
+			SQL_RESULT
+		);
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	void tesExecuteQueryThrow() throws Exception {
+		initSql();
+
+		doThrow(ClientException.class)
+			.when(sqlRequestExecutorMock)
+			.executeSql(anyString(), any(JdbcConfiguration.class), anyString(), anyBoolean());
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("query", new TextNode(SQL_QUERY));
+		JdbcConfiguration configuration = JdbcConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD)
+			.timeout(120L)
+			.build();
+		final PrintWriter printWriter = new PrintWriter(new StringWriter());
+		assertThrows(ClientException.class, () -> jdbcExtension.executeQuery(configuration, queryNode, printWriter));
 	}
 }

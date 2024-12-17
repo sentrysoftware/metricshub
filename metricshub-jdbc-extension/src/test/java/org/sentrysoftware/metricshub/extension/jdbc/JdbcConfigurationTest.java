@@ -33,6 +33,7 @@ class JdbcConfigurationTest {
 			.type("mysql")
 			.database("testdb")
 			.hostname("localhost")
+			.username("")
 			.build();
 
 		Exception exception = assertThrows(
@@ -41,7 +42,7 @@ class JdbcConfigurationTest {
 		);
 
 		assertEquals(
-			"Resource resourceKey - No username configured for JDBC. " +
+			"Resource resourceKey - Username value is invalid for JDBC. " +
 			"This resource will not be monitored. Please verify the configured username value.",
 			exception.getMessage()
 		);
