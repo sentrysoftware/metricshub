@@ -258,15 +258,28 @@ class ConfigHelperTest {
 	}
 
 	@Test
+	void testEnableSelfMonitoringWithTopLevelResources() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(TOP_LEVEL_RESOURCES_CONFIG_PATH);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		// Check self monitoring configuration for top-level resources
+		assertFalse(agentConfig.getResources().get("server-2").getEnableSelfMonitoring());
+	}
+
+	@Test
 	void testEnableSelfMonitoringOnlyGlobalConfiguration() throws IOException {
 		// Find the configuration file
 		final File configFile = ConfigHelper.findConfigFile(TEST_CONFIG_FILE_PATH);
-
-		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
-		final Connector connector = new Connector();
-		connector.getOrCreateConnectorIdentity().setCompiledFilename(PURE_STORAGE_REST_CONNECTOR_ID);
-		connectorStore.addOne(PURE_STORAGE_REST_CONNECTOR_ID, connector);
 
 		// Create the agent configuration
 		final AgentConfig agentConfig = JsonHelper.deserialize(
@@ -291,12 +304,6 @@ class ConfigHelperTest {
 			"src/test/resources/config/metricshub-enable-self-monitoring-override.yaml"
 		);
 
-		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
-		final Connector connector = new Connector();
-		connector.getOrCreateConnectorIdentity().setCompiledFilename(PURE_STORAGE_REST_CONNECTOR_ID);
-		connectorStore.addOne(PURE_STORAGE_REST_CONNECTOR_ID, connector);
-
 		// Create the agent configuration
 		final AgentConfig agentConfig = JsonHelper.deserialize(
 			AgentContext.newAgentConfigObjectMapper(extensionManager),
@@ -319,12 +326,6 @@ class ConfigHelperTest {
 		final File configFile = ConfigHelper.findConfigFile(
 			"src/test/resources/config/metricshub-enable-self-monitoring-no-config.yaml"
 		);
-
-		// Create the connector store
-		final ConnectorStore connectorStore = new ConnectorStore(Path.of("src/test/resources"));
-		final Connector connector = new Connector();
-		connector.getOrCreateConnectorIdentity().setCompiledFilename(PURE_STORAGE_REST_CONNECTOR_ID);
-		connectorStore.addOne(PURE_STORAGE_REST_CONNECTOR_ID, connector);
 
 		// Create the agent configuration
 		final AgentConfig agentConfig = JsonHelper.deserialize(

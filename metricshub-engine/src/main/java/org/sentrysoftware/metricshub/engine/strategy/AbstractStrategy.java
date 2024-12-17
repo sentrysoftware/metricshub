@@ -523,12 +523,10 @@ public abstract class AbstractStrategy implements IStrategy {
 		final long startTime,
 		final long endTime
 	) {
-		// Retrieve the value of enableSelfMonitoring flag
-		final Boolean isSelfMonitoringEnabled = telemetryManager.getHostConfiguration().getEnableSelfMonitoring();
 		// If the enableSelfMonitoring flag is set to true, or it's not configured at all,
 		// set the job duration metric on the monitor. Otherwise, don't set it.
 		// By default, self monitoring is enabled
-		if (isSelfMonitoringEnabled == null || Boolean.TRUE.equals(isSelfMonitoringEnabled)) {
+		if (telemetryManager.getHostConfiguration().isEnableSelfMonitoring()) {
 			final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
 			final MetricFactory metricFactory = new MetricFactory();
 			// Collect the job duration metric

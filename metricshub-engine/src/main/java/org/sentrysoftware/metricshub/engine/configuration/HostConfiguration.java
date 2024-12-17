@@ -60,7 +60,10 @@ public class HostConfiguration {
 
 	private Set<String> connectors;
 	private boolean sequential;
-	private Boolean enableSelfMonitoring;
+
+	@Default
+	private boolean enableSelfMonitoring = true;
+
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
 
