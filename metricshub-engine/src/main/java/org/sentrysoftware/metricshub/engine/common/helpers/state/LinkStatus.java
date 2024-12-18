@@ -71,6 +71,10 @@ public enum LinkStatus implements IState {
 		"failed",
 		UNPLUGGED,
 		"unplugged",
+		UNPLUGGED,
+		"warn",
+		UNPLUGGED,
+		"alarm",
 		UNPLUGGED
 	);
 
@@ -78,7 +82,7 @@ public enum LinkStatus implements IState {
 	 * Interpret the specified state value:
 	 *  <ul>
 	 *  	<li>{0, ok, plugged} as Plugged</li>
-	 *  	<li>{1, degraded, failed, 2, unplugged} as Unplugged</li>
+	 *  	<li>{1, degraded, failed, 2, unplugged, warn, alarm} as Unplugged</li>
 	 *  </ul>
 	 * @param state String to be interpreted
 	 * @return {@link Optional} of {@link LinkStatus}
