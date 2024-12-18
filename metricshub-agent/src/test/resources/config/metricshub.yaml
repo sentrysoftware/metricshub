@@ -25,6 +25,9 @@ alertingSystem:
 # Forces all the network calls to be executed in sequential order for all the monitored resources - NOT RECOMMENDED (Default: false).
 sequential: false
 
+# Enables or disables the self monitoring (e.g: job duration metrics reporting)
+enableSelfMonitoring: true
+
 # Displays the configured host.name attribute in the Host Resource `host.name` attribute instead of the resolved FQDN (Default: false).
 resolveHostnameToFqdn: false
 

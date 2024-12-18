@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.agent.helper;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +14,7 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.DEFAULT_
 import static org.sentrysoftware.metricshub.agent.helper.ConfigHelper.TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SENTRY_PARIS_RESOURCE_GROUP_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SERVER_1_RESOURCE_GROUP_KEY;
+import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TEST_CONFIG_FILE_PATH;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.TOP_LEVEL_RESOURCES_CONFIG_PATH;
 
 import java.io.File;
@@ -252,6 +254,92 @@ class ConfigHelperTest {
 		assertEquals(
 			agentConfig.getResources().get("server-2").getAttributes().get(MetricsHubConstants.HOST_NAME),
 			topLevelhostConfiguration.getHostname()
+		);
+	}
+
+	@Test
+	void testEnableSelfMonitoringWithTopLevelResources() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(TOP_LEVEL_RESOURCES_CONFIG_PATH);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		// Check self monitoring configuration for top-level resources
+		assertFalse(agentConfig.getResources().get("server-2").getEnableSelfMonitoring());
+	}
+
+	@Test
+	void testEnableSelfMonitoringOnlyGlobalConfiguration() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(TEST_CONFIG_FILE_PATH);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		// Check self monitoring configuration
+		assertTrue(
+			agentConfig.getResourceGroups().get("sentry-paris").getResources().get("server-1").getEnableSelfMonitoring()
+		);
+	}
+
+	@Test
+	void testEnableSelfMonitoringConfigurationOverride() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(
+			"src/test/resources/config/metricshub-enable-self-monitoring-override.yaml"
+		);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		// Check self monitoring configuration
+		assertFalse(
+			agentConfig.getResourceGroups().get("sentry-paris").getResources().get("server-1").getEnableSelfMonitoring()
+		);
+	}
+
+	@Test
+	void testEnableSelfMonitoringNoConfiguration() throws IOException {
+		// Find the configuration file
+		final File configFile = ConfigHelper.findConfigFile(
+			"src/test/resources/config/metricshub-enable-self-monitoring-no-config.yaml"
+		);
+
+		// Create the agent configuration
+		final AgentConfig agentConfig = JsonHelper.deserialize(
+			AgentContext.newAgentConfigObjectMapper(extensionManager),
+			new FileInputStream(configFile),
+			AgentConfig.class
+		);
+
+		// Normalize agent configuration
+		ConfigHelper.normalizeAgentConfiguration(agentConfig);
+
+		// Check self monitoring configuration
+		assertTrue(
+			agentConfig.getResourceGroups().get("sentry-paris").getResources().get("server-1").getEnableSelfMonitoring()
 		);
 	}
 

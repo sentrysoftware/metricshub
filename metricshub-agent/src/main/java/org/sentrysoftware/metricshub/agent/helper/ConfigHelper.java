@@ -498,6 +498,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(agentConfig.isSequential());
 		}
 
+		// Set global enableSelfMonitoring flag in the resource configuration
+		if (resourceConfig.getEnableSelfMonitoring() == null) {
+			resourceConfig.setEnableSelfMonitoring(agentConfig.isEnableSelfMonitoring());
+		}
+
 		// Set agent configuration's monitors filter in the resource configuration
 		if (resourceConfig.getMonitorFilters() == null) {
 			resourceConfig.setMonitorFilters(agentConfig.getMonitorFilters());
@@ -586,6 +591,11 @@ public class ConfigHelper {
 			resourceConfig.setSequential(resourceGroupConfig.getSequential());
 		}
 
+		// Set resource group configuration's enableSelfMonitoring flag in the resource configuration
+		if (resourceConfig.getEnableSelfMonitoring() == null) {
+			resourceConfig.setEnableSelfMonitoring(resourceGroupConfig.getEnableSelfMonitoring());
+		}
+
 		// Set resource group configuration's monitors filter in the resource configuration
 		if (resourceConfig.getMonitorFilters() == null) {
 			resourceConfig.setMonitorFilters(resourceGroupConfig.getMonitorFilters());
@@ -668,6 +678,11 @@ public class ConfigHelper {
 		// Set global sequential flag in the resource group configuration
 		if (resourceGroupConfig.getSequential() == null) {
 			resourceGroupConfig.setSequential(agentConfig.isSequential());
+		}
+
+		// Set global enableSelfMonitoring flag in the resource group configuration
+		if (resourceGroupConfig.getEnableSelfMonitoring() == null) {
+			resourceGroupConfig.setEnableSelfMonitoring(agentConfig.isEnableSelfMonitoring());
 		}
 
 		// Set global configuration's monitors filter in the resource group configuration
@@ -1081,6 +1096,7 @@ public class ConfigHelper {
 			.hostId(hostId)
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.enableSelfMonitoring(Boolean.TRUE.equals(resourceConfig.getEnableSelfMonitoring()))
 			.includedMonitors(includedMonitors)
 			.excludedMonitors(excludedMonitors)
 			.configuredConnectorId(configuredConnectorId)

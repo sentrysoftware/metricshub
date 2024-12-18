@@ -523,23 +523,28 @@ public abstract class AbstractStrategy implements IStrategy {
 		final long startTime,
 		final long endTime
 	) {
-		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
-		final MetricFactory metricFactory = new MetricFactory();
-		// Collect the job duration metric
-		final String jobDurationMetricKey = new StringBuilder()
-			.append("metricshub.job.duration{job.type=\"")
-			.append(jobName)
-			.append("\", monitor.type=\"")
-			.append(monitorType)
-			.append("\", connector_id=\"")
-			.append(connectorId)
-			.append("\"}")
-			.toString();
-		metricFactory.collectNumberMetric(
-			endpointHostMonitor,
-			jobDurationMetricKey,
-			(endTime - startTime) / 1000.0, // Job duration in seconds
-			strategyTime
-		);
+		// If the enableSelfMonitoring flag is set to true, or it's not configured at all,
+		// set the job duration metric on the monitor. Otherwise, don't set it.
+		// By default, self monitoring is enabled
+		if (telemetryManager.getHostConfiguration().isEnableSelfMonitoring()) {
+			final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+			final MetricFactory metricFactory = new MetricFactory();
+			// Collect the job duration metric
+			final String jobDurationMetricKey = new StringBuilder()
+				.append("metricshub.job.duration{job.type=\"")
+				.append(jobName)
+				.append("\", monitor.type=\"")
+				.append(monitorType)
+				.append("\", connector_id=\"")
+				.append(connectorId)
+				.append("\"}")
+				.toString();
+			metricFactory.collectNumberMetric(
+				endpointHostMonitor,
+				jobDurationMetricKey,
+				(endTime - startTime) / 1000.0, // Job duration in seconds
+				strategyTime
+			);
+		}
 	}
 }
