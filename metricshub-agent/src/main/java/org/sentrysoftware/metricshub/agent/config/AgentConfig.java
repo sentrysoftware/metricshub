@@ -96,7 +96,7 @@ public class AgentConfig {
 	private boolean sequential;
 
 	@Default
-	private boolean enableSelfMonitoring = Boolean.TRUE;
+	private boolean enableSelfMonitoring = true;
 
 	private boolean resolveHostnameToFqdn;
 
