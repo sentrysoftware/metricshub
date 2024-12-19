@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
@@ -64,6 +67,7 @@ class OsCommandExtensionTest {
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
 	public static final String UNIX_IPMI_FAIL_MESSAGE =
 		"Hostname %s - " + "No OS command configuration for this host. Returning an empty result";
+	public static final String TEST_COMMAND_LINE = "echo test";
 
 	@InjectMocks
 	private OsCommandExtension osCommandExtension;
@@ -1338,5 +1342,67 @@ class OsCommandExtensionTest {
 			criterionTestResult.getMessage()
 		);
 		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	void testExecuteQuery() throws Exception {
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder().hostname(HOSTNAME).build();
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("commandLine", new TextNode(TEST_COMMAND_LINE));
+
+		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandService.runSshCommand(
+						anyString(), // commandLine
+						anyString(), // hostname
+						any(SshConfiguration.class), // sshConfiguration
+						anyLong(), // timeout
+						any(), // local files
+						anyString() // no password command
+					)
+				)
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SSH Health Check strategy
+			final String result = osCommandExtension.executeQuery(
+				sshConfiguration,
+				queryNode,
+				new PrintWriter(new StringWriter())
+			);
+
+			// Assert the result
+			assertEquals(SUCCESS_RESPONSE, result);
+		}
+	}
+
+	@Test
+	void testExecuteQueryThrowsException() throws Exception {
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder().hostname(HOSTNAME).build();
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("commandLine", new TextNode(TEST_COMMAND_LINE));
+
+		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandService.runSshCommand(
+						anyString(), // commandLine
+						anyString(), // hostname
+						any(SshConfiguration.class), // sshConfiguration
+						anyLong(), // timeout
+						any(), // local files
+						anyString() // no password command
+					)
+				)
+				.thenThrow(ClientException.class);
+
+			// Assert the result
+			assertThrows(
+				ClientException.class,
+				() -> osCommandExtension.executeQuery(sshConfiguration, queryNode, new PrintWriter(new StringWriter()))
+			);
+		}
 	}
 }
