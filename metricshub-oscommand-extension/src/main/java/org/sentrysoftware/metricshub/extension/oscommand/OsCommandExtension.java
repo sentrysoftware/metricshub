@@ -309,8 +309,18 @@ public class OsCommandExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public String executeQuery(IConfiguration configuration, JsonNode queryNode, PrintWriter printWriter)
+		throws Exception {
+		final String commandLine = queryNode.get("commandLine").asText();
+		final SshConfiguration sshConfiguration = (SshConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		return OsCommandService.runSshCommand(
+			commandLine,
+			hostname,
+			sshConfiguration,
+			sshConfiguration.getTimeout(),
+			null,
+			commandLine
+		);
 	}
 }
