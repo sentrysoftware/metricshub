@@ -167,7 +167,9 @@ public class PingExtension implements IProtocolExtension {
 
 	@Override
 	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		final PingConfiguration pingConfiguration = (PingConfiguration) configuration;
+		return String.valueOf(
+			pingRequestExecutor.ping(pingConfiguration.getHostname(), (int) pingConfiguration.getTimeout().longValue() * 1000)
+		);
 	}
 }

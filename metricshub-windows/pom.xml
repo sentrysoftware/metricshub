@@ -296,6 +296,8 @@
 								<argument>Jdbc=metricshub-jdbc.properties</argument>
 								<argument>--add-launcher</argument>
 								<argument>Ssh=metricshub-ssh.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>Ping=metricshub-ping.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
