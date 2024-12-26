@@ -1209,6 +1209,81 @@ hw.status{state="degraded"} 1
 
 In this case, only the `degraded` state is reported, and the zero values for `ok` and `failed` are suppressed after the initial state transition.
 
+## Self-Monitoring
+
+**MetricsHub** includes **self-monitoring capabilities** to track its own performance. This feature can monitor key aspects such **job duration metrics**.
+
+### Configuration: `enableSelfMonitoring`
+
+This configuration controls whether **MetricsHub** reports internal signals such as job duration metrics.
+
+#### Supported Values
+
+- `true` (default): Enables self-monitoring capabilities.
+- `false`: Disables self-monitoring capabilities.
+
+#### Configuration Scopes
+
+You can configure `enableSelfMonitoring` at the following levels:
+
+1. **Global Configuration**
+   Applies to all monitored resources.
+
+   ```yaml
+   enableSelfMonitoring: true # Set to "false" to disable
+   resourceGroups: ...
+   ```
+
+2. **Per Resource Group**
+   Applies to all resources within a specific group.
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       enableSelfMonitoring: true # Set to "false" to disable
+       resources: ...
+   ```
+
+3. **Per Resource**
+   Applies to an individual resource.
+
+   ```yaml
+   resourceGroups:
+     <resource-group-name>:
+       resources:
+         <resource-id>:
+           enableSelfMonitoring: true # Set to "false" to disable
+   ```
+
+### Examples of Self-Monitoring Metrics
+
+When enabled, **MetricsHub** reports the `metricshub.job.duration` metrics, for example:
+
+```
+metricshub.job.duration{job.type="discovery", monitor.type="enclosure", connector_id="HPEGen10IloREST"} 0.020
+metricshub.job.duration{job.type="discovery", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.030
+metricshub.job.duration{job.type="discovery", monitor.type="temperature", connector_id="HPEGen10IloREST"} 0.025
+metricshub.job.duration{job.type="discovery", monitor.type="connector", connector_id="HPEGen10IloREST"} 0.015
+metricshub.job.duration{job.type="collect", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.015
+```
+
+Where:
+- **`job.type`**: Specifies the type of operation performed by MetricsHub.
+    - Possible values:
+        - `discovery`: Identifies and registers components.
+        - `collect`: Gathers telemetry data from the monitored components.
+        - `simple`: Executes a single straightforward task.
+        - `beforeAll` or `afterAll`: Runs preparatory or cleanup operations.
+- **`monitor.type`**: Indicates the specific category of component being monitored.
+    - Examples:
+        - Hardware components like `cpu`, `memory`, `physical_disk`, or `disk_controller`.
+        - Environmental metrics like `temperature` or `battery`.
+        - Logical entities like `connector`.
+- **`connector_id`**: The unique identifier of the connector defining the method and protocol to collect metrics for the specified component.
+    - Example: `"HPEGen10IloREST"` denotes the HPE Gen10 iLO REST connector.
+
+These metrics provide granular insights into task execution times, enabling the identification of bottlenecks or inefficiencies and helping optimize monitoring performance.
+
 #### Timeout, duration and period format
 
 Timeouts, durations and periods are specified with the below format:

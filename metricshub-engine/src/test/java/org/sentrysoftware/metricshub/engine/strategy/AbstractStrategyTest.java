@@ -17,16 +17,18 @@ import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 class AbstractStrategyTest {
 
 	@Test
-	void testSetJobDurationMetricInHostMonitorNoConfiguration() {
+	void testSetJobDurationMetricWithMonitorTypeNoConfiguration() {
 		// The job duration metrics are not configured in metricshub.yaml
 
 		// Create host and connector monitors and set them in the telemetry manager
@@ -66,7 +68,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitor(
+		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -87,7 +89,7 @@ class AbstractStrategyTest {
 	}
 
 	@Test
-	void testSetJobDurationMetricInHostMonitorEnabledConfiguration() {
+	void testSetJobDurationMetricWithMonitorTypeEnabledConfiguration() {
 		// The job duration metrics are configured and enabled
 
 		// Create host and connector monitors and set them in the telemetry manager
@@ -128,7 +130,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitor(
+		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -149,7 +151,7 @@ class AbstractStrategyTest {
 	}
 
 	@Test
-	void testSetJobDurationMetricInHostMonitorDisabledConfiguration() {
+	void testSetJobDurationMetricWithMonitorTypeDisabledConfiguration() {
 		// The job duration metrics are configured and disabled
 
 		// Create host and connector monitors and set them in the telemetry manager
@@ -190,7 +192,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitor(
+		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -206,6 +208,66 @@ class AbstractStrategyTest {
 				.getMetric(
 					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"connector\", connector_id=\"TestConnector\"}"
 				)
+		);
+	}
+
+	@Test
+	void testSetJobDurationMetricWithSurroundingStrategy() {
+		// The job duration metrics are configured and enabled
+
+		// Create host and connector monitors and set them in the telemetry manager
+		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).isEndpoint(true).build();
+		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
+		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
+			Map.of(
+				HOST,
+				Map.of(MONITOR_ID_ATTRIBUTE_VALUE, hostMonitor),
+				CONNECTOR,
+				Map.of(
+					String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), TEST_CONNECTOR_ID),
+					connectorMonitor
+				)
+			)
+		);
+
+		final TestConfiguration snmpConfig = TestConfiguration.builder().build();
+
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.monitors(monitors)
+			.hostConfiguration(
+				HostConfiguration
+					.builder()
+					.hostId(HOST_ID)
+					.hostname(HOST_NAME)
+					.sequential(false)
+					.enableSelfMonitoring(true)
+					.configurations(Map.of(TestConfiguration.class, snmpConfig))
+					.build()
+			)
+			.build();
+		final BeforeAllStrategy beforeAllStrategy = BeforeAllStrategy
+			.builder()
+			.telemetryManager(telemetryManager)
+			.strategyTime(new Date().getTime())
+			.clientsExecutor(new ClientsExecutor())
+			.extensionManager(new ExtensionManager())
+			.connector(new Connector())
+			.build();
+		beforeAllStrategy.setJobDurationMetricInHostMonitorWithoutMonitorType(
+			"beforeAll",
+			TEST_CONNECTOR_ID,
+			System.currentTimeMillis() - 200,
+			System.currentTimeMillis()
+		);
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric("metricshub.job.duration{job.type=\"beforeAll\", connector_id=\"TestConnector\"}")
+				.getValue()
 		);
 	}
 }

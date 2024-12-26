@@ -94,11 +94,18 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	/**
 	 * This method processes each connector
 	 *
-	 * @param currentConnector
-	 * @param hostname
+	 * @param currentConnector The current connector
+	 * @param hostname		   The host name
 	 */
 	private void process(final Connector currentConnector, final String hostname) {
-		if (!validateConnectorDetectionCriteria(currentConnector, hostname)) {
+		// Check whether the strategy job name matches at least one of the monitor jobs names of the current connector
+		final boolean connectorHasExpectedJobTypes = hasExpectedJobTypes(currentConnector, getJobName());
+		// If the connector doesn't define any monitor job that matches the given strategy job name, log a message then exit the current discovery or simple operation
+		if (!connectorHasExpectedJobTypes) {
+			log.debug("Connector doesn't define any monitor job of type {}.", getJobName());
+			return;
+		}
+		if (!validateConnectorDetectionCriteria(currentConnector, hostname, getJobName())) {
 			log.error(
 				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's {} job.",
 				hostname,
@@ -255,7 +262,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
 		final long jobEndTime = System.currentTimeMillis();
-		setJobDurationMetricInHostMonitor(
+		// Set the job duration metric in the host monitor
+		setJobDurationMetricInHostMonitorWithMonitorType(
 			getJobName(),
 			monitorType,
 			currentConnector.getCompiledFilename(),
