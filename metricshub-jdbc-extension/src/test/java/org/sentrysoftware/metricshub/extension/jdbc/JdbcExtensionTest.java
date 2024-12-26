@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -346,8 +344,7 @@ class JdbcExtensionTest {
 			.password(PASSWORD)
 			.timeout(120L)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		final String result = jdbcExtension.executeQuery(configuration, queryNode, printWriter);
+		final String result = jdbcExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
 			TextTableHelper.extractColumns(SQL_QUERY),
 			SQL_RESULT
@@ -372,7 +369,6 @@ class JdbcExtensionTest {
 			.password(PASSWORD)
 			.timeout(120L)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		assertThrows(ClientException.class, () -> jdbcExtension.executeQuery(configuration, queryNode, printWriter));
+		assertThrows(ClientException.class, () -> jdbcExtension.executeQuery(configuration, queryNode));
 	}
 }

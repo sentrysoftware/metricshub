@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,8 +45,6 @@ import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.extension.http.utils.Body;
-import org.sentrysoftware.metricshub.extension.http.utils.Header;
 import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 
 /**
@@ -219,7 +216,7 @@ public class HttpExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) {
+	public String executeQuery(final IConfiguration configuration, final JsonNode query) {
 		final String hostname = configuration.getHostname();
 		final String method = query.get("method").asText();
 		final JsonNode url = query.get("url");
@@ -245,12 +242,7 @@ public class HttpExtension implements IProtocolExtension {
 			.authenticationToken(notNull(authenticationToken) ? authenticationToken.asText() : null)
 			.build();
 
-		displayRequest(httpRequest, printWriter);
-
-		final String result = httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
-		printWriter.println(String.format("Result: %n%s", result));
-		printWriter.flush();
-		return result;
+		return httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
 	}
 
 	/**
@@ -261,40 +253,5 @@ public class HttpExtension implements IProtocolExtension {
 	 */
 	boolean notNull(final JsonNode jsonNode) {
 		return jsonNode != null && !jsonNode.isNull();
-	}
-
-	/**
-	 * Displays the details of an HTTP request in a formatted manner.
-	 *
-	 * @param httpRequest the HTTP request to display
-	 * @param printWriter the PrintWriter to output the request details
-	 */
-	void displayRequest(final HttpRequest httpRequest, final PrintWriter printWriter) {
-		final String template = "%s: %s";
-		printWriter.println(
-			String.format(
-				"Hostname %s - Executing %s %s request:",
-				httpRequest.getHostname(),
-				Boolean.TRUE.equals(httpRequest.getHttpConfiguration().getHttps()) ? "HTTPS" : "HTTP",
-				httpRequest.getMethod()
-			)
-		);
-		final Header header = httpRequest.getHeader();
-		final Body body = httpRequest.getBody();
-		final String authenticationToken = httpRequest.getAuthenticationToken();
-
-		printWriter.println(String.format(template, "Url", httpRequest.getUrl()));
-		if (header != null) {
-			printWriter.println(String.format(template, "Header", header.description()));
-		}
-
-		if (body != null) {
-			printWriter.println(String.format(template, "Body", body.description()));
-		}
-
-		if (authenticationToken != null) {
-			printWriter.println(String.format(template, "AuthenticationToken", authenticationToken));
-		}
-		printWriter.flush();
 	}
 }

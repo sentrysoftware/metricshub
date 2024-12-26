@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -573,9 +571,7 @@ class HttpExtensionTest {
 			.when(httpRequestExecutorMock)
 			.executeHttp(eq(httpRequest), anyBoolean(), any(TelemetryManager.class));
 
-		PrintWriter printWriter = new PrintWriter(new StringWriter());
-
-		final String result = httpExtension.executeQuery(httpConfiguration, httpQueryConfiguration, printWriter);
+		final String result = httpExtension.executeQuery(httpConfiguration, httpQueryConfiguration);
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE, result);
 	}
 

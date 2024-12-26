@@ -1,6 +1,5 @@
 package org.sentrysoftware.metricshub.cli.jdbc;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,18 +62,6 @@ public class JdbcCliTest {
 		parameterException = assertThrows(ParameterException.class, () -> jdbcCli.validate());
 		assertEquals("SQL query must not be empty nor blank.", parameterException.getMessage());
 		jdbcCli.setQuery(SQL_QUERY);
-
-		// testing namespace validation
-		// testing empty username
-		jdbcCli.setUsername("");
-		parameterException = assertThrows(ParameterException.class, () -> jdbcCli.validate());
-		assertEquals("SQL username must not be empty nor blank.", parameterException.getMessage());
-		// testing blank username
-		jdbcCli.setUsername(" ");
-		parameterException = assertThrows(ParameterException.class, () -> jdbcCli.validate());
-		assertEquals("SQL username must not be empty nor blank.", parameterException.getMessage());
-		jdbcCli.setUsername(USERNAME);
-		assertDoesNotThrow(() -> jdbcCli.validate());
 	}
 
 	@Test

@@ -11,11 +11,13 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -44,22 +46,36 @@ import picocli.CommandLine.Spec;
  */
 
 /**
- * A command-line interface (CLI) for executing JDBC queries.
- * <p>
- * This class supports Jdbc operations. It provides validation for configurations
- * and query parameters and integrates with the CLI extension framework to execute JDBC queries.
- * </p>
- *
- * Implements {@link IQuery} to generate JDBC-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing SQL queries via JDBC with validation and execution support.
  */
 @Data
+@Command(name = "jdbc.exe", description = "\nList of valid options: \n", footer = JdbcCli.FOOTER, usageHelpWidth = 180)
 public class JdbcCli implements IQuery, Callable<Integer> {
+
+	/**
+	 * The identifier for the JDBC protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "jdbc";
 
 	/**
 	 * Default timeout in seconds for an SQL query
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
+
+	/**
+	 * Footer regrouping JDBC CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <jdbc:<DB-TYPE>://<HOSTNAME>:PORT/<DB-NAME> --query <QUERY>
+
+		jdbc dev-01 --username username --password password --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM users"
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -67,27 +83,17 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--jdbc-url", order = 1, required = true, paramLabel = "URL", description = "JDBC URL")
+	@Option(names = "--url", order = 1, required = true, paramLabel = "URL", description = "JDBC URL")
 	private char[] url;
 
-	@Option(
-		names = "--jdbc-username",
-		order = 2,
-		paramLabel = "USERNAME",
-		description = "Username for JDBC authentication"
-	)
+	@Option(names = "--username", order = 2, paramLabel = "USERNAME", description = "Username for JDBC authentication")
 	private String username;
 
-	@Option(
-		names = "--jdbc-password",
-		order = 3,
-		paramLabel = "PASSWORD",
-		description = "Password for JDBC authentication"
-	)
+	@Option(names = "--password", order = 3, paramLabel = "PASSWORD", description = "Password for JDBC authentication")
 	private char[] password;
 
 	@Option(
-		names = "--jdbc-timeout",
+		names = "--timeout",
 		order = 4,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
@@ -95,25 +101,21 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	)
 	private String timeout;
 
-	@Option(
-		names = "--jdbc-query",
-		required = true,
-		order = 8,
-		paramLabel = "QUERY",
-		description = "SQL query to execute"
-	)
+	@Option(names = "--query", required = true, order = 5, paramLabel = "QUERY", description = "SQL query to execute")
 	private String query;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 9,
+		order = 6,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -144,10 +146,6 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 
 		if (query.isBlank()) {
 			throw new ParameterException(spec.commandLine(), "SQL query must not be empty nor blank.");
-		}
-
-		if (username.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "SQL username must not be empty nor blank.");
 		}
 	}
 
@@ -213,27 +211,40 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("jdbc")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
-					// Build configuration with necessary parameters
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
+
 					configurationNode.set("url", new TextNode(String.valueOf(url)));
 					configurationNode.set("timeout", new TextNode(timeout));
-					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
+
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					displayQuery(printWriter);
-					// Execute the query
-					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
-					displayResult(printWriter, result);
+					// display the query
+					displayQuery();
+					// Execute the SQL query
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
 					throw new IllegalStateException("Failed to execute SQL query.\n", e);
 				}
@@ -243,10 +254,8 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Prints query details.
-	 *
-	 * @param printWriter the output writer
 	 */
-	void displayQuery(PrintWriter printWriter) {
+	void displayQuery() {
 		printWriter.println("Executing SQL request.");
 		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
@@ -256,10 +265,9 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param printWriter the output writer
 	 * @param result      the query result
 	 */
-	void displayResult(PrintWriter printWriter, String result) {
+	void displayResult(String result) {
 		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
 		printWriter.flush();
 	}

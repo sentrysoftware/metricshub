@@ -6,16 +6,20 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import lombok.Data;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -44,30 +48,47 @@ import picocli.CommandLine.Spec;
  */
 
 /**
- * A command-line interface (CLI) for executing Wbem queries.
- * <p>
- * This class supports Wbem operations. It provides validation for configurations
- * and query parameters and integrates with the CLI extension framework to execute Wbem queries.
- * </p>
- *
- * Implements {@link IQuery} to generate Wbem-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing Wbem queries with validation and execution support.
  */
 @Data
+@Command(name = "wbem.exe", description = "\nList of valid options: \n", footer = WbemCli.FOOTER, usageHelpWidth = 180)
 public class WbemCli implements IQuery, Callable<Integer> {
 
 	/**
-	 * Default timeout in seconds for a Wbem operation
+	 * The identifier for the Wbem protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "wbem";
+	/**
+	 * Default timeout in seconds for a Wbem operation.
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 	/**
-	 * Default HTTPS port number
+	 * Default HTTPS port number.
 	 */
 	public static final int DEFAULT_HTTPS_PORT_NUMBER = 5989;
 	/**
-	 * Default HTTP port number
+	 * Default HTTP port number.
 	 */
 	public static final int DEFAULT_HTTP_PORT_NUMBER = 5988;
+	/**
+	 * Set of possible protocols for WBEM.
+	 */
+	static Set<String> protocols = Set.of("HTTP", "HTTPS");
+
+	/**
+	 * Footer regrouping WBEM CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
+
+		wbem dev-01 --namespace="root/cimv2" --query="SELECT * FROM Win32_OperatingSystem" --username username --password password --vcenter vcenter --transport http --port 5988 --timeout 30s
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -75,17 +96,11 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(
-		names = "--wbem-query",
-		required = true,
-		order = 1,
-		paramLabel = "QUERY",
-		description = "WBEM query to execute"
-	)
+	@Option(names = "--query", required = true, order = 1, paramLabel = "QUERY", description = "WBEM query to execute")
 	private String query;
 
 	@Option(
-		names = "--wbem-transport",
+		names = "--transport",
 		order = 2,
 		defaultValue = "HTTPS",
 		paramLabel = "HTTP|HTTPS",
@@ -94,18 +109,18 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	private String protocol;
 
 	@Option(
-		names = "--wbem-port",
+		names = "--port",
 		order = 3,
 		paramLabel = "PORT",
 		description = "Port of the WBEM server (default: 5988 for HTTP, 5989 for HTTPS)"
 	)
 	private Integer port;
 
-	@Option(names = "--wbem-username", order = 4, paramLabel = "USER", description = "Username for WBEM authentication")
+	@Option(names = "--username", order = 4, paramLabel = "USER", description = "Username for WBEM authentication")
 	String username;
 
 	@Option(
-		names = "--wbem-password",
+		names = "--password",
 		order = 5,
 		paramLabel = "P4SSW0RD",
 		description = "Password for WBEM authentication",
@@ -115,7 +130,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	private char[] password;
 
 	@Option(
-		names = "--wbem-timeout",
+		names = "--timeout",
 		order = 6,
 		defaultValue = "" + DEFAULT_TIMEOUT,
 		paramLabel = "TIMEOUT",
@@ -124,7 +139,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	private String timeout;
 
 	@Option(
-		names = "--wbem-namespace",
+		names = "--namespace",
 		required = true,
 		order = 7,
 		paramLabel = "NAMESPACE",
@@ -133,7 +148,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	private String namespace;
 
 	@Option(
-		names = "--wbem-vcenter",
+		names = "--vcenter",
 		order = 8,
 		paramLabel = "VCENTER",
 		description = "VCenter hostname providing the authentication ticket (if applicable)"
@@ -151,6 +166,8 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
+	PrintWriter printWriter;
+
 	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
@@ -159,11 +176,9 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	}
 
 	/**
-	 * Validates the current configuration.
+	 * Validates the configuration, ensuring parameters are valid and protocols are supported.
 	 *
-	 * Ensures that required parameters are not blank and that passwords can be requested interactively if needed.
-	 *
-	 * @throws ParameterException if required parameters are blank
+	 * @throws ParameterException if validation fails
 	 */
 	void validate() {
 		// Can we ask for passwords interactively?
@@ -180,6 +195,13 @@ public class WbemCli implements IQuery, Callable<Integer> {
 
 		if (namespace.isBlank()) {
 			throw new ParameterException(spec.commandLine(), "Wbem namespace must not be empty nor blank.");
+		}
+
+		if (protocol != null && !protocols.contains(protocol.toUpperCase())) {
+			throw new ParameterException(
+				spec.commandLine(),
+				String.format("Invalid Wbem transport protocol %s detected.", protocol)
+			);
 		}
 	}
 
@@ -246,34 +268,66 @@ public class WbemCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("wbem")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
-					// Build configuration with necessary parameters
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
+
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
 					configurationNode.set("vcenter", new TextNode(vcenter));
 					configurationNode.set("protocol", new TextNode(protocol));
 					configurationNode.set("port", new IntNode(getOrDeducePortNumber()));
-					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
+
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					// Execute the query
-					extension.executeQuery(configuration, getQuery(), printWriter);
+					// display the request
+					displayQuery();
+					// Execute the WBEM query
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the result
+					displayResult(result);
 				} catch (Exception e) {
-					printWriter.println("Wbem - Invalid configuration detected.\n");
-					printWriter.flush();
-					throw new IllegalStateException("Invalid configuration detected.", e);
+					throw new IllegalStateException("Failed to execute Wbem query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 * Prints query details.
+	 */
+	void displayQuery() {
+		printWriter.println(String.format("Hostname %s - Executing Wbem query through %s:", hostname, protocol));
+		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
+		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
+		printWriter.flush();
+	}
+
+	/**
+	 * Prints the query result.
+	 *
+	 * @param result      the query result
+	 */
+	void displayResult(String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+		printWriter.flush();
 	}
 }

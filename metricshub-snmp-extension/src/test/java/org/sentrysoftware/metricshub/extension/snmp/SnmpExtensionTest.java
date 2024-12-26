@@ -14,15 +14,17 @@ import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.GET;
 import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.GET_NEXT;
+import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.TABLE;
 import static org.sentrysoftware.metricshub.extension.snmp.SnmpExtension.WALK;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +36,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -56,6 +59,11 @@ class SnmpExtensionTest {
 	public static final String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
 	public static final String SNMP_VERSION = "2.4.6";
 	public static final String SUCCESSFUL_SNMP_QUERY_RESULT = "Successful SNMP %s Query";
+	public static final String[] COLUMNS_ARRAY = { "value1a", "value1b" };
+	public static final List<List<String>> SNMP_TABLE_RESULT = Arrays.asList(
+		Arrays.asList("value1a", "value2a", "value3a"),
+		Arrays.asList("value1b", "value2b", "value3b")
+	);
 
 	@Mock
 	private SnmpRequestExecutor snmpRequestExecutorMock;
@@ -610,10 +618,7 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(GET));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertEquals(
-			message,
-			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
-		);
+		assertEquals(message, snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration));
 	}
 
 	@Test
@@ -629,10 +634,7 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(GET_NEXT));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertEquals(
-			message,
-			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
-		);
+		assertEquals(message, snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration));
 	}
 
 	@Test
@@ -648,9 +650,27 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(WALK));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
+		assertEquals(message, snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration));
+	}
+
+	@Test
+	void testExecuteTableQuery() throws Exception {
+		initSnmp();
+		doReturn(SNMP_TABLE_RESULT)
+			.when(snmpRequestExecutorMock)
+			.executeSNMPTable(anyString(), any(String[].class), any(SnmpConfiguration.class), anyString(), eq(false));
+
+		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpQueryConfiguration.set("action", new TextNode(TABLE));
+
+		final ArrayNode columns = snmpQueryConfiguration.putArray("columns");
+		Arrays.stream(COLUMNS_ARRAY).forEach(columns::add);
+		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
+
 		assertEquals(
-			message,
-			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
+			TextTableHelper.generateTextTable(COLUMNS_ARRAY, SNMP_TABLE_RESULT),
+			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration)
 		);
 	}
 
@@ -666,10 +686,7 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(WALK));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertEquals(
-			"Failed Executing SNMP query",
-			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
-		);
+		assertEquals("Failed Executing SNMP query", snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration));
 	}
 
 	@Test
@@ -681,9 +698,6 @@ class SnmpExtensionTest {
 		snmpQueryConfiguration.set("action", new TextNode(""));
 		snmpQueryConfiguration.set("oid", new TextNode(SnmpExtension.SNMP_OID));
 
-		assertEquals(
-			"Failed Executing SNMP query",
-			snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration, new PrintWriter(new StringWriter()))
-		);
+		assertEquals("Failed Executing SNMP query", snmpExtension.executeQuery(snmpConfiguration, snmpQueryConfiguration));
 	}
 }

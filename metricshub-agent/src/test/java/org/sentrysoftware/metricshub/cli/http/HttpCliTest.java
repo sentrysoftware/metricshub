@@ -140,7 +140,7 @@ class HttpCliTest {
 		httpCli.setHeaderFile(HEADER_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
 		assertEquals(
-			"Conflict - Two headers have been configured: --http-header and --http-header-file.",
+			"Conflict - Two headers have been configured: --header and --header-file.",
 			exceptionMessage.getMessage()
 		);
 		httpCli.setHeaders(null);
@@ -154,10 +154,7 @@ class HttpCliTest {
 		httpCli.setBody(BODY);
 		httpCli.setBodyFile(BODY_FILE_PATH);
 		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertEquals(
-			"Conflict - Two bodies have been configured: --http-body and --http-body-file.",
-			exceptionMessage.getMessage()
-		);
+		assertEquals("Conflict - Two bodies have been configured: --body and --body-file.", exceptionMessage.getMessage());
 		httpCli.setBody(null);
 
 		assertDoesNotThrow(() -> httpCli.validate());

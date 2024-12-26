@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -258,12 +257,8 @@ public class IpmiExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception {
+	public String executeQuery(final IConfiguration configuration, final JsonNode query) throws Exception {
 		final String hostname = configuration.getHostname();
-		printWriter.println(String.format("Hostname %s - Executing IPMI request:", hostname));
-		final String result = ipmiRequestExecutor.executeIpmiGetSensors(hostname, (IpmiConfiguration) configuration);
-		printWriter.println(String.format("Result: %n%s", result));
-		printWriter.flush();
-		return result;
+		return ipmiRequestExecutor.executeIpmiGetSensors(hostname, (IpmiConfiguration) configuration);
 	}
 }

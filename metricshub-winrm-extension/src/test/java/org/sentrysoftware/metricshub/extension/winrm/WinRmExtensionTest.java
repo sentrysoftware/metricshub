@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -527,8 +525,7 @@ class WinRmExtensionTest {
 			.timeout(120L)
 			.namespace(WINRM_TEST_NAMESPACE)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		final String result = winRmExtension.executeQuery(configuration, queryNode, printWriter);
+		final String result = winRmExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
 			TextTableHelper.extractColumns(WQL),
 			WQL_SUCCESS_RESPONSE
@@ -554,7 +551,6 @@ class WinRmExtensionTest {
 			.timeout(120L)
 			.namespace(WINRM_TEST_NAMESPACE)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		assertThrows(ClientException.class, () -> winRmExtension.executeQuery(configuration, queryNode, printWriter));
+		assertThrows(ClientException.class, () -> winRmExtension.executeQuery(configuration, queryNode));
 	}
 }

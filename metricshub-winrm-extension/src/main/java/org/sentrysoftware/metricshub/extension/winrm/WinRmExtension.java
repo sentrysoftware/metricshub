@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -272,8 +271,7 @@ public class WinRmExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode queryNode, PrintWriter printWriter)
-		throws Exception {
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
 		final String query = queryNode.get("query").asText();
 		final WinRmConfiguration winRmConfiguration = (WinRmConfiguration) configuration;
 		final String namespace = winRmConfiguration.getNamespace();

@@ -32,11 +32,13 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -44,22 +46,36 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * A command-line interface (CLI) for executing WMI queries.
- * <p>
- * This class supports WMI operations. It provides validation for configurations
- * and query parameters and integrates with the CLI extension framework to execute WMI queries.
- * </p>
- *
- * Implements {@link IQuery} to generate WMI-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing WMI queries with validation and support for various operations.
  */
 @Data
+@Command(name = "wmi.exe", description = "\nList of valid options: \n", footer = WmiCli.FOOTER, usageHelpWidth = 180)
 public class WmiCli implements IQuery, Callable<Integer> {
+
+	/**
+	 * The identifier for the WMI protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "wmi";
 
 	/**
 	 * Default timeout in seconds for a WMI operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
+
+	/**
+	 * Footer regrouping WMI CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
+
+		wmi dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" --timeout 30s
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -70,14 +86,14 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	/**
 	 * Username for WMI authentication
 	 */
-	@Option(names = "--wmi-username", order = 1, paramLabel = "USER", description = "Username for WMI authentication")
+	@Option(names = "--username", order = 1, paramLabel = "USER", description = "Username for WMI authentication")
 	private String username;
 
 	/**
 	 * Password for WMI authentication
 	 */
 	@Option(
-		names = "--wmi-password",
+		names = "--password",
 		order = 2,
 		paramLabel = "P4SSW0RD",
 		description = "Password for WMI authentication",
@@ -90,7 +106,7 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	 * Timeout in seconds for WMI operations
 	 */
 	@Option(
-		names = "--wmi-timeout",
+		names = "--timeout",
 		order = 3,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
@@ -98,14 +114,14 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	)
 	private String timeout;
 
-	@Option(names = "--wmi-query", required = true, order = 4, paramLabel = "QUERY", description = "WMI query to execute")
+	@Option(names = "--query", required = true, order = 4, paramLabel = "QUERY", description = "WMI query to execute")
 	private String query;
 
 	/**
 	 * Forces a specific namespace for connectors that perform namespace auto-detection
 	 */
 	@Option(
-		names = "--wmi-namespace",
+		names = "--namespace",
 		required = true,
 		order = 5,
 		paramLabel = "NAMESPACE",
@@ -123,6 +139,8 @@ public class WmiCli implements IQuery, Callable<Integer> {
 
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -205,27 +223,36 @@ public class WmiCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("wmi")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
-					// Build configuration with necessary parameters
 					configurationNode.set("username", new TextNode(username));
 					configurationNode.set("password", new TextNode(String.valueOf(password)));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
+
+					// Build an IConfiguration from the configuration ObjectNode
 					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					displayQuery(printWriter);
-					// Execute the query
-					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
-					displayResult(printWriter, result);
+					// display the request
+					displayQuery();
+					// Execute the WMI query
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
 					throw new IllegalStateException("Failed to execute WMI query.\n", e);
 				}
@@ -235,10 +262,8 @@ public class WmiCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Prints query details.
-	 *
-	 * @param printWriter the output writer
 	 */
-	void displayQuery(PrintWriter printWriter) {
+	void displayQuery() {
 		printWriter.println("Executing WMI request.");
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
@@ -248,10 +273,9 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param printWriter the output writer
 	 * @param result      the query result
 	 */
-	void displayResult(PrintWriter printWriter, String result) {
+	void displayResult(String result) {
 		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
 		printWriter.flush();
 	}

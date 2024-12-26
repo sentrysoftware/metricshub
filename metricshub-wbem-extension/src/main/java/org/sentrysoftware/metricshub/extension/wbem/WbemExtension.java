@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,7 +35,6 @@ import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
-import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
@@ -240,38 +238,24 @@ public class WbemExtension implements IProtocolExtension {
 	}
 
 	@Override
-	public String executeQuery(IConfiguration configuration, JsonNode queryNode, PrintWriter printWriter)
-		throws Exception {
-		final String query = queryNode.get("query").asText();
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
 		final WbemConfiguration wbemConfiguration = (WbemConfiguration) configuration;
-		final String namespace = wbemConfiguration.getNamespace();
-		final String hostname = configuration.getHostname();
-		final HostConfiguration hostConfiguration = HostConfiguration
-			.builder()
-			.configurations(Map.of(WbemConfiguration.class, configuration))
-			.build();
-		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
-
-		printWriter.println(
-			String.format(
-				"Hostname %s - Executing Wbem query through %s:",
-				hostname,
-				wbemConfiguration.getProtocol().toString()
-			)
-		);
-		printWriter.println(String.format("Query: %s%nNamespace: %s", query, namespace));
-		printWriter.flush();
+		final String query = queryNode.get("query").asText();
+		// execute Wbem query
 		final List<List<String>> result = wbemRequestExecutor.executeWbem(
-			hostname,
+			configuration.getHostname(),
 			wbemConfiguration,
 			query,
-			namespace,
-			telemetryManager
+			wbemConfiguration.getNamespace(),
+			new TelemetryManager()
 		);
 
-		final String stringResult = TextTableHelper.generateTextTable(TextTableHelper.extractColumns(query), result);
-		printWriter.println(String.format("Result: %n%s", stringResult));
-		printWriter.flush();
-		return stringResult;
+		// return a text table containing the WBEM query result.
+		final String[] columns = TextTableHelper.extractColumns(query);
+		if (columns.length == 1 && columns[0].equals("*")) {
+			return TextTableHelper.generateTextTable(result);
+		} else {
+			return TextTableHelper.generateTextTable(columns, result);
+		}
 	}
 }

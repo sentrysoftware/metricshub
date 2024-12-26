@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -381,7 +379,7 @@ class IpmiExtensionTest {
 			.skipAuth(false)
 			.bmcKey(BMC_KEY)
 			.build();
-		assertEquals(message, ipmiExtension.executeQuery(ipmiConfiguration, null, new PrintWriter(new StringWriter())));
+		assertEquals(message, ipmiExtension.executeQuery(ipmiConfiguration, null));
 	}
 
 	@Test
@@ -399,9 +397,6 @@ class IpmiExtensionTest {
 			.skipAuth(false)
 			.bmcKey(BMC_KEY)
 			.build();
-		assertThrows(
-			Exception.class,
-			() -> ipmiExtension.executeQuery(ipmiConfiguration, null, new PrintWriter(new StringWriter()))
-		);
+		assertThrows(Exception.class, () -> ipmiExtension.executeQuery(ipmiConfiguration, null));
 	}
 }

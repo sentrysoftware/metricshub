@@ -22,25 +22,24 @@ package org.sentrysoftware.metricshub.cli.ssh;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import lombok.Data;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -48,16 +47,10 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * A command-line interface (CLI) for executing command lines via SSH.
- * <p>
- * This class provides validation for configurations and query parameters
- * and integrates with the CLI extension framework to execute SSH queries.
- * </p>
- *
- * Implements {@link IQuery} to generate SSH specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing commands via SSH with validation and execution support.
  */
 @Data
+@Command(name = "ssh.exe", description = "\nList of valid options: \n", footer = SshCli.FOOTER, usageHelpWidth = 180)
 public class SshCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -73,6 +66,27 @@ public class SshCli implements IQuery, Callable<Integer> {
 	 * Default SSH port number.
 	 */
 	public static final int DEFAULT_PORT = 22;
+
+	/**
+	 * Footer regrouping SSH CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		@|green # SSH basic authentication with username and password:|@
+		ssh <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+
+		ssh dev-01 --username username --password password --command="echo test" --timeout 30s --port 22
+
+		@|green # SSH RSA authentication with a public key:|@
+		ssh <HOSTNAME> --publickey <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+
+		ssh dev-01 --publickey="/opt/ssh-rsa.txt" --command="echo test" --timeout 30s --port 22
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -120,25 +134,7 @@ public class SshCli implements IQuery, Callable<Integer> {
 	private Integer port;
 
 	@Option(
-		names = "--usesudo-commands",
-		order = 6,
-		paramLabel = "SUDOCOMMANDS",
-		description = "List of commands that requires @|italic sudo|@",
-		split = ","
-	)
-	private Set<String> useSudoCommands;
-
-	@Option(
-		names = "--sudo-command",
-		order = 7,
-		paramLabel = "SUDO",
-		description = "@|italic sudo|@ command (default: ${DEFAULT-VALUE})",
-		defaultValue = "sudo"
-	)
-	private String sudoCommand;
-
-	@Option(
-		names = "--command-line",
+		names = { "--command-line", "--command" },
 		required = true,
 		order = 8,
 		paramLabel = "COMMANDLINE",
@@ -157,6 +153,8 @@ public class SshCli implements IQuery, Callable<Integer> {
 
 	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -235,45 +233,41 @@ public class SshCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
-					if (username != null) {
-						configurationNode.set("username", new TextNode(username));
-					}
+					configurationNode.set("username", new TextNode(username));
 
 					if (password != null) {
 						configurationNode.set("password", new TextNode(String.valueOf(password)));
 					}
 
-					if (publicKeyFilePath != null) {
-						configurationNode.set("publicKey", new TextNode(publicKeyFilePath));
-					}
-
-					if (useSudoCommands != null) {
-						final ArrayNode sudoCommands = JsonNodeFactory.instance.arrayNode();
-						useSudoCommands.stream().forEach(sudoCommands::add);
-						configurationNode.set("useSudoCommands", sudoCommands);
-					}
-
-					configurationNode.set("sudoCommand", new TextNode(sudoCommand));
-					configurationNode.set("useSudo", BooleanNode.TRUE);
+					configurationNode.set("publicKey", new TextNode(publicKeyFilePath));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("port", new IntNode(getPort()));
 
+					// Build an IConfiguration from the configuration ObjectNode
 					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					displayQuery(printWriter);
-					// Execute the query
-					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
-					displayResult(printWriter, result);
+					// display the request
+					displayQuery();
+					// Execute the command line query through SSH
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
 					throw new IllegalStateException("Failed to execute command line through SSH.\n", e);
 				}
@@ -283,11 +277,9 @@ public class SshCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Prints query details.
-	 *
-	 * @param printWriter the output writer
 	 */
-	void displayQuery(PrintWriter printWriter) {
-		printWriter.println("Executing command line through SSH.");
+	void displayQuery() {
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing command line through SSH."));
 		printWriter.println(Ansi.ansi().a("Command line: ").fgBrightBlack().a(commandLine).reset().toString());
 		printWriter.flush();
 	}
@@ -295,10 +287,9 @@ public class SshCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param printWriter the output writer
 	 * @param result      the query result
 	 */
-	void displayResult(PrintWriter printWriter, String result) {
+	void displayResult(final String result) {
 		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
 		printWriter.flush();
 	}

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
@@ -37,12 +38,37 @@ import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerSer
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+/**
+ * CLI for executing IPMI queries with validation and support for various operations.
+ */
+@Command(name = "ipmi.exe", description = "\nList of valid options: \n", footer = IpmiCli.FOOTER, usageHelpWidth = 180)
 public class IpmiCli implements IQuery, Callable<Integer> {
+
+	/**
+	 * The identifier for the IPMI protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "ipmi";
+
+	/**
+	 * Footer regrouping IPMI CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
+
+		ipmi dev-01 --username username --password password --bmc-key AE4C7AB47FD --timeout 1m --skip-auth false
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -51,7 +77,7 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 	CommandSpec spec;
 
 	@Option(
-		names = "--ipmi-username",
+		names = "--username",
 		order = 1,
 		paramLabel = "USER",
 		description = "Username for IPMI-over-LAN authentication"
@@ -59,7 +85,7 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 	private String username;
 
 	@Option(
-		names = "--ipmi-password",
+		names = "--password",
 		order = 2,
 		paramLabel = "P4SSW0RD",
 		description = "Password for IPMI-over-LAN authentication",
@@ -69,23 +95,18 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 	private char[] password;
 
 	@Option(
-		names = "--ipmi-bmc-key",
+		names = { "--bmc-key", "--key" },
 		order = 3,
 		paramLabel = "KEY",
 		description = "BMC key for IPMI-over-LAN two-key authentication (in hexadecimal)"
 	)
 	private String bmcKey;
 
-	@Option(
-		names = "--ipmi-skip-auth",
-		order = 4,
-		defaultValue = "false",
-		description = "Skips IPMI-over-LAN authentication"
-	)
+	@Option(names = "--skip-auth", order = 4, defaultValue = "false", description = "Skips IPMI-over-LAN authentication")
 	private boolean skipAuth;
 
 	@Option(
-		names = "--ipmi-timeout",
+		names = "--timeout",
 		order = 5,
 		paramLabel = "TIMEOUT",
 		defaultValue = "120",
@@ -103,6 +124,8 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 
 	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -172,34 +195,61 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
 		MetricsHubCliService.setLogLevel(verbose);
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("ipmi")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
-					final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
-					configuration.set("username", new TextNode(username));
-
+					// Create and fill in a configuration ObjectNode
+					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
+					configurationNode.set("username", new TextNode(username));
 					if (password != null) {
-						configuration.set("password", new TextNode(String.valueOf(password)));
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
 					}
 
-					configuration.set("timeout", new TextNode(timeout));
-					configuration.set("skipAuth", BooleanNode.valueOf(skipAuth));
-					configuration.set("bmcKey", new TextNode(bmcKey));
+					configurationNode.set("timeout", new TextNode(timeout));
+					configurationNode.set("skipAuth", BooleanNode.valueOf(skipAuth));
+					configurationNode.set("bmcKey", new TextNode(bmcKey));
 
-					IConfiguration protocol = extension.buildConfiguration("ipmi", configuration, null);
-					protocol.setHostname(hostname);
-					extension.executeQuery(protocol, null, printWriter);
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					configuration.setHostname(hostname);
+
+					// display the request
+					displayRequest();
+					// Execute the IPMI query
+					final String result = extension.executeQuery(configuration, null);
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
-					printWriter.println("Invalid configuration detected");
-					printWriter.flush();
-					throw new IllegalStateException("Invalid configuration detected.", e);
+					throw new IllegalStateException("Failed to execute IPMI query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 * Prints query details.
+	 */
+	void displayRequest() {
+		printWriter.println(String.format("Hostname %s - Executing IPMI request:", hostname));
+		printWriter.flush();
+	}
+
+	/**
+	 * Prints the query result.
+	 *
+	 * @param result      the query result
+	 */
+	void displayResult(String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+		printWriter.flush();
 	}
 }

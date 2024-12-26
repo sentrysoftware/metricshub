@@ -3,10 +3,12 @@ package org.sentrysoftware.metricshub.cli.winrm;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
@@ -53,6 +55,11 @@ public class WinRmCliTest {
 		parameterException = assertThrows(ParameterException.class, () -> winRmCli.validate());
 		assertEquals("WinRm namespace must not be empty nor blank.", parameterException.getMessage());
 		winRmCli.setNamespace(WINRM_TEST_NAMESPACE);
+
+		winRmCli.setAuthentications(List.of("NTLM", "HTTP"));
+		parameterException = assertThrows(ParameterException.class, () -> winRmCli.validate());
+		assertTrue(parameterException.getMessage().contains("Invalid authentication schema"));
+		winRmCli.setAuthentications(List.of("NTLM", "KERBEROS"));
 		assertDoesNotThrow(() -> winRmCli.validate());
 	}
 

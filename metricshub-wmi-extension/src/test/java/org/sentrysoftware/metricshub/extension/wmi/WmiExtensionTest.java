@@ -17,8 +17,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -526,8 +524,7 @@ class WmiExtensionTest {
 			.timeout(120L)
 			.namespace(WMI_TEST_NAMESPACE)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		final String result = wmiExtension.executeQuery(configuration, queryNode, printWriter);
+		final String result = wmiExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
 			TextTableHelper.extractColumns(WQL),
 			EXECUTE_WMI_RESULT
@@ -553,7 +550,6 @@ class WmiExtensionTest {
 			.timeout(120L)
 			.namespace(WMI_TEST_NAMESPACE)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		assertThrows(ClientException.class, () -> wmiExtension.executeQuery(configuration, queryNode, printWriter));
+		assertThrows(ClientException.class, () -> wmiExtension.executeQuery(configuration, queryNode));
 	}
 }

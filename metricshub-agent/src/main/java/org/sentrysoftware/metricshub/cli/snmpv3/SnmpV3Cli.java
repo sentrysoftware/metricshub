@@ -24,23 +24,26 @@ package org.sentrysoftware.metricshub.cli.snmpv3;
 import static org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli.DEFAULT_TIMEOUT;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 import lombok.Data;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
-import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
-import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -48,18 +51,62 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * A command-line interface (CLI) for executing SNMPv3 queries.
- * <p>
- * This class supports SNMPv3 operations such as Get, Get Next, and Walk.
- * It provides validation for configurations and query parameters
- * and integrates with the CLI extension framework to execute SNMPv3 queries.
- * </p>
- *
- * Implements {@link IQuery} to generate SNMPv3-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing SNMPv3 queries with validation and support for various operations.
  */
 @Data
+@Command(
+	name = "snmpv3.exe",
+	description = "\nList of valid options: \n",
+	footer = SnmpV3Cli.FOOTER,
+	usageHelpWidth = 180
+)
 public class SnmpV3Cli implements IQuery, Callable<Integer> {
+
+	/**
+	 * The identifier for the SNMPv3 protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "snmpv3";
+
+	/**
+	 * Footer regrouping SNMPv3 CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		@|green # SNMPv3 Get request:|@
+		snmpv3 <HOSTNAME> --get <OID> --privacy <PRIVACY> --privacy-password <PRIVACY-PASSWORD> --auth <AUTHTYPE> \
+		--username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> \
+		--retry <INTERVAL1>,<INTERVAL2>,...
+
+		snmpv3 dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
+		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+
+		@|green # SNMPv3 Get Next request:|@
+		snmpv3 <HOSTNAME> --getNext <OID> --privacy <PRIVACY> --privacy-password <PRIVACY-PASSWORD> \
+		--auth <AUTHTYPE> --username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> \
+		--retry <INTERVAL1>,<INTERVAL2>,...
+
+		snmpv3 dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
+		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+
+		@|green # SNMPv3 Walk request:|@
+		snmpv3 <HOSTNAME> --walk <OID> --privacy <PRIVACY> --privacy-password <PRIVACY-PASSWORD> --auth <AUTHTYPE> \
+		--username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
+
+		snmpv3 dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth MD5 --username username \
+		--password password --context-name context --timeout 2m --retry 500,1000
+
+		@|green # SNMPv3 Table request:|@
+		snmpv3 <HOSTNAME> --table <OID> --columns <COLUMN1>,<COLUMN2>,... --privacy <PRIVACY> --privacy-password <PRIVACY-PASSWORD> \
+		--auth <AUTHTYPE> --username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
+
+		snmpv3 dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
+		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -67,28 +114,108 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@ArgGroup(exclusive = false, heading = "%n@|bold,underline SNMP Options|@:%n")
-	SnmpV3ConfigCli snmpV3ConfigCli;
+	@Option(
+		names = "--privacy",
+		order = 1,
+		paramLabel = "DES|AES",
+		description = "Privacy (encryption type) for SNMP version 3 (DES, AES, or none)"
+	)
+	private String privacy;
 
-	@Option(names = "--snmpv3-get", order = 1, paramLabel = "OID", description = "SNMP Get request")
+	@Option(
+		names = "--privacy-password",
+		order = 2,
+		paramLabel = "PRIVACY-PASSWORD",
+		description = "Privacy (encryption) password for SNMP version 3"
+	)
+	private char[] privacyPassword;
+
+	@Option(
+		names = "--auth",
+		order = 3,
+		paramLabel = "SHA|MD5",
+		description = "Authentication type for SNMP version 3 (SHA, MD5 or NO_AUTH)"
+	)
+	private String authType;
+
+	@Option(
+		names = "--username",
+		order = 4,
+		paramLabel = "USERNAME",
+		description = "Username for SNMP version 3 with MD5 or SHA"
+	)
+	private String username;
+
+	@Option(
+		names = "--password",
+		order = 5,
+		paramLabel = "PASSWORD",
+		description = "Password for SNMP version 3 with MD5 or SHA"
+	)
+	private char[] password;
+
+	@Option(
+		names = "--context-name",
+		order = 6,
+		paramLabel = "CONTEXT-NAME",
+		description = "Context name for SNMP version 3"
+	)
+	private String contextName;
+
+	@Option(
+		names = "--timeout",
+		order = 7,
+		paramLabel = "TIMEOUT",
+		defaultValue = "" + DEFAULT_TIMEOUT,
+		description = "Timeout in seconds for SNMP version 3 operations (default: ${DEFAULT-VALUE} s)"
+	)
+	private String timeout;
+
+	@Option(
+		names = "--port",
+		order = 8,
+		paramLabel = "PORT",
+		defaultValue = "161",
+		description = "Port of the SNMP version 3 agent (default: ${DEFAULT-VALUE})"
+	)
+	private int port;
+
+	@Option(
+		names = "--retryIntervals",
+		order = 9,
+		paramLabel = "RETRY INTERVALS",
+		split = ",",
+		description = "Comma-separated retry intervals in milliseconds for SNMP version 3 operations"
+	)
+	private int[] retryIntervals;
+
+	@Option(names = "--get", order = 10, paramLabel = "OID", description = "SNMP Get request")
 	String get;
 
-	@Option(names = "--snmpv3-getnext", order = 2, paramLabel = "OID", description = "SNMP Get Next request")
+	@Option(names = "--getnext", order = 11, paramLabel = "OID", description = "SNMP Get Next request")
 	String getNext;
 
-	@Option(names = "--snmpv3-walk", order = 3, paramLabel = "OID", description = "SNMP Walk request")
+	@Option(names = "--walk", order = 12, paramLabel = "OID", description = "SNMP Walk request")
 	String walk;
+
+	@Option(names = "--table", order = 13, paramLabel = "OID", description = "SNMP Table request")
+	String table;
+
+	@Option(names = "--columns", order = 14, paramLabel = "COLUMNS", description = "SNMP Table selected columns")
+	String[] columns;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 4,
+		order = 15,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 5, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 16, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -102,9 +229,15 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		} else if (getNext != null) {
 			action = "getNext";
 			oid = getNext;
-		} else {
+		} else if (walk != null) {
 			action = "walk";
 			oid = walk;
+		} else {
+			action = "table";
+			oid = table;
+			final ArrayNode columnsNode = JsonNodeFactory.instance.arrayNode();
+			Arrays.stream(columns).forEach(columnsNode::add);
+			queryNode.set("columns", columnsNode);
 		}
 
 		queryNode.set("action", new TextNode(action));
@@ -114,35 +247,26 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	}
 
 	/**
-	 * Validates SNMPv3 configuration and ensures exactly one query type (--snmpv3-get, --snmpv3-getnext, or --snmpv3-walk) is specified.
+	 * Validates SNMPv3 configuration and ensures exactly one query type (--get, --getnext, --walk, or --table) is specified.
 	 *
 	 * @throws ParameterException if SNMPv3 is not configured, no query is specified, or multiple queries are specified.
 	 */
 	void validate() throws ParameterException {
-		final long count = Stream.of(get, getNext, walk).filter(Objects::nonNull).count();
+		final long count = Stream.of(get, getNext, walk, table).filter(Objects::nonNull).count();
 
 		if (count == 0) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one SNMP V3 query must be specified: --snmpv3-get, --snmpv3-getnext, --snmpv3-walk."
+				"At least one SNMP V3 query must be specified: --get, --getnext, --walk, --table."
 			);
 		}
 
 		if (count > 1) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"Only one SNMP V3 query can be specified at a time: --snmpv3-get, --snmpv3-getnext, --snmpv3-walk."
+				"Only one SNMP V3 query can be specified at a time: --get, --getnext, --walk, --table."
 			);
 		}
-	}
-
-	/**
-	 * Builds the default SNMPv3 configuration for the {@code SnmpConfigCli} object.
-	 */
-	void buildDefaultConfiguration() {
-		snmpV3ConfigCli = new SnmpV3ConfigCli();
-		snmpV3ConfigCli.setPort(161);
-		snmpV3ConfigCli.setTimeout(String.valueOf(DEFAULT_TIMEOUT));
 	}
 
 	/**
@@ -183,26 +307,78 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
 		MetricsHubCliService.setLogLevel(verbose);
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("snmpv3")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
-					if (snmpV3ConfigCli == null) {
-						buildDefaultConfiguration();
+					// Create and fill in a configuration ObjectNode
+					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
+
+					configurationNode.set("username", new TextNode(username));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
 					}
-					IConfiguration protocol = snmpV3ConfigCli.toConfiguration(null, null);
-					protocol.setHostname(hostname);
-					extension.executeQuery(protocol, getQuery(), printWriter);
+
+					configurationNode.set("privacy", new TextNode(privacy));
+
+					if (privacyPassword != null) {
+						configurationNode.set("privacyPassword", new TextNode((String.valueOf(privacyPassword))));
+					}
+
+					configurationNode.set("authType", new TextNode(authType));
+					configurationNode.set("contextName", new TextNode(contextName));
+					configurationNode.set("timeout", new TextNode(timeout));
+					configurationNode.set("port", new IntNode(port));
+					if (retryIntervals != null) {
+						// Creating the JSON array for retryIntervals
+						final ArrayNode retryIntervalsArrayNode = configurationNode.putArray("retryIntervals");
+						Arrays.stream(retryIntervals).forEach(retryIntervalsArrayNode::add);
+					}
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					configuration.setHostname(hostname);
+
+					// display the request
+					final JsonNode queryNode = getQuery();
+					displayQuery(queryNode.get("action").asText(), queryNode.get("oid").asText());
+					// Execute the SNMPv3 query
+					final String result = extension.executeQuery(configuration, queryNode);
+					// display the result
+					displayResult(result);
 				} catch (Exception e) {
-					printWriter.println("Invalid configuration detected");
-					printWriter.flush();
-					throw new IllegalStateException("Invalid configuration detected.", e);
+					throw new IllegalStateException("Failed to execute SNMPv3 query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 * Prints query details.
+	 *
+	 * @param action the action being performed, such as "GET" or "GETNEXT".
+	 * @param oid the Object Identifier being queried.
+	 */
+	void displayQuery(final String action, final String oid) {
+		printWriter.println(String.format("Hostname %s - Executing SNMPv3 %s query:", hostname, action));
+		printWriter.println(Ansi.ansi().a("OID: ").fgBrightBlack().a(oid).reset().toString());
+		printWriter.flush();
+	}
+
+	/**
+	 * Prints the query result.
+	 *
+	 * @param result      the query result
+	 */
+	void displayResult(String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+		printWriter.flush();
 	}
 }

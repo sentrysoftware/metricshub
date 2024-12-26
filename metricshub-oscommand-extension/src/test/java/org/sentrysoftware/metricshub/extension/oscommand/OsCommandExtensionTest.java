@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1366,11 +1364,7 @@ class OsCommandExtensionTest {
 				.thenReturn(SUCCESS_RESPONSE);
 
 			// Start the SSH Health Check strategy
-			final String result = osCommandExtension.executeQuery(
-				sshConfiguration,
-				queryNode,
-				new PrintWriter(new StringWriter())
-			);
+			final String result = osCommandExtension.executeQuery(sshConfiguration, queryNode);
 
 			// Assert the result
 			assertEquals(SUCCESS_RESPONSE, result);
@@ -1399,10 +1393,7 @@ class OsCommandExtensionTest {
 				.thenThrow(ClientException.class);
 
 			// Assert the result
-			assertThrows(
-				ClientException.class,
-				() -> osCommandExtension.executeQuery(sshConfiguration, queryNode, new PrintWriter(new StringWriter()))
-			);
+			assertThrows(ClientException.class, () -> osCommandExtension.executeQuery(sshConfiguration, queryNode));
 		}
 	}
 }

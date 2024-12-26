@@ -279,25 +279,25 @@
 								<argument>--add-launcher</argument>
 								<argument>MetricsHubServiceManager=metricshub-agent.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Snmp=metricshub-snmp.properties</argument>
+								<argument>snmp=metricshub-snmp.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Http=metricshub-http.properties</argument>
+								<argument>http=metricshub-http.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Ipmi=metricshub-ipmi.properties</argument>
+								<argument>ipmi=metricshub-ipmi.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>SnmpV3=metricshub-snmpv3.properties</argument>
+								<argument>snmpv3=metricshub-snmpv3.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Wbem=metricshub-wbem.properties</argument>
+								<argument>wbem=metricshub-wbem.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Wmi=metricshub-wmi.properties</argument>
+								<argument>wmi=metricshub-wmi.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>WinRm=metricshub-winrm.properties</argument>
+								<argument>winrm=metricshub-winrm.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Jdbc=metricshub-jdbc.properties</argument>
+								<argument>jdbc=metricshub-jdbc.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Ssh=metricshub-ssh.properties</argument>
+								<argument>ssh=metricshub-ssh.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>Ping=metricshub-ping.properties</argument>
+								<argument>ping=metricshub-ping.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>

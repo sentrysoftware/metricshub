@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.engine.extension;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -155,9 +154,8 @@ public interface IProtocolExtension {
 	 * Executes a query based on the provided configuration and query parameters.
 	 *
 	 * @param configuration the IConfiguration object containing the configuration details.
-	 * @param query          a JsonNode representing the query to be executed.
-	 * @param printWriter    the PrintWriter used to display the result.
+	 * @param queryNode          a JsonNode representing the query to be executed.
 	 * @throws Exception if the query execution fails due to an error or unexpected condition.
 	 */
-	String executeQuery(IConfiguration configuration, JsonNode query, PrintWriter printWriter) throws Exception;
+	String executeQuery(IConfiguration configuration, JsonNode queryNode) throws Exception;
 }

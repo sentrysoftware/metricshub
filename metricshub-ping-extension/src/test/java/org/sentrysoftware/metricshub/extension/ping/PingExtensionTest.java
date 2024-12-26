@@ -14,9 +14,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
@@ -195,19 +192,15 @@ class PingExtensionTest {
 
 	@Test
 	void testExecuteQuery() throws Exception {
-		doReturn(Boolean.TRUE)
-			.when(pingRequestExecutorMock)
-			.ping(anyString(), anyInt());
+		doReturn(Boolean.TRUE).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 		PingConfiguration pingConfiguration = PingConfiguration.builder().hostname(HOST_NAME).timeout(5L).build();
-		assertTrue(Boolean.valueOf(pingExtension.executeQuery(pingConfiguration, null, new PrintWriter(new StringWriter()))));
+		assertTrue(Boolean.valueOf(pingExtension.executeQuery(pingConfiguration, null)));
 	}
 
 	@Test
 	void testExecuteQueryExecuteThrowsException() throws UnknownHostException {
-		doThrow(UnknownHostException.class)
-			.when(pingRequestExecutorMock)
-			.ping(anyString(), anyInt());
+		doThrow(UnknownHostException.class).when(pingRequestExecutorMock).ping(anyString(), anyInt());
 		PingConfiguration pingConfiguration = PingConfiguration.builder().hostname(HOST_NAME).timeout(5L).build();
-		assertThrows(UnknownHostException.class, () -> pingExtension.executeQuery(pingConfiguration, null, new PrintWriter(new StringWriter())));
+		assertThrows(UnknownHostException.class, () -> pingExtension.executeQuery(pingConfiguration, null));
 	}
 }

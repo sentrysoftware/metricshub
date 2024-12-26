@@ -29,17 +29,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import lombok.Data;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -47,18 +50,21 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * A command-line interface (CLI) for executing WinRm queries.
- * <p>
- * This class supports WinRm operations. It provides validation for configurations
- * and query parameters and integrates with the CLI extension framework to execute WinRm queries.
- * </p>
- *
- * Implements {@link IQuery} to generate WinRm-specific query JSON
- * and {@link Callable} to support execution via a command-line tool.
+ * CLI for executing WinRm queries with validation and execution support.
  */
 @Data
+@Command(
+	name = "winrm.exe",
+	description = "\nList of valid options: \n",
+	footer = WinRmCli.FOOTER,
+	usageHelpWidth = 180
+)
 public class WinRmCli implements IQuery, Callable<Integer> {
 
+	/**
+	 * The identifier for the WinRm protocol.
+	 */
+	private static final String PROTOCOL_IDENTIFIER = "winrm";
 	/**
 	 * Default timeout in seconds for a WinRM operation
 	 */
@@ -71,6 +77,27 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	 * Default Https port
 	 */
 	public static final Integer DEFAULT_HTTPS_PORT = 5986;
+	/**
+	 * List of possible authentication schemas
+	 */
+	public static final Set<String> AUTHENTICATION_SCHEMAS = Set.of("NTLM", "KERBEROS");
+
+	/**
+	 * Footer regrouping WINRM CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> \
+		--transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT> --authentications <AUTH1>,<AUTH2>,...
+
+		winrm dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" \
+		--transport https --port 5986 --timeout 30s --authentications NTLM,KERBEROS
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -79,7 +106,7 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	CommandSpec spec;
 
 	@Option(
-		names = "--winrm-transport",
+		names = "--transport",
 		order = 1,
 		paramLabel = "HTTP|HTTPS",
 		defaultValue = "HTTP",
@@ -87,16 +114,11 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	)
 	private String protocol;
 
-	@Option(
-		names = { "--winrm-username" },
-		order = 2,
-		paramLabel = "USER",
-		description = "Username for WinRM authentication"
-	)
+	@Option(names = { "--username" }, order = 2, paramLabel = "USER", description = "Username for WinRM authentication")
 	private String username;
 
 	@Option(
-		names = { "--winrm-password" },
+		names = { "--password" },
 		order = 3,
 		paramLabel = "P4SSW0RD",
 		description = "Password for the WinRM authentication",
@@ -106,7 +128,7 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	private char[] password;
 
 	@Option(
-		names = "--winrm-port",
+		names = "--port",
 		order = 4,
 		paramLabel = "PORT",
 		description = "Port for WinRM service (default: 5985 for HTTP, 5986 for HTTPS)"
@@ -114,7 +136,7 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	private Integer port;
 
 	@Option(
-		names = "--winrm-timeout",
+		names = "--timeout",
 		order = 5,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
@@ -123,7 +145,7 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	private String timeout;
 
 	@Option(
-		names = "--winrm-auth",
+		names = { "--authentications", "--auth" },
 		description = "Comma-separated ordered list of authentication schemes." +
 		" Possible values are NTLM and KERBEROS. By default, only NTLM is used",
 		order = 6,
@@ -132,17 +154,11 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	)
 	private List<String> authentications;
 
-	@Option(
-		names = "--winrm-query",
-		required = true,
-		order = 7,
-		paramLabel = "QUERY",
-		description = "WinRm query to execute"
-	)
+	@Option(names = "--query", required = true, order = 7, paramLabel = "QUERY", description = "WinRm query to execute")
 	private String query;
 
 	@Option(
-		names = { "--winrm-namespace" },
+		names = { "--namespace" },
 		order = 8,
 		paramLabel = "NAMESPACE",
 		description = "Forces a specific namespace for connectors that perform namespace auto-detection (advanced)"
@@ -159,6 +175,8 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 
 	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -189,6 +207,17 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 
 		if (namespace.isBlank()) {
 			throw new ParameterException(spec.commandLine(), "WinRm namespace must not be empty nor blank.");
+		}
+
+		if (authentications != null) {
+			authentications.forEach(authentication -> {
+				if (!AUTHENTICATION_SCHEMAS.contains(authentication.toUpperCase())) {
+					throw new ParameterException(
+						spec.commandLine(),
+						String.format("Invalid authentication schema %s. Possible values are NTLM or KERBEROS", authentication)
+					);
+				}
+			});
 		}
 	}
 
@@ -241,19 +270,27 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
-			.findExtensionByType("winrm")
+			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
-					// Build configuration with necessary parameters
 					configurationNode.set("protocol", new TextNode(protocol));
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
+
 					configurationNode.set("port", new IntNode(getOrDeducePortNumber()));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
@@ -264,13 +301,16 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 						configurationNode.set("authentications", authenticationsNode);
 					}
 
-					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					displayQuery(printWriter);
-					// Execute the query
-					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
-					displayResult(printWriter, result);
+					// display the request
+					displayQuery();
+					// Execute the WinRm query
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
 					throw new IllegalStateException("Failed to execute WinRm query.\n", e);
 				}
@@ -278,6 +318,11 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 		return CommandLine.ExitCode.OK;
 	}
 
+	/**
+	 * Returns the specified port or deduces it based on the protocol.
+	 *
+	 * @return the configured port, or the default port for HTTP/HTTPS.
+	 */
 	protected int getOrDeducePortNumber() {
 		if (port != null) {
 			return port;
@@ -289,12 +334,10 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Prints query details.
-	 *
-	 * @param printWriter the output writer
 	 */
-	void displayQuery(PrintWriter printWriter) {
-		printWriter.println("Executing WinRm request.");
-		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(namespace).reset().toString());
+	void displayQuery() {
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing WinRm request."));
+		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
 		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.flush();
 	}
@@ -302,10 +345,9 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param printWriter the output writer
 	 * @param result      the query result
 	 */
-	void displayResult(PrintWriter printWriter, String result) {
+	void displayResult(String result) {
 		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
 		printWriter.flush();
 	}

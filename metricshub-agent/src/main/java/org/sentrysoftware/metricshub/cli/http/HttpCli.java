@@ -36,9 +36,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import lombok.Data;
+import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
 import org.sentrysoftware.metricshub.cli.service.ConsoleService;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService.CliPasswordReader;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
@@ -50,51 +52,87 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
 
+/**
+ * CLI for executing HTTP requests with validation and support for various operations.
+ */
 @Data
-@Command(name = "httpcli", description = "HTTP client for testing purposes.")
+@Command(name = "http.exe", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
 public class HttpCli implements IQuery, Callable<Integer> {
 
+	/**
+	 * The HTTP protocol identifier.
+	 */
 	public static final String HTTP = "http";
+	/**
+	 * The HTTPS protocol identifier.
+	 */
 	public static final String HTTPS = "https";
+	/**
+	 * The default port for HTTP connections.
+	 */
 	public static final int DEFAULT_HTTP_PORT = 80;
+	/**
+	 * The default port for HTTPS connections.
+	 */
 	public static final int DEFAULT_HTTPS_PORT = 443;
+	/**
+	 * The set of supported HTTP methods.
+	 */
+	public static final Set<String> HTTP_METHODS = Set.of("GET", "POST", "PUT", "DELETE");
+
+	/**
+	 * Footer regrouping HTTP CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Examples:
+
+		http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
+		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --token <TOKEN> --timeout <TIMEOUT>
+
+		@|green # HTTP GET request with a body and two headers.|@
+		http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type:application/xml" \
+		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --token="AF65B4SG44AHJUE5R" --timeout 2m
+
+		@|green # HTTP POST request with a header file and a body file.|@
+		http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
+		--body-file="/opt/metricshub/body.txt" --token="AF65B4SG44AHJUE5R" --timeout 2m
+
+		Note: If --password is not provided, you will be prompted interactively.
+		""";
 
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--http-url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
+	@Option(names = "--url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
-	@Option(
-		names = "--http-method",
-		order = 2,
-		paramLabel = "METHOD",
-		description = "HTTP request type (GET|POST|PUT|DELETE)"
-	)
+	@Option(names = "--method", order = 2, paramLabel = "METHOD", description = "HTTP request type (GET|POST|PUT|DELETE)")
 	private String method;
 
 	@Option(
-		names = "--http-header",
+		names = "--header",
 		order = 3,
 		paramLabel = "HEADER",
-		split = ",",
-		description = "Headers to be added to the HTTP request."
+		split = ":",
+		description = "Headers to be added to the HTTP request. Repeatable for multiple headers."
 	)
 	private Map<String, String> headers;
 
 	@Option(
-		names = "--http-header-file",
+		names = { "--header-file", "--headerfile" },
 		order = 4,
 		paramLabel = "HEADERFILE",
 		description = "Path of the file containing header to be added to the HTTP request."
 	)
 	private String headerFile;
 
-	@Option(names = "--http-body", order = 5, paramLabel = "BODY", description = "Body of the HTTP request.")
+	@Option(names = "--body", order = 5, paramLabel = "BODY", description = "Body of the HTTP request.")
 	private String body;
 
 	@Option(
-		names = "--http-body-file",
+		names = { "--body-file", "--bodyfile" },
 		order = 6,
 		paramLabel = "BODYFILE",
 		description = "Path of the file containing the HTTP request body."
@@ -102,23 +140,18 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	private String bodyFile;
 
 	@Option(
-		names = "--http-authentication-token",
+		names = { "--authentication-token", "--token" },
 		order = 7,
 		paramLabel = "TOKEN",
 		description = " The authentication token for the HTTP request."
 	)
 	private String authenticationToken;
 
-	@Option(
-		names = { "--http-username" },
-		order = 8,
-		paramLabel = "USER",
-		description = "Username for HTTP authentication"
-	)
+	@Option(names = { "--username" }, order = 8, paramLabel = "USER", description = "Username for HTTP authentication")
 	private String username;
 
 	@Option(
-		names = { "--http-password" },
+		names = { "--password" },
 		order = 9,
 		paramLabel = "P4SSW0RD",
 		description = "Password for the HTTP protocol",
@@ -128,7 +161,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	private char[] password;
 
 	@Option(
-		names = "--http-timeout",
+		names = "--timeout",
 		order = 10,
 		paramLabel = "TIMEOUT",
 		defaultValue = "120",
@@ -136,15 +169,20 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	)
 	private String timeout;
 
-	@Option(names = { "-h", "-?", "--help" }, usageHelp = true, description = "Shows this help message and exits")
+	@Option(
+		names = { "-h", "-?", "--help" },
+		order = 11,
+		usageHelp = true,
+		description = "Shows this help message and exits"
+	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 12, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	java.net.URL parsedUrl;
 
-	static Set<String> httpMethods = Set.of("GET", "POST", "PUT", "DELETE");
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -251,7 +289,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		validateUrl();
 
 		// Validating HTTP methods
-		if (method != null && !httpMethods.contains(method.toUpperCase())) {
+		if (method != null && !HTTP_METHODS.contains(method.toUpperCase())) {
 			throw new ParameterException(spec.commandLine(), String.format("Unknown HTTP request method: %s.", method));
 		}
 
@@ -259,7 +297,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		if (headers != null && headerFile != null) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"Conflict - Two headers have been configured: --http-header and --http-header-file."
+				"Conflict - Two headers have been configured: --header and --header-file."
 			);
 		} else if (headerFile != null) {
 			try {
@@ -276,7 +314,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		if (body != null && bodyFile != null) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"Conflict - Two bodies have been configured: --http-body and --http-body-file."
+				"Conflict - Two bodies have been configured: --body and --body-file."
 			);
 		} else if (bodyFile != null) {
 			try {
@@ -373,35 +411,87 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
+		// Validate the entries
 		validate();
-		final PrintWriter printWriter = spec.commandLine().getOut();
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType(HTTP)
 			.ifPresent(extension -> {
 				try {
-					final ObjectNode configuration = JsonNodeFactory.instance.objectNode();
+					// Create and fill in a configuration ObjectNode
+					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
-					configuration.set(HTTPS, BooleanNode.valueOf(parsedUrl.getProtocol().equals(HTTPS)));
+					configurationNode.set(HTTPS, BooleanNode.valueOf(parsedUrl.getProtocol().equals(HTTPS)));
+					configurationNode.set("port", new IntNode(resolvePortFromUrl()));
+					configurationNode.set("timeout", new TextNode(timeout));
+					configurationNode.set("username", new TextNode(username));
+					configurationNode.set("password", new TextNode(String.valueOf(password)));
 
-					configuration.set("username", new TextNode(username));
+					// Build an IConfiguration from the configuration ObjectNode
+					IConfiguration configuration = extension.buildConfiguration(HTTP, configurationNode, null);
+					configuration.setHostname(parsedUrl.getHost());
 
-					if (password != null) {
-						configuration.set("password", new TextNode(String.valueOf(password)));
-					}
-
-					configuration.set("port", new IntNode(resolvePortFromUrl()));
-					configuration.set("timeout", new TextNode(timeout));
-
-					IConfiguration protocol = extension.buildConfiguration(HTTP, configuration, null);
-					protocol.setHostname(parsedUrl.getHost());
-					extension.executeQuery(protocol, getQuery(), printWriter);
+					// display the request
+					displayRequest();
+					// Execute the HTTP query
+					final String result = extension.executeQuery(configuration, getQuery());
+					// display the returned result
+					displayResult(result);
 				} catch (Exception e) {
-					printWriter.println("HTTP - Invalid configuration detected.\n");
-					printWriter.flush();
-					throw new IllegalStateException("Invalid configuration detected.", e);
+					throw new IllegalStateException(String.format("Failed to execute HTTP %s query.%n", method), e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
+	}
+
+	/**
+	 * Displays the details of an HTTP request in a formatted manner.
+	 */
+	void displayRequest() {
+		printWriter.println(
+			String.format("Hostname %s - Executing %s %s request:", parsedUrl.getHost(), parsedUrl.getProtocol(), method)
+		);
+
+		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
+
+		try {
+			final String headerContent = getHeaderContent();
+			if (headerContent != null) {
+				printWriter.println(Ansi.ansi().a("Header: ").fgBrightBlack().a(headerContent).reset().toString());
+			}
+		} catch (Exception e) {
+			throw new ParameterException(spec.commandLine(), String.format("Error while reading the header: %s", e));
+		}
+
+		try {
+			final String bodyContent = getBodyContent();
+			if (bodyContent != null) {
+				printWriter.println(Ansi.ansi().a("Body: ").fgBrightBlack().a(bodyContent).reset().toString());
+			}
+		} catch (Exception e) {
+			throw new ParameterException(spec.commandLine(), String.format("Error while reading the body: %s", e));
+		}
+
+		if (authenticationToken != null) {
+			printWriter.println(
+				Ansi.ansi().a("AuthenticationToken: ").fgBrightBlack().a(authenticationToken).reset().toString()
+			);
+		}
+		printWriter.flush();
+	}
+
+	/**
+	 * Prints the query result.
+	 *
+	 * @param result      the query result
+	 */
+	void displayResult(String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+		printWriter.flush();
 	}
 }

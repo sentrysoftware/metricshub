@@ -3,6 +3,7 @@ package org.sentrysoftware.metricshub.cli.wbem;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -60,6 +61,12 @@ public class WbemCliTest {
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
 		assertEquals("Wbem namespace must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setNamespace(WBEM_TEST_NAMESPACE);
+
+		// testing transport protocol validation
+		wbemCli.setProtocol("IPMI");
+		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
+		assertTrue(parameterException.getMessage().contains("Invalid Wbem transport protocol"));
+		wbemCli.setProtocol("HTTP");
 		assertDoesNotThrow(() -> wbemCli.validate());
 	}
 

@@ -26,19 +26,19 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
-import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
+import org.sentrysoftware.metricshub.cli.service.MetricsHubCliService;
 import org.sentrysoftware.metricshub.cli.service.PrintExceptionMessageHandlerService;
 import org.sentrysoftware.metricshub.engine.common.IQuery;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
-import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -49,6 +49,7 @@ import picocli.CommandLine.Spec;
  */
 @Data
 @Slf4j
+@Command(name = "ping.exe", description = "\nList of valid options: \n", footer = PingCli.FOOTER, usageHelpWidth = 180)
 public class PingCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -59,6 +60,19 @@ public class PingCli implements IQuery, Callable<Integer> {
 	 * Default timeout in seconds to execute an ICMP ping requests
 	 */
 	public static final long DEFAULT_TIMEOUT = 5L;
+
+	/**
+	 * Footer regrouping ICMP Ping CLI examples
+	 */
+	public static final String FOOTER =
+		"""
+
+		Example:
+
+		ping <HOSTNAME> --timeout <TIMEOUT>
+
+		ping dev-01 --timeout 5s
+		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
 	String hostname;
@@ -74,6 +88,19 @@ public class PingCli implements IQuery, Callable<Integer> {
 		defaultValue = "" + DEFAULT_TIMEOUT
 	)
 	private String timeout;
+
+	@Option(
+		names = { "-h", "-?", "--help" },
+		order = 2,
+		usageHelp = true,
+		description = "Shows this help message and exits"
+	)
+	boolean usageHelpRequested;
+
+	@Option(names = "-v", order = 3, description = "Verbose mode (repeat the option to increase verbosity)")
+	boolean[] verbose;
+
+	PrintWriter printWriter;
 
 	@Override
 	public JsonNode getQuery() {
@@ -118,27 +145,34 @@ public class PingCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public Integer call() throws Exception {
-		final PrintWriter printWriter = spec.commandLine().getOut();
-
+		// Set the logger level
+		MetricsHubCliService.setLogLevel(verbose);
+		// Gets the output writer from the command line spec.
+		printWriter = spec.commandLine().getOut();
+		// Find an extension to execute the query
 		CliExtensionManager
 			.getExtensionManagerSingleton()
 			.findExtensionByType(PROTOCOL_IDENTIFIER)
 			.ifPresent(extension -> {
 				try {
+					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 					configurationNode.set("timeout", new TextNode(timeout));
 
+					// Build an IConfiguration from the configuration ObjectNode
 					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					displayQuery(printWriter);
-					// Execute the query
+					// display the request
+					displayQuery();
+					// Execute ICMP Ping query and calculate response time
 					final long startTime = System.currentTimeMillis();
-					final String result = extension.executeQuery(configuration, getQuery(), printWriter);
+					final String result = extension.executeQuery(configuration, getQuery());
 					final long responseTime = (System.currentTimeMillis() - startTime);
-					displayResult(printWriter, result, responseTime);
+					// display the returned result
+					displayResult(result, responseTime);
 				} catch (Exception e) {
-					displayResult(printWriter, Boolean.toString(false), 0);
+					displayResult(Boolean.toString(false), null);
 				}
 			});
 		return CommandLine.ExitCode.OK;
@@ -146,10 +180,8 @@ public class PingCli implements IQuery, Callable<Integer> {
 
 	/**
 	 * Prints query details.
-	 *
-	 * @param printWriter the output writer
 	 */
-	void displayQuery(final PrintWriter printWriter) {
+	void displayQuery() {
 		String fqdn = hostname;
 		String ipAddress = null;
 		printWriter.println("Executing an ICMP ping request:");
@@ -166,25 +198,21 @@ public class PingCli implements IQuery, Callable<Integer> {
 			log.debug("Unable to retrieve IP Address for {}.\n", hostname);
 		}
 
-		printWriter.println(
-			Ansi.ansi().a("Hostname: ").fgBrightBlack().a(fqdn != null ? fqdn : hostname).reset().toString()
-		);
+		printWriter.println(Ansi.ansi().a("Hostname: ").fgBrightBlack().a(fqdn).reset().toString());
 
 		if (ipAddress != null) {
-			printWriter.println(
-				Ansi.ansi().a("IP Address: ").fgBrightBlack().a(ipAddress != null ? ipAddress : "N/A").reset().toString()
-			);
+			printWriter.println(Ansi.ansi().a("IP Address: ").fgBrightBlack().a(ipAddress).reset().toString());
 		}
 		printWriter.flush();
 	}
 
 	/**
-	 * Prints the query result.
+	 * Displays the query result with status and response time.
 	 *
-	 * @param printWriter the output writer
-	 * @param result      the query result
+	 * @param result       the query result
+	 * @param responseTime the response time in milliseconds
 	 */
-	void displayResult(final PrintWriter printWriter, final String result, final long responseTime) {
+	void displayResult(final String result, final Long responseTime) {
 		if (Boolean.TRUE.toString().equals(result)) {
 			printWriter.println(Ansi.ansi().bold().a("Status: ").reset().fgGreen().a("Reachable").reset().toString());
 			printWriter.println(Ansi.ansi().a("Response Time: ").fgBrightBlack().a(responseTime).a("ms").reset().toString());

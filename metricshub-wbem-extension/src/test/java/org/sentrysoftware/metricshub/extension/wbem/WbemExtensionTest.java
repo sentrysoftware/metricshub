@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -717,8 +715,7 @@ class WbemExtensionTest {
 			.vCenter("vcenter")
 			.protocol(TransportProtocols.HTTPS)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		final String result = wbemExtension.executeQuery(configuration, queryNode, printWriter);
+		final String result = wbemExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
 			TextTableHelper.extractColumns(WBEM_TEST_QUERY),
 			EXECUTE_WBEM_RESULT
@@ -746,7 +743,6 @@ class WbemExtensionTest {
 			.vCenter("vcenter")
 			.protocol(TransportProtocols.HTTPS)
 			.build();
-		final PrintWriter printWriter = new PrintWriter(new StringWriter());
-		assertThrows(ClientException.class, () -> wbemExtension.executeQuery(configuration, queryNode, printWriter));
+		assertThrows(ClientException.class, () -> wbemExtension.executeQuery(configuration, queryNode));
 	}
 }
