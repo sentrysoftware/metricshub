@@ -36,6 +36,8 @@ import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.CommandLineCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -270,5 +272,20 @@ public class WmiExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
+		final String query = queryNode.get("query").asText();
+		final WmiConfiguration wmiConfiguration = (WmiConfiguration) configuration;
+		final String namespace = wmiConfiguration.getNamespace();
+		final String hostname = configuration.getHostname();
+		final List<List<String>> resultList = wmiRequestExecutor.executeWmi(hostname, wmiConfiguration, query, namespace);
+		final String[] columns = StringHelper.extractColumns(query);
+		if (columns.length == 1 && columns[0].equals("*")) {
+			return TextTableHelper.generateTextTable(resultList);
+		} else {
+			return TextTableHelper.generateTextTable(columns, resultList);
+		}
 	}
 }

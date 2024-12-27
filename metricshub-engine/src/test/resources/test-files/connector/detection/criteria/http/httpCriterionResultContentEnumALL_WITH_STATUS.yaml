@@ -1,0 +1,8 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: http
+        url: /
+        resultContent: all_with_status

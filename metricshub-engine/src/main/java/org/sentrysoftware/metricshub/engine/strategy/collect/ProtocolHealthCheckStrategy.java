@@ -97,7 +97,7 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					metricFactory.collectNumberMetric(
 						endpointHostMonitor,
 						"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
-						isUp ? UP : DOWN,
+						Boolean.TRUE.equals(isUp) ? UP : DOWN,
 						strategyTime
 					);
 					// Collect protocol check response time metric
