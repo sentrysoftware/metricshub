@@ -33,7 +33,7 @@ class HttpCliTest {
 	private static final String AUTHENTICATION_TOKEN = "Q5SD7SDF2BCV8ZER4";
 	private static final String RESULT_CONTENT = "all";
 	private static final String FILE_HEADER = String.join(
-		System.lineSeparator(),
+		"\n",
 		"Content-Type: application/xml",
 		"User-Agent: Mozilla/5.0",
 		"Accept: text/html",
