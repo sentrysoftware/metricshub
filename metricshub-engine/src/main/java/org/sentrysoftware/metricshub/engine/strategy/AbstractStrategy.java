@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -46,7 +45,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
@@ -417,28 +415,26 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * @return {@code true} if a monitor job matches the strategy, {@code false} otherwise
 	 */
 	protected boolean hasExpectedJobTypes(final Connector currentConnector, final String strategyJobName) {
-		// CHECKSTYLE:OFF
-		final Map<String, Predicate<MonitorJob>> strategyPredicates = Map.of(
-			"discovery",
-			job -> job instanceof StandardMonitorJob && ((StandardMonitorJob) job).getDiscovery() != null,
-			"collect",
-			job -> job instanceof StandardMonitorJob && ((StandardMonitorJob) job).getCollect() != null,
-			"simple",
-			job -> job instanceof SimpleMonitorJob && ((SimpleMonitorJob) job).getSimple() != null
-		);
-		// CHECKSTYLE:ON
-		final Map<String, MonitorJob> connectorMonitorJobs = currentConnector.getMonitors();
-		if (connectorMonitorJobs == null || connectorMonitorJobs.isEmpty()) {
+		if (currentConnector == null || currentConnector.getMonitors() == null) {
 			return false;
 		}
 
-		final String normalizedStrategyName = strategyJobName.toLowerCase();
-
-		// Check whether the strategy job name matches any of the monitor jobs names of the current connector
-		return connectorMonitorJobs
+		return currentConnector
+			.getMonitors()
 			.values()
 			.stream()
-			.anyMatch(monitorJob -> strategyPredicates.getOrDefault(normalizedStrategyName, job -> false).test(monitorJob));
+			.anyMatch(monitorJob -> {
+				switch (strategyJobName.toLowerCase()) {
+					case "discovery":
+						return monitorJob instanceof StandardMonitorJob && ((StandardMonitorJob) monitorJob).getDiscovery() != null;
+					case "collect":
+						return monitorJob instanceof StandardMonitorJob && ((StandardMonitorJob) monitorJob).getCollect() != null;
+					case "simple":
+						return monitorJob instanceof SimpleMonitorJob && ((SimpleMonitorJob) monitorJob).getSimple() != null;
+					default:
+						return false;
+				}
+			});
 	}
 
 	/**
