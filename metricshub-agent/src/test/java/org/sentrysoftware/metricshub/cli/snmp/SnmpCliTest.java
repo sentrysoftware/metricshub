@@ -61,7 +61,7 @@ class SnmpCliTest {
 		// Test 1: No SNMP queries
 		ParameterException parameterException = assertThrows(ParameterException.class, () -> snmpCli.validate());
 		assertEquals(
-			"At least one SNMP query must be specified: --get, --getnext, --walk, --table.",
+			"At least one SNMP query must be specified: --get, --get-next, --walk, --table.",
 			parameterException.getMessage()
 		);
 
@@ -73,7 +73,7 @@ class SnmpCliTest {
 		snmpCli.setGetNext(SNMP_OID);
 		parameterException = assertThrows(ParameterException.class, () -> snmpCli.validate());
 		assertEquals(
-			"Only one SNMP query can be specified at a time: --get, --getnext, --walk, --table.",
+			"Only one SNMP query can be specified at a time: --get, --get-next, --walk, --table.",
 			parameterException.getMessage()
 		);
 

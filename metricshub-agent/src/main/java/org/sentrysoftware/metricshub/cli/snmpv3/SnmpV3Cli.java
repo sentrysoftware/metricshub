@@ -192,7 +192,7 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	@Option(names = "--get", order = 10, paramLabel = "OID", description = "SNMP Get request")
 	String get;
 
-	@Option(names = "--getnext", order = 11, paramLabel = "OID", description = "SNMP Get Next request")
+	@Option(names = { "--get-next", "--getNext" }, order = 11, paramLabel = "OID", description = "SNMP Get Next request")
 	String getNext;
 
 	@Option(names = "--walk", order = 12, paramLabel = "OID", description = "SNMP Walk request")
@@ -201,7 +201,13 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	@Option(names = "--table", order = 13, paramLabel = "OID", description = "SNMP Table request")
 	String table;
 
-	@Option(names = "--columns", order = 14, paramLabel = "COLUMNS", description = "SNMP Table selected columns")
+	@Option(
+		names = "--columns",
+		split = ",",
+		order = 14,
+		paramLabel = "COLUMNS",
+		description = "SNMP Table selected columns"
+	)
 	String[] columns;
 
 	@Option(
@@ -247,7 +253,7 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	}
 
 	/**
-	 * Validates SNMPv3 configuration and ensures exactly one query type (--get, --getnext, --walk, or --table) is specified.
+	 * Validates SNMPv3 configuration and ensures exactly one query type (--get, --get-next, --walk, or --table) is specified.
 	 *
 	 * @throws ParameterException if SNMPv3 is not configured, no query is specified, or multiple queries are specified.
 	 */
@@ -257,14 +263,14 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		if (count == 0) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one SNMP V3 query must be specified: --get, --getnext, --walk, --table."
+				"At least one SNMP V3 query must be specified: --get, --get-next, --walk, --table."
 			);
 		}
 
 		if (count > 1) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"Only one SNMP V3 query can be specified at a time: --get, --getnext, --walk, --table."
+				"Only one SNMP V3 query can be specified at a time: --get, --get-next, --walk, --table."
 			);
 		}
 	}
@@ -295,6 +301,9 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 
 		// Allow case insensitive enum values
 		cli.setCaseInsensitiveEnumValuesAllowed(true);
+
+		// Allow case insensitive options
+		cli.setOptionsCaseInsensitive(true);
 
 		// Execute the command
 		final int exitCode = cli.execute(args);

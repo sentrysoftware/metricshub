@@ -212,6 +212,9 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		// Allow case insensitive enum values
 		cli.setCaseInsensitiveEnumValuesAllowed(true);
 
+		// Allow case insensitive options
+		cli.setOptionsCaseInsensitive(true);
+
 		// Execute the command
 		final int exitCode = cli.execute(args);
 
@@ -264,7 +267,7 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayQuery() {
-		printWriter.println("Executing WMI request.");
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing WMI request."));
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.flush();

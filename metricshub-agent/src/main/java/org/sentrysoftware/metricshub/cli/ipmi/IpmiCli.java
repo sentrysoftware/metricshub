@@ -184,6 +184,9 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 		// Allow case insensitive enum values
 		cli.setCaseInsensitiveEnumValuesAllowed(true);
 
+		// Allow case insensitive options
+		cli.setOptionsCaseInsensitive(true);
+
 		// Execute the command
 		final int exitCode = cli.execute(args);
 
@@ -239,7 +242,7 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayRequest() {
-		printWriter.println(String.format("Hostname %s - Executing IPMI request:", hostname));
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing SQL request."));
 		printWriter.flush();
 	}
 

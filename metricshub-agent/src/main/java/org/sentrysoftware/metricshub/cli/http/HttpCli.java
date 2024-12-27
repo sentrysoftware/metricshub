@@ -400,6 +400,9 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		// Allow case insensitive enum values
 		cli.setCaseInsensitiveEnumValuesAllowed(true);
 
+		// Allow case insensitive options
+		cli.setOptionsCaseInsensitive(true);
+
 		// Execute the command
 		final int exitCode = cli.execute(args);
 

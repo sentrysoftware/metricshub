@@ -141,7 +141,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--get", order = 6, paramLabel = "OID", description = "SNMP Get request")
 	String get;
 
-	@Option(names = "--getnext, --getNext", order = 7, paramLabel = "OID", description = "SNMP Get Next request")
+	@Option(names = { "--getNext", "--get-next" }, order = 7, paramLabel = "OID", description = "SNMP Get Next request")
 	String getNext;
 
 	@Option(names = "--walk", order = 8, paramLabel = "OID", description = "SNMP Walk request")
@@ -202,7 +202,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 	}
 
 	/**
-	 * Validates SNMP configuration and ensures exactly one query type (--get, --getnext, --walk, or --table) is specified.
+	 * Validates SNMP configuration and ensures exactly one query type (--get, --get-next, --walk, or --table) is specified.
 	 *
 	 * @throws ParameterException if SNMP is not configured, no query is specified, or multiple queries are specified.
 	 */
@@ -212,14 +212,14 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		if (count == 0) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one SNMP query must be specified: --get, --getnext, --walk, --table."
+				"At least one SNMP query must be specified: --get, --get-next, --walk, --table."
 			);
 		}
 
 		if (count > 1) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"Only one SNMP query can be specified at a time: --get, --getnext, --walk, --table."
+				"Only one SNMP query can be specified at a time: --get, --get-next, --walk, --table."
 			);
 		}
 

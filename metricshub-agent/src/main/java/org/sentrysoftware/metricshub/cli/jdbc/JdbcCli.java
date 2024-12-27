@@ -200,6 +200,9 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 		// Allow case insensitive enum values
 		cli.setCaseInsensitiveEnumValuesAllowed(true);
 
+		// Allow case insensitive options
+		cli.setOptionsCaseInsensitive(true);
+
 		// Execute the command
 		final int exitCode = cli.execute(args);
 
@@ -256,7 +259,7 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayQuery() {
-		printWriter.println("Executing SQL request.");
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing SQL request."));
 		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
 		printWriter.flush();
