@@ -249,7 +249,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		StringBuilder header = new StringBuilder();
 
 		if (headers != null) {
-			headers.forEach((key, value) -> header.append(String.format("%s: %s%s", key, value, System.lineSeparator())));
+			headers.forEach((key, value) -> header.append(String.format("%s: %s\n", key, value)));
 			return header.toString();
 		} else if (headerFile != null) {
 			header.append(Files.readString(Path.of(headerFile), StandardCharsets.UTF_8));

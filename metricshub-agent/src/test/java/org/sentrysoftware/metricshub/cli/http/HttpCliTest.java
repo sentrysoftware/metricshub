@@ -56,7 +56,7 @@ class HttpCliTest {
 		httpCli.setAuthenticationToken(AUTHENTICATION_TOKEN);
 
 		StringBuilder header = new StringBuilder();
-		HEADERS.forEach((key, value) -> header.append(String.format("%s: %s%s", key, value, System.lineSeparator())));
+		HEADERS.forEach((key, value) -> header.append(String.format("%s: %s\n", key, value)));
 
 		ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 		queryNode.set("method", new TextNode(HTTP_GET));
@@ -72,8 +72,7 @@ class HttpCliTest {
 	void testGetHeader() throws Exception {
 		initCli();
 		httpCli.setHeaders(HEADERS);
-		String expectedHeaderContent = String.format("Content-Type: application/xml%s", System.lineSeparator());
-		assertEquals(expectedHeaderContent, httpCli.getHeaderContent());
+		assertEquals("Content-Type: application/xml\n", httpCli.getHeaderContent());
 		httpCli.setHeaders(null);
 		httpCli.setHeaderFile(HEADER_FILE_PATH);
 		assertEquals(FILE_HEADER, httpCli.getHeaderContent());
