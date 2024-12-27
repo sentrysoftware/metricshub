@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper.isNotNull;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -223,7 +225,7 @@ public class HttpExtension implements IProtocolExtension {
 		final JsonNode header = query.get("header");
 		final JsonNode body = query.get("body");
 		final JsonNode resultContent = query.get("resultContent");
-		final JsonNode authenticationToken = query.get("authenticationToken");
+
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
 			.configurations(Map.of(HttpConfiguration.class, configuration))
@@ -235,23 +237,14 @@ public class HttpExtension implements IProtocolExtension {
 			.hostname(hostname)
 			.httpConfiguration((HttpConfiguration) configuration)
 			.method(method)
-			.url(notNull(url) ? url.asText() : null)
-			.header(notNull(header) ? header.asText() : null, Map.of(), "", hostname)
-			.body(notNull(body) ? body.asText() : null, Map.of(), "", hostname)
-			.resultContent(notNull(resultContent) ? ResultContent.detect(resultContent.asText()) : ResultContent.ALL)
-			.authenticationToken(notNull(authenticationToken) ? authenticationToken.asText() : null)
+			.url(isNotNull(url) ? url.asText() : null)
+			.header(isNotNull(header) ? header.asText() : null, Map.of(), "", hostname)
+			.body(isNotNull(body) ? body.asText() : null, Map.of(), "", hostname)
+			.resultContent(
+				isNotNull(resultContent) ? ResultContent.detect(resultContent.asText()) : ResultContent.ALL_WITH_STATUS
+			)
 			.build();
 
 		return httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
-	}
-
-	/**
-	 * Checks if a JsonNode is not null and does not represent a JSON null value.
-	 *
-	 * @param jsonNode the JsonNode to check
-	 * @return {@code true} if the JsonNode is not null and not a JSON null; {@code false} otherwise
-	 */
-	boolean notNull(final JsonNode jsonNode) {
-		return jsonNode != null && !jsonNode.isNull();
 	}
 }

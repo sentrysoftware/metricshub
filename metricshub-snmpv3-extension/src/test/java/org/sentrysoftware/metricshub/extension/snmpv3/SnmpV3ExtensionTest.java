@@ -684,13 +684,13 @@ class SnmpV3ExtensionTest {
 		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
 
 		assertEquals(
-			"Failed Executing SNMPv3 query",
+			"Failed Executing SNMP query",
 			snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration)
 		);
 	}
 
 	@Test
-	void testThrowsExceptionQuery() throws Exception {
+	void testThrowsExceptionQuery() {
 		initSnmp();
 
 		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
@@ -699,7 +699,7 @@ class SnmpV3ExtensionTest {
 		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
 
 		assertEquals(
-			"Failed Executing SNMPv3 query",
+			"Failed Executing SNMP query",
 			snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration)
 		);
 	}

@@ -1,28 +1,6 @@
-package org.sentrysoftware.metricshub.cli.ssh;
-
-/*-
- * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Agent
- * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
- * ჻჻჻჻჻჻
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
- */
+package org.sentrysoftware.metricshub.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -46,44 +24,55 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Agent
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
+
 /**
- * CLI for executing commands via SSH with validation and execution support.
+ * CLI for executing SQL queries via JDBC with validation and execution support.
  */
 @Data
-@Command(name = "ssh.exe", description = "\nList of valid options: \n", footer = SshCli.FOOTER, usageHelpWidth = 180)
-public class SshCli implements IQuery, Callable<Integer> {
+@Command(name = "jdbc", description = "\nList of valid options: \n", footer = JdbcCli.FOOTER, usageHelpWidth = 180)
+public class JdbcCli implements IQuery, Callable<Integer> {
 
 	/**
-	 * The identifier for the SSH protocol.
+	 * The identifier for the JDBC protocol.
 	 */
-	public static final String PROTOCOL_IDENTIFIER = "ssh";
+	private static final String PROTOCOL_IDENTIFIER = "jdbc";
+
 	/**
-	 * Default timeout in seconds to execute an SSH operation
+	 * Default timeout in seconds for an SQL query
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	/**
-	 * Default SSH port number.
-	 */
-	public static final int DEFAULT_PORT = 22;
-
-	/**
-	 * Footer regrouping SSH CLI examples
+	 * Footer regrouping JDBC CLI examples
 	 */
 	public static final String FOOTER =
 		"""
 
 		Example:
 
-		@|green # SSH basic authentication with username and password:|@
-		ssh <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+		jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <jdbc:<DB-TYPE>://<HOSTNAME>:PORT/<DB-NAME> --query <QUERY>
 
-		ssh dev-01 --username username --password password --command="echo test" --timeout 30s --port 22
-
-		@|green # SSH RSA authentication with a public key:|@
-		ssh <HOSTNAME> --publickey <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
-
-		ssh dev-01 --publickey="/opt/ssh-rsa.txt" --command="echo test" --timeout 30s --port 22
+		jdbc dev-01 --username username --password password --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM users"
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -94,64 +83,36 @@ public class SshCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--username", order = 1, paramLabel = "USER", description = "Username for SSH authentication")
+	@Option(names = "--url", order = 1, required = true, paramLabel = "URL", description = "JDBC URL")
+	private char[] url;
+
+	@Option(names = "--username", order = 2, paramLabel = "USERNAME", description = "Username for JDBC authentication")
 	private String username;
 
-	@Option(
-		names = "--password",
-		order = 2,
-		paramLabel = "P4SSW0RD",
-		description = "Password or SSH authentication",
-		interactive = true,
-		arity = "0..1"
-	)
+	@Option(names = "--password", order = 3, paramLabel = "PASSWORD", description = "Password for JDBC authentication")
 	private char[] password;
-
-	@Option(
-		names = "--publickey",
-		order = 3,
-		paramLabel = "PATH",
-		description = "Path to the public key file for SSH authentication"
-	)
-	private String publicKeyFilePath;
 
 	@Option(
 		names = "--timeout",
 		order = 4,
 		paramLabel = "TIMEOUT",
-		description = "Timeout in seconds for SSH operations (default: ${DEFAULT-VALUE} s)",
-		defaultValue = "" + DEFAULT_TIMEOUT
+		defaultValue = "" + DEFAULT_TIMEOUT,
+		description = "Timeout in seconds for SQL queries(default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
 
-	@Option(
-		names = "--port",
-		order = 5,
-		paramLabel = "PORT",
-		defaultValue = "" + DEFAULT_PORT,
-		description = "Port number for SSH connection (default: ${DEFAULT-VALUE})"
-	)
-	private Integer port;
-
-	@Option(
-		names = { "--command-line", "--command" },
-		required = true,
-		order = 8,
-		paramLabel = "COMMANDLINE",
-		description = "Command Line to execute",
-		defaultValue = "sudo"
-	)
-	private String commandLine;
+	@Option(names = "--query", required = true, order = 5, paramLabel = "QUERY", description = "SQL query to execute")
+	private String query;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 9,
+		order = 6,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 10, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 7, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
 	PrintWriter printWriter;
@@ -159,14 +120,14 @@ public class SshCli implements IQuery, Callable<Integer> {
 	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
-		queryNode.set("commandLine", new TextNode(commandLine));
+		queryNode.set("query", new TextNode(query));
 		return queryNode;
 	}
 
 	/**
 	 * Validates the current configuration.
 	 *
-	 * Ensures that required parameters are correctly specified and that passwords can be requested interactively if needed.
+	 * Ensures that required parameters are not blank and that passwords can be requested interactively if needed.
 	 *
 	 * @throws ParameterException if required parameters are blank
 	 */
@@ -179,24 +140,41 @@ public class SshCli implements IQuery, Callable<Integer> {
 			tryInteractivePassword(System.console()::readPassword);
 		}
 
-		if (commandLine.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "SSH command line must not be empty nor blank.");
+		if (isCharArrayBlank(url)) {
+			throw new ParameterException(spec.commandLine(), "SQL url must not be empty nor blank.");
+		}
+
+		if (query.isBlank()) {
+			throw new ParameterException(spec.commandLine(), "SQL query must not be empty nor blank.");
 		}
 	}
 
 	/**
-	 * Try to start the interactive mode to request and set SSH password
+	 * Try to start the interactive mode to request and set WMI password
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
 	 */
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for SSH: ", username));
+			password = (passwordReader.read("%s password for Jdbc: ", username));
 		}
 	}
 
 	/**
-	 * Entry point for the SSH CLI application. Initializes necessary configurations,
+	 *
+	 * @param charArray
+	 * @return
+	 */
+	public boolean isCharArrayBlank(final char[] charArray) {
+		boolean result = false;
+		if (charArray == null || charArray.length == 0 || new String(charArray).isBlank()) {
+			result = true;
+		}
+		return result;
+	}
+
+	/**
+	 * Entry point for the JDBC CLI application. Initializes necessary configurations,
 	 * processes command line arguments, and executes the CLI.
 	 *
 	 * @param args The command line arguments passed to the application.
@@ -207,7 +185,7 @@ public class SshCli implements IQuery, Callable<Integer> {
 		// Enable colors on Windows terminal
 		AnsiConsole.systemInstall();
 
-		final CommandLine cli = new CommandLine(new SshCli());
+		final CommandLine cli = new CommandLine(new JdbcCli());
 
 		// Keep the below line commented for future reference
 		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
@@ -257,22 +235,27 @@ public class SshCli implements IQuery, Callable<Integer> {
 						configurationNode.set("password", new TextNode(String.valueOf(password)));
 					}
 
-					configurationNode.set("publicKey", new TextNode(publicKeyFilePath));
+					configurationNode.set("url", new TextNode(String.valueOf(url)));
 					configurationNode.set("timeout", new TextNode(timeout));
-					configurationNode.set("port", new IntNode(getPort()));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(
+						PROTOCOL_IDENTIFIER,
+						configurationNode,
+						null
+					);
 					configuration.setHostname(hostname);
 
-					// display the request
+					configuration.validateConfiguration(hostname);
+
+					// display the query
 					displayQuery();
-					// Execute the command line query through SSH
+					// Execute the SQL query
 					final String result = extension.executeQuery(configuration, getQuery());
 					// display the returned result
 					displayResult(result);
 				} catch (Exception e) {
-					throw new IllegalStateException("Failed to execute command line through SSH.\n", e);
+					throw new IllegalStateException("Failed to execute SQL query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
@@ -282,18 +265,19 @@ public class SshCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayQuery() {
-		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing command line through SSH."));
-		printWriter.println(Ansi.ansi().a("Command line: ").fgBrightBlack().a(commandLine).reset().toString());
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing SQL request."));
+		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
+		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
 		printWriter.flush();
 	}
 
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
 	void displayResult(final String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

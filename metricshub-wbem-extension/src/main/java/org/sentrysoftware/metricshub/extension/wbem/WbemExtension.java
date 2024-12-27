@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -251,7 +252,7 @@ public class WbemExtension implements IProtocolExtension {
 		);
 
 		// return a text table containing the WBEM query result.
-		final String[] columns = TextTableHelper.extractColumns(query);
+		final String[] columns = StringHelper.extractColumns(query);
 		if (columns.length == 1 && columns[0].equals("*")) {
 			return TextTableHelper.generateTextTable(result);
 		} else {

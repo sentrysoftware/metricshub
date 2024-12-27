@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.ping;
+package org.sentrysoftware.metricshub.cli;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -49,7 +49,7 @@ import picocli.CommandLine.Spec;
  */
 @Data
 @Slf4j
-@Command(name = "ping.exe", description = "\nList of valid options: \n", footer = PingCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "ping", description = "\nList of valid options: \n", footer = PingCli.FOOTER, usageHelpWidth = 180)
 public class PingCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -163,8 +163,14 @@ public class PingCli implements IQuery, Callable<Integer> {
 					configurationNode.set("timeout", new TextNode(timeout));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(
+						PROTOCOL_IDENTIFIER,
+						configurationNode,
+						null
+					);
 					configuration.setHostname(hostname);
+
+					configuration.validateConfiguration(hostname);
 
 					// display the request
 					displayQuery();

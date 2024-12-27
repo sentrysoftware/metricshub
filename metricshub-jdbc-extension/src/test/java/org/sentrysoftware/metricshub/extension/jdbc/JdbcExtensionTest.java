@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -345,10 +346,7 @@ class JdbcExtensionTest {
 			.timeout(120L)
 			.build();
 		final String result = jdbcExtension.executeQuery(configuration, queryNode);
-		final String expectedResult = TextTableHelper.generateTextTable(
-			TextTableHelper.extractColumns(SQL_QUERY),
-			SQL_RESULT
-		);
+		final String expectedResult = TextTableHelper.generateTextTable(StringHelper.extractColumns(SQL_QUERY), SQL_RESULT);
 		assertEquals(expectedResult, result);
 	}
 

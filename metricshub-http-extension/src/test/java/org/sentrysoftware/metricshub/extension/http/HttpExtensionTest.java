@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -63,8 +62,6 @@ class HttpExtensionTest {
 	private static final String ERROR = "error";
 	private static final String HTTP_GET = "GET";
 	private static final String TEST_HEADER = "Content-Type: application/xml";
-	private static final String AUTHENTICATION_TOKEN = "AGSDTZE5SZDF5FV7T82S4";
-	private static final String ALL = "all";
 	private static final String HTTP_SUCCESSFUL_RESPONSE = "Successful HTTP query";
 
 	/**
@@ -275,7 +272,7 @@ class HttpExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionRequestWrongResultTest() throws IOException {
+	void testProcessCriterionRequestWrongResultTest() {
 		initHttp();
 
 		final HttpCriterion httpCriterion = HttpCriterion
@@ -328,7 +325,7 @@ class HttpExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionOk() throws IOException {
+	void testProcessCriterionOk() {
 		// Test case where the HTTP request is executed successfully and matches the
 		// expected result
 		{
@@ -551,8 +548,6 @@ class HttpExtensionTest {
 		httpQueryConfiguration.set("url", new TextNode(TEST_URL));
 		httpQueryConfiguration.set("header", new TextNode(TEST_HEADER));
 		httpQueryConfiguration.set("body", new TextNode(TEST_BODY));
-		httpQueryConfiguration.set("resultContent", new TextNode(ALL));
-		httpQueryConfiguration.set("authenticationToken", new TextNode(AUTHENTICATION_TOKEN));
 
 		HttpRequest httpRequest = HttpRequest
 			.builder()
@@ -562,8 +557,7 @@ class HttpExtensionTest {
 			.url(TEST_URL)
 			.header(TEST_HEADER, Map.of(), "", HOST_NAME)
 			.body(TEST_BODY, Map.of(), "", HOST_NAME)
-			.resultContent(ResultContent.detect(ALL))
-			.authenticationToken(AUTHENTICATION_TOKEN)
+			.resultContent(ResultContent.detect(ResultContent.ALL_WITH_STATUS.getName()))
 			.build();
 
 		// Mock HTTP Client response
@@ -573,14 +567,5 @@ class HttpExtensionTest {
 
 		final String result = httpExtension.executeQuery(httpConfiguration, httpQueryConfiguration);
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE, result);
-	}
-
-	@Test
-	void testNonNull() {
-		final ObjectNode node = JsonNodeFactory.instance.objectNode();
-		assertTrue(httpExtension.notNull(node));
-		assertFalse(httpExtension.notNull(null));
-		node.set("subnode", null);
-		assertFalse(httpExtension.notNull(node.get("subnode")));
 	}
 }

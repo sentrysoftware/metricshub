@@ -22,13 +22,10 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.function.UnaryOperator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpExtension;
 import org.sentrysoftware.metricshub.extension.snmp.AbstractSnmpRequestExecutor;
@@ -44,11 +41,6 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 	 * The identifier for the Snmp version 3  protocol.
 	 */
 	private static final String IDENTIFIER = "snmpv3";
-
-	public static final String GET = "get";
-	public static final String GET_NEXT = "getNext";
-	public static final String WALK = "walk";
-	public static final String TABLE = "table";
 
 	private SnmpV3RequestExecutor snmpV3RequestExecutor;
 
@@ -109,44 +101,5 @@ public class SnmpV3Extension extends AbstractSnmpExtension {
 	@Override
 	protected Class<SnmpV3Configuration> getConfigurationClass() {
 		return SnmpV3Configuration.class;
-	}
-
-	@Override
-	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
-		final SnmpV3Configuration snmpConfiguration = (SnmpV3Configuration) configuration;
-		final String hostname = configuration.getHostname();
-		String result = "Failed Executing SNMPv3 query";
-		final String action = queryNode.get("action").asText();
-		final String oId = queryNode.get("oid").asText();
-
-		try {
-			switch (action) {
-				case GET:
-					result = snmpV3RequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
-					break;
-				case GET_NEXT:
-					result = snmpV3RequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
-					break;
-				case WALK:
-					result = snmpV3RequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
-					break;
-				case TABLE:
-					final String[] columns = new ObjectMapper().convertValue(queryNode.get("columns"), String[].class);
-					final List<List<String>> resultList = snmpV3RequestExecutor.executeSNMPTable(
-						oId,
-						columns,
-						snmpConfiguration,
-						hostname,
-						false
-					);
-					result = TextTableHelper.generateTextTable(columns, resultList);
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMPv3 Operation", hostname));
-			}
-		} catch (Exception e) {
-			log.debug("Hostname {} - Error while executing SNMPv3 {} query. Message: {}", hostname, action, e);
-		}
-		return result;
 	}
 }

@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -394,22 +392,5 @@ public class TextTableHelper {
 
 		// Close the row
 		stringBuilder.append(TABLE_VALUE_SPLIT_SYMBOL);
-	}
-
-	/**
-	 * Extracts column names from a WQL SELECT query.
-	 *
-	 * @param wqlQuery the SQL query string
-	 * @return an array of column names, or an empty array if none are found
-	 */
-	public static String[] extractColumns(String wqlQuery) {
-		// Normalize the query by ignoring case for SELECT and FROM
-		Pattern pattern = Pattern.compile("(?i)select\\s+(.*?)\\s+from", Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(wqlQuery.trim());
-
-		if (matcher.find()) {
-			return Stream.of(matcher.group(1).trim().split(",")).map(String::trim).toArray(String[]::new);
-		}
-		return new String[] {}; // Return empty if no match is found
 	}
 }

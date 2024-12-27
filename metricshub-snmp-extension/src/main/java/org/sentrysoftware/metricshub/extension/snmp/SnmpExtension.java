@@ -22,14 +22,11 @@ package org.sentrysoftware.metricshub.extension.snmp;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.function.UnaryOperator;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
-import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 
 /**
@@ -44,11 +41,6 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	 * The identifier for the Snmp protocol.
 	 */
 	private static final String IDENTIFIER = "snmp";
-
-	public static final String GET = "get";
-	public static final String GET_NEXT = "getNext";
-	public static final String WALK = "walk";
-	public static final String TABLE = "table";
 
 	@NonNull
 	private SnmpRequestExecutor snmpRequestExecutor;
@@ -102,46 +94,7 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	}
 
 	@Override
-	protected AbstractSnmpRequestExecutor getRequestExecutor() {
+	public AbstractSnmpRequestExecutor getRequestExecutor() {
 		return snmpRequestExecutor;
-	}
-
-	@Override
-	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) {
-		final SnmpConfiguration snmpConfiguration = (SnmpConfiguration) configuration;
-		final String hostname = configuration.getHostname();
-		String result = "Failed Executing SNMP query";
-		final String action = queryNode.get("action").asText();
-		final String oId = queryNode.get("oid").asText();
-
-		try {
-			switch (action) {
-				case GET:
-					result = snmpRequestExecutor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
-					break;
-				case GET_NEXT:
-					result = snmpRequestExecutor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
-					break;
-				case WALK:
-					result = snmpRequestExecutor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
-					break;
-				case TABLE:
-					final String[] columns = new ObjectMapper().convertValue(queryNode.get("columns"), String[].class);
-					final List<List<String>> resultList = snmpRequestExecutor.executeSNMPTable(
-						oId,
-						columns,
-						snmpConfiguration,
-						hostname,
-						false
-					);
-					result = TextTableHelper.generateTextTable(columns, resultList);
-					break;
-				default:
-					throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMP Operation", hostname));
-			}
-		} catch (Exception e) {
-			log.debug("Hostname {} - Error while executing SNMP {} query. Message: {}", hostname, action, e);
-		}
-		return result;
 	}
 }

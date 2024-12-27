@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.wbem;
+package org.sentrysoftware.metricshub.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -48,10 +48,10 @@ import picocli.CommandLine.Spec;
  */
 
 /**
- * CLI for executing Wbem queries with validation and execution support.
+ * CLI for executing WBEM queries with validation and execution support.
  */
 @Data
-@Command(name = "wbem.exe", description = "\nList of valid options: \n", footer = WbemCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "wbem", description = "\nList of valid options: \n", footer = WbemCli.FOOTER, usageHelpWidth = 180)
 public class WbemCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -85,7 +85,9 @@ public class WbemCli implements IQuery, Callable<Integer> {
 
 		wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
 
-		wbem dev-01 --namespace="root/cimv2" --query="SELECT * FROM Win32_OperatingSystem" --username username --password password --vcenter vcenter --transport http --port 5988 --timeout 30s
+		wbem esx-01 --namespace "root/cimv2" --query="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity" --username username --password password --vcenter hci-vcenter
+
+		wbem emc-san --namespace "root/emc" --query "SELECT DeviceID FROM EMC_DiskDrive" --transport https --username username --password password
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -190,17 +192,17 @@ public class WbemCli implements IQuery, Callable<Integer> {
 		}
 
 		if (query.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "Wbem query must not be empty nor blank.");
+			throw new ParameterException(spec.commandLine(), "WBEM query must not be empty nor blank.");
 		}
 
 		if (namespace.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "Wbem namespace must not be empty nor blank.");
+			throw new ParameterException(spec.commandLine(), "WBEM namespace must not be empty nor blank.");
 		}
 
 		if (protocol != null && !protocols.contains(protocol.toUpperCase())) {
 			throw new ParameterException(
 				spec.commandLine(),
-				String.format("Invalid Wbem transport protocol %s detected.", protocol)
+				String.format("Invalid WBEM transport protocol %s detected.", protocol)
 			);
 		}
 	}
@@ -212,7 +214,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	 */
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for Wbem: ", username));
+			password = (passwordReader.read("%s password for WBEM: ", username));
 		}
 	}
 
@@ -298,8 +300,14 @@ public class WbemCli implements IQuery, Callable<Integer> {
 					configurationNode.set("port", new IntNode(getOrDeducePortNumber()));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(
+						PROTOCOL_IDENTIFIER,
+						configurationNode,
+						null
+					);
 					configuration.setHostname(hostname);
+
+					configuration.validateConfiguration(hostname);
 
 					// display the request
 					displayQuery();
@@ -308,7 +316,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 					// display the result
 					displayResult(result);
 				} catch (Exception e) {
-					throw new IllegalStateException("Failed to execute Wbem query.\n", e);
+					throw new IllegalStateException("Failed to execute WBEM query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
@@ -318,7 +326,7 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayQuery() {
-		printWriter.println(String.format("Hostname %s - Executing Wbem query through %s:", hostname, protocol));
+		printWriter.println(String.format("Hostname %s - Executing WBEM query through %s:", hostname, protocol));
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
 		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.flush();
@@ -327,10 +335,10 @@ public class WbemCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
-	void displayResult(String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+	void displayResult(final String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

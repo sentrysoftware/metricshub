@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.wmi;
+package org.sentrysoftware.metricshub.cli;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -22,12 +22,12 @@ package org.sentrysoftware.metricshub.cli.wmi;
  */
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
-import lombok.Data;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.sentrysoftware.metricshub.cli.service.CliExtensionManager;
@@ -41,38 +41,31 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
 /**
- * CLI for executing WMI queries with validation and support for various operations.
+ * CLI for executing IPMI queries with validation and support for various operations.
  */
-@Data
-@Command(name = "wmi.exe", description = "\nList of valid options: \n", footer = WmiCli.FOOTER, usageHelpWidth = 180)
-public class WmiCli implements IQuery, Callable<Integer> {
+@Command(name = "ipmi", description = "\nList of valid options: \n", footer = IpmiCli.FOOTER, usageHelpWidth = 180)
+public class IpmiCli implements IQuery, Callable<Integer> {
 
 	/**
-	 * The identifier for the WMI protocol.
+	 * The identifier for the IPMI protocol.
 	 */
-	private static final String PROTOCOL_IDENTIFIER = "wmi";
+	private static final String PROTOCOL_IDENTIFIER = "ipmi";
 
 	/**
-	 * Default timeout in seconds for a WMI operation
-	 */
-	public static final int DEFAULT_TIMEOUT = 30;
-
-	/**
-	 * Footer regrouping WMI CLI examples
+	 * Footer regrouping IPMI CLI examples
 	 */
 	public static final String FOOTER =
 		"""
 
 		Example:
 
-		wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
+		ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
 
-		wmi dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" --timeout 30s
+		ipmi dev-01 --username username --password password --bmc-key AE4C7AB47FD --timeout 1m --skip-auth false
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -83,51 +76,43 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	/**
-	 * Username for WMI authentication
-	 */
-	@Option(names = "--username", order = 1, paramLabel = "USER", description = "Username for WMI authentication")
+	@Option(
+		names = "--username",
+		order = 1,
+		paramLabel = "USER",
+		description = "Username for IPMI-over-LAN authentication"
+	)
 	private String username;
 
-	/**
-	 * Password for WMI authentication
-	 */
 	@Option(
 		names = "--password",
 		order = 2,
 		paramLabel = "P4SSW0RD",
-		description = "Password for WMI authentication",
+		description = "Password for IPMI-over-LAN authentication",
 		interactive = true,
 		arity = "0..1"
 	)
 	private char[] password;
 
-	/**
-	 * Timeout in seconds for WMI operations
-	 */
+	@Option(
+		names = { "--bmc-key", "--key" },
+		order = 3,
+		paramLabel = "KEY",
+		description = "BMC key for IPMI-over-LAN two-key authentication (in hexadecimal)"
+	)
+	private String bmcKey;
+
+	@Option(names = "--skip-auth", order = 4, defaultValue = "false", description = "Skips IPMI-over-LAN authentication")
+	private boolean skipAuth;
+
 	@Option(
 		names = "--timeout",
-		order = 3,
+		order = 5,
 		paramLabel = "TIMEOUT",
-		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for WMI operations (default: ${DEFAULT-VALUE} s)"
+		defaultValue = "120",
+		description = "Timeout in seconds for IPMI operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
-
-	@Option(names = "--query", required = true, order = 4, paramLabel = "QUERY", description = "WMI query to execute")
-	private String query;
-
-	/**
-	 * Forces a specific namespace for connectors that perform namespace auto-detection
-	 */
-	@Option(
-		names = "--namespace",
-		required = true,
-		order = 5,
-		paramLabel = "NAMESPACE",
-		description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
-	)
-	private String namespace;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
@@ -144,17 +129,23 @@ public class WmiCli implements IQuery, Callable<Integer> {
 
 	@Override
 	public JsonNode getQuery() {
-		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
-		queryNode.set("query", new TextNode(query));
-		return queryNode;
+		return null;
 	}
 
 	/**
-	 * Validates the current configuration.
+	 * Try to start the interactive mode to request and set IPMI password
 	 *
-	 * Ensures that required parameters are not blank and that passwords can be requested interactively if needed.
-	 *
-	 * @throws ParameterException if required parameters are blank
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
+		if (username != null && password == null) {
+			password = (passwordReader.read("%s password for IPMI: ", username));
+		}
+	}
+
+	/**
+	 * Validates the configuration by checking if a console is available
+	 * and prompts the user for a password interactively if possible.
 	 */
 	void validate() {
 		// Can we ask for passwords interactively?
@@ -164,29 +155,10 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		if (interactive) {
 			tryInteractivePassword(System.console()::readPassword);
 		}
-
-		if (query.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "WMI query must not be empty nor blank.");
-		}
-
-		if (namespace.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "WMI namespace must not be empty nor blank.");
-		}
 	}
 
 	/**
-	 * Try to start the interactive mode to request and set WMI password
-	 *
-	 * @param passwordReader password reader which displays the prompt text and wait for user's input
-	 */
-	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
-		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for WMI: ", username));
-		}
-	}
-
-	/**
-	 * Entry point for the WMI CLI application. Initializes necessary configurations,
+	 * Entry point for the IPMI CLI application. Initializes necessary configurations,
 	 * processes command line arguments, and executes the CLI.
 	 *
 	 * @param args The command line arguments passed to the application.
@@ -197,7 +169,7 @@ public class WmiCli implements IQuery, Callable<Integer> {
 		// Enable colors on Windows terminal
 		AnsiConsole.systemInstall();
 
-		final CommandLine cli = new CommandLine(new WmiCli());
+		final CommandLine cli = new CommandLine(new IpmiCli());
 
 		// Keep the below line commented for future reference
 		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
@@ -240,24 +212,33 @@ public class WmiCli implements IQuery, Callable<Integer> {
 				try {
 					// Create and fill in a configuration ObjectNode
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
-
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
+
 					configurationNode.set("timeout", new TextNode(timeout));
-					configurationNode.set("namespace", new TextNode(namespace));
+					configurationNode.set("skipAuth", BooleanNode.valueOf(skipAuth));
+					configurationNode.set("bmcKey", new TextNode(bmcKey));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(
+						PROTOCOL_IDENTIFIER,
+						configurationNode,
+						null
+					);
 					configuration.setHostname(hostname);
 
+					configuration.validateConfiguration(hostname);
+
 					// display the request
-					displayQuery();
-					// Execute the WMI query
-					final String result = extension.executeQuery(configuration, getQuery());
+					displayRequest();
+					// Execute the IPMI query
+					final String result = extension.executeQuery(configuration, null);
 					// display the returned result
 					displayResult(result);
 				} catch (Exception e) {
-					throw new IllegalStateException("Failed to execute WMI query.\n", e);
+					throw new IllegalStateException("Failed to execute IPMI query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
@@ -266,20 +247,18 @@ public class WmiCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints query details.
 	 */
-	void displayQuery() {
-		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing WMI request."));
-		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(namespace).reset().toString());
-		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
+	void displayRequest() {
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing SQL request."));
 		printWriter.flush();
 	}
 
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
-	void displayResult(String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+	void displayResult(final String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

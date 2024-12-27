@@ -690,7 +690,7 @@ class SnmpExtensionTest {
 	}
 
 	@Test
-	void testThrowsExceptionQuery() throws Exception {
+	void testThrowsExceptionQuery() {
 		initSnmp();
 
 		SnmpConfiguration snmpConfiguration = SnmpConfiguration.builder().hostname(HOST_NAME).build();

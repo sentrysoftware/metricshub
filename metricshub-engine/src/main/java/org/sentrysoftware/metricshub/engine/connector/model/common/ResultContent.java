@@ -52,7 +52,13 @@ public enum ResultContent {
 	 * Represents all content as result content.
 	 */
 	@JsonAlias("all")
-	ALL("all");
+	ALL("all"),
+
+	/**
+	 * Represents all content as result content with status code.
+	 */
+	@JsonAlias("all_with_status")
+	ALL_WITH_STATUS("all_with_status");
 
 	/**
 	 * Map each ResultContent with a regular expression that detects it
@@ -65,7 +71,9 @@ public enum ResultContent {
 		BODY,
 		Pattern.compile("^body$"),
 		ALL,
-		Pattern.compile("^all$")
+		Pattern.compile("^all$"),
+		ALL_WITH_STATUS,
+		Pattern.compile("^all_with_status$")
 	);
 
 	private String name;

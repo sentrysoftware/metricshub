@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.http;
+package org.sentrysoftware.metricshub.cli;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -29,12 +29,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Data;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -56,7 +60,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing HTTP requests with validation and support for various operations.
  */
 @Data
-@Command(name = "http.exe", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "http", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
 public class HttpCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -75,10 +79,6 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 * The default port for HTTPS connections.
 	 */
 	public static final int DEFAULT_HTTPS_PORT = 443;
-	/**
-	 * The set of supported HTTP methods.
-	 */
-	public static final Set<String> HTTP_METHODS = Set.of("GET", "POST", "PUT", "DELETE");
 
 	/**
 	 * Footer regrouping HTTP CLI examples
@@ -89,15 +89,15 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		Examples:
 
 		http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
-		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --token <TOKEN> --timeout <TIMEOUT>
+		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --timeout <TIMEOUT>
 
 		@|green # HTTP GET request with a body and two headers.|@
-		http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type:application/xml" \
-		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --token="AF65B4SG44AHJUE5R" --timeout 2m
+		http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
+		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --timeout 2m
 
 		@|green # HTTP POST request with a header file and a body file.|@
 		http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
-		--body-file="/opt/metricshub/body.txt" --token="AF65B4SG44AHJUE5R" --timeout 2m
+		--body-file="/opt/metricshub/body.txt" --timeout 2m
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -108,7 +108,13 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Option(names = "--url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
-	@Option(names = "--method", order = 2, paramLabel = "METHOD", description = "HTTP request type (GET|POST|PUT|DELETE)")
+	@Option(
+		names = "--method",
+		defaultValue = "GET",
+		order = 2,
+		paramLabel = "METHOD",
+		description = "HTTP method (GET|POST|PUT|DELETE)"
+	)
 	private String method;
 
 	@Option(
@@ -116,7 +122,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		order = 3,
 		paramLabel = "HEADER",
 		split = ":",
-		description = "Headers to be added to the HTTP request. Repeatable for multiple headers."
+		description = "Header to be added to the HTTP request. Repeatable for multiple headers."
 	)
 	private Map<String, String> headers;
 
@@ -139,20 +145,12 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	)
 	private String bodyFile;
 
-	@Option(
-		names = { "--authentication-token", "--token" },
-		order = 7,
-		paramLabel = "TOKEN",
-		description = " The authentication token for the HTTP request."
-	)
-	private String authenticationToken;
-
-	@Option(names = { "--username" }, order = 8, paramLabel = "USER", description = "Username for HTTP authentication")
+	@Option(names = { "--username" }, order = 7, paramLabel = "USER", description = "Username for HTTP authentication")
 	private String username;
 
 	@Option(
 		names = { "--password" },
-		order = 9,
+		order = 8,
 		paramLabel = "P4SSW0RD",
 		description = "Password for the HTTP protocol",
 		arity = "0..1",
@@ -162,7 +160,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = "--timeout",
-		order = 10,
+		order = 9,
 		paramLabel = "TIMEOUT",
 		defaultValue = "120",
 		description = "Timeout in seconds for HTTP operations (default: ${DEFAULT-VALUE} s)"
@@ -171,91 +169,79 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 	@Option(
 		names = { "-h", "-?", "--help" },
-		order = 11,
+		order = 10,
 		usageHelp = true,
 		description = "Shows this help message and exits"
 	)
 	boolean usageHelpRequested;
 
-	@Option(names = "-v", order = 12, description = "Verbose mode (repeat the option to increase verbosity)")
+	@Option(names = "-v", order = 11, description = "Verbose mode (repeat the option to increase verbosity)")
 	boolean[] verbose;
 
-	java.net.URL parsedUrl;
+	URL parsedUrl;
 
 	PrintWriter printWriter;
+
+	String headerContent;
+	String bodyContent;
 
 	@Override
 	public JsonNode getQuery() {
 		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
 
-		queryNode.set("method", new TextNode(method != null ? method.toUpperCase() : "GET"));
+		queryNode.set("method", new TextNode(method.toUpperCase()));
 
 		queryNode.set("url", new TextNode(url));
 
-		try {
-			final String headerContent = getHeaderContent();
-			if (headerContent != null) {
-				queryNode.set("header", new TextNode(headerContent));
-			}
-		} catch (IOException e) {
-			throw new IllegalStateException("Could not read the header.", e);
+		if (headerContent != null) {
+			queryNode.set("header", new TextNode(headerContent));
 		}
 
-		try {
-			final String bodyContent = getBodyContent();
-			if (bodyContent != null) {
-				queryNode.set("body", new TextNode(bodyContent));
-			}
-		} catch (IOException e) {
-			throw new IllegalStateException("Could not read the body.", e);
+		if (bodyContent != null) {
+			queryNode.set("body", new TextNode(bodyContent));
 		}
 
-		queryNode.set("resultContent", new TextNode("all"));
-
-		if (authenticationToken != null) {
-			queryNode.set("authenticationToken", new TextNode(authenticationToken));
-		}
+		queryNode.set("resultContent", new TextNode("all_with_status"));
 
 		return queryNode;
 	}
 
 	/**
 	 * Retrieves the body content for the HTTP request.
-	 * If the body is specified directly, it is returned.
-	 * If a body file is specified, its contents are read and returned.
+	 * If the body is specified directly, it is assigned to the bodyContent.
+	 * If a body file is specified, its contents are read and set to the bodyContent.
 	 *
-	 * @return the body content as a string, or null if neither body nor body file is set.
 	 * @throws IOException if an error occurs while reading the bodyFile.
 	 */
-	public String getBodyContent() throws IOException {
+	public void populateBodyContent() throws IOException {
 		if (body != null) {
-			return body;
+			bodyContent = body;
 		} else if (bodyFile != null) {
-			return Files.readString(Path.of(bodyFile), StandardCharsets.UTF_8);
-		} else {
-			return null;
+			try (Stream<String> stream = Files.lines(Path.of(bodyFile), StandardCharsets.UTF_8)) {
+				bodyContent = stream.collect(Collectors.joining("\n"));
+			}
 		}
 	}
 
 	/**
 	 * Retrieves the header content for the HTTP request.
-	 * If headers are specified directly, they are formatted and returned.
-	 * If a header file is specified, its contents are read and returned.
+	 * If headers are specified directly, they are formatted and assigned to the headerContent.
+	 * If a header file is specified, its contents are read and assigned to the headerContent.
 	 *
-	 * @return the header content as a string, or null if neither headers nor a header file is set.
 	 * @throws IOException if an error occurs while reading the headerFile.
 	 */
-	public String getHeaderContent() throws IOException {
-		StringBuilder header = new StringBuilder();
-
+	public void populateHeaderContent() throws IOException {
 		if (headers != null) {
-			headers.forEach((key, value) -> header.append(String.format("%s: %s\n", key, value)));
-			return header.toString();
+			headerContent =
+				headers
+					.entrySet()
+					.stream()
+					.map(entry -> "%s: %s".formatted(entry.getKey(), entry.getValue()))
+					.collect(Collectors.joining("\n"));
 		} else if (headerFile != null) {
-			header.append(Files.readString(Path.of(headerFile), StandardCharsets.UTF_8).replace("\r\n", "\n"));
-			return header.toString();
-		} else {
-			return null;
+			try (Stream<String> stream = Files.lines(Path.of(headerFile), StandardCharsets.UTF_8)) {
+				headerContent = stream.collect(Collectors.joining("\n"));
+			}
 		}
 	}
 
@@ -266,7 +252,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 */
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for HTTP: ", username));
+			password = passwordReader.read("%s password for HTTP: ", username);
 		}
 	}
 
@@ -288,11 +274,6 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		// Validating HTTP Url
 		validateUrl();
 
-		// Validating HTTP methods
-		if (method != null && !HTTP_METHODS.contains(method.toUpperCase())) {
-			throw new ParameterException(spec.commandLine(), String.format("Unknown HTTP request method: %s.", method));
-		}
-
 		// Validating headers
 		if (headers != null && headerFile != null) {
 			throw new ParameterException(
@@ -301,7 +282,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 			);
 		} else if (headerFile != null) {
 			try {
-				getHeaderContent();
+				populateHeaderContent();
 			} catch (IOException e) {
 				throw new ParameterException(
 					spec.commandLine(),
@@ -318,7 +299,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 			);
 		} else if (bodyFile != null) {
 			try {
-				getBodyContent();
+				populateBodyContent();
 			} catch (IOException e) {
 				throw new ParameterException(
 					spec.commandLine(),
@@ -336,9 +317,13 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	void validateUrl() {
 		try {
 			// Performing a basic validation of the URL format
-			parsedUrl = new java.net.URL(url);
+			parsedUrl = new URL(url);
 			// Enforces stricter compliance, catching invalid characters.
 			parsedUrl.toURI();
+		} catch (MalformedURLException e) {
+			throw new ParameterException(spec.commandLine(), "Malformed URL: " + e.getMessage(), e);
+		} catch (URISyntaxException e) {
+			throw new ParameterException(spec.commandLine(), "URL contains invalid characters: " + e.getMessage(), e);
 		} catch (Exception e) {
 			throw new ParameterException(spec.commandLine(), "Invalid URL: " + e.getMessage(), e);
 		}
@@ -351,22 +336,18 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 * @throws ParameterException if the URL is invalid
 	 */
 	int resolvePortFromUrl() {
-		try {
-			// Check if the port is explicitly specified
-			int port = parsedUrl.getPort();
-			if (port != -1) {
-				return port; // Port found in the URL
-			}
+		// Check if the port is explicitly specified
+		int port = parsedUrl.getPort();
+		if (port != -1) {
+			return port; // Port found in the URL
+		}
 
-			// Determine the default port based on protocol
-			String protocol = parsedUrl.getProtocol();
-			if (HTTP.equalsIgnoreCase(protocol)) {
-				return DEFAULT_HTTP_PORT;
-			} else if (HTTPS.equalsIgnoreCase(protocol)) {
-				return DEFAULT_HTTPS_PORT;
-			}
-		} catch (Exception e) {
-			throw new ParameterException(spec.commandLine(), "Invalid URL: " + e.getMessage(), e);
+		// Determine the default port based on protocol
+		String protocol = parsedUrl.getProtocol();
+		if (HTTP.equalsIgnoreCase(protocol)) {
+			return DEFAULT_HTTP_PORT;
+		} else if (HTTPS.equalsIgnoreCase(protocol)) {
+			return DEFAULT_HTTPS_PORT;
 		}
 
 		// Default to 443 if no protocol or port is found
@@ -416,6 +397,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	public Integer call() throws Exception {
 		// Validate the entries
 		validate();
+
 		// Gets the output writer from the command line spec.
 		printWriter = spec.commandLine().getOut();
 		// Set the logger level
@@ -436,11 +418,16 @@ public class HttpCli implements IQuery, Callable<Integer> {
 					configurationNode.set("password", new TextNode(String.valueOf(password)));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(HTTP, configurationNode, null);
-					configuration.setHostname(parsedUrl.getHost());
+					final IConfiguration configuration = extension.buildConfiguration(HTTP, configurationNode, null);
+
+					final String hostname = parsedUrl.getHost();
+					configuration.setHostname(hostname);
+
+					configuration.validateConfiguration(hostname);
 
 					// display the request
 					displayRequest();
+
 					// Execute the HTTP query
 					final String result = extension.executeQuery(configuration, getQuery());
 					// display the returned result
@@ -462,39 +449,24 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
 
-		try {
-			final String headerContent = getHeaderContent();
-			if (headerContent != null) {
-				printWriter.println(Ansi.ansi().a("Header: ").fgBrightBlack().a(headerContent).reset().toString());
-			}
-		} catch (Exception e) {
-			throw new ParameterException(spec.commandLine(), String.format("Error while reading the header: %s", e));
+		if (headerContent != null) {
+			printWriter.println(Ansi.ansi().a("Header:\n").fgBrightBlack().a(headerContent).reset().toString());
 		}
 
-		try {
-			final String bodyContent = getBodyContent();
-			if (bodyContent != null) {
-				printWriter.println(Ansi.ansi().a("Body: ").fgBrightBlack().a(bodyContent).reset().toString());
-			}
-		} catch (Exception e) {
-			throw new ParameterException(spec.commandLine(), String.format("Error while reading the body: %s", e));
+		if (bodyContent != null) {
+			printWriter.println(Ansi.ansi().a("Body:\n").fgBrightBlack().a(bodyContent).reset().toString());
 		}
 
-		if (authenticationToken != null) {
-			printWriter.println(
-				Ansi.ansi().a("AuthenticationToken: ").fgBrightBlack().a(authenticationToken).reset().toString()
-			);
-		}
 		printWriter.flush();
 	}
 
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
-	void displayResult(String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+	void displayResult(final String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

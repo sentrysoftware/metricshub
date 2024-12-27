@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.winrm;
+package org.sentrysoftware.metricshub.cli;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -53,12 +53,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing WinRm queries with validation and execution support.
  */
 @Data
-@Command(
-	name = "winrm.exe",
-	description = "\nList of valid options: \n",
-	footer = WinRmCli.FOOTER,
-	usageHelpWidth = 180
-)
+@Command(name = "winrm", description = "\nList of valid options: \n", footer = WinRmCli.FOOTER, usageHelpWidth = 180)
 public class WinRmCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -93,7 +88,7 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 		winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> \
 		--transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT> --authentications <AUTH1>,<AUTH2>,...
 
-		winrm dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" \
+		winrm dev-01 --username username --password password --namespace="root/cimv2" --query ="SELECT * FROM Win32_OperatingSystem" \
 		--transport https --port 5986 --timeout 30s --authentications NTLM,KERBEROS
 
 		Note: If --password is not provided, you will be prompted interactively.
@@ -305,8 +300,14 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 					}
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(
+						PROTOCOL_IDENTIFIER,
+						configurationNode,
+						null
+					);
 					configuration.setHostname(hostname);
+
+					configuration.validateConfiguration(hostname);
 
 					// display the request
 					displayQuery();
@@ -348,10 +349,10 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
-	void displayResult(String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+	void displayResult(final String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

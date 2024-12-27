@@ -36,6 +36,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.ThreadHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -717,7 +718,7 @@ class WbemExtensionTest {
 			.build();
 		final String result = wbemExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
-			TextTableHelper.extractColumns(WBEM_TEST_QUERY),
+			StringHelper.extractColumns(WBEM_TEST_QUERY),
 			EXECUTE_WBEM_RESULT
 		);
 		assertEquals(expectedResult, result);

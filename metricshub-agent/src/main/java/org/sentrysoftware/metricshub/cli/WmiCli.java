@@ -1,4 +1,25 @@
-package org.sentrysoftware.metricshub.cli.jdbc;
+package org.sentrysoftware.metricshub.cli;
+
+/*-
+ * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
+ * MetricsHub Agent
+ * ჻჻჻჻჻჻
+ * Copyright 2023 - 2024 Sentry Software
+ * ჻჻჻჻჻჻
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
+ */
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -24,55 +45,34 @@ import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
-/*-
- * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
- * MetricsHub Agent
- * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
- * ჻჻჻჻჻჻
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
- */
-
 /**
- * CLI for executing SQL queries via JDBC with validation and execution support.
+ * CLI for executing WMI queries with validation and support for various operations.
  */
 @Data
-@Command(name = "jdbc.exe", description = "\nList of valid options: \n", footer = JdbcCli.FOOTER, usageHelpWidth = 180)
-public class JdbcCli implements IQuery, Callable<Integer> {
+@Command(name = "wmi", description = "\nList of valid options: \n", footer = WmiCli.FOOTER, usageHelpWidth = 180)
+public class WmiCli implements IQuery, Callable<Integer> {
 
 	/**
-	 * The identifier for the JDBC protocol.
+	 * The identifier for the WMI protocol.
 	 */
-	private static final String PROTOCOL_IDENTIFIER = "jdbc";
+	private static final String PROTOCOL_IDENTIFIER = "wmi";
 
 	/**
-	 * Default timeout in seconds for an SQL query
+	 * Default timeout in seconds for a WMI operation
 	 */
 	public static final int DEFAULT_TIMEOUT = 30;
 
 	/**
-	 * Footer regrouping JDBC CLI examples
+	 * Footer regrouping WMI CLI examples
 	 */
 	public static final String FOOTER =
 		"""
 
 		Example:
 
-		jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <jdbc:<DB-TYPE>://<HOSTNAME>:PORT/<DB-NAME> --query <QUERY>
+		wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
 
-		jdbc dev-01 --username username --password password --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM users"
+		wmi dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" --timeout 30s
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -83,26 +83,51 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--url", order = 1, required = true, paramLabel = "URL", description = "JDBC URL")
-	private char[] url;
-
-	@Option(names = "--username", order = 2, paramLabel = "USERNAME", description = "Username for JDBC authentication")
+	/**
+	 * Username for WMI authentication
+	 */
+	@Option(names = "--username", order = 1, paramLabel = "USER", description = "Username for WMI authentication")
 	private String username;
 
-	@Option(names = "--password", order = 3, paramLabel = "PASSWORD", description = "Password for JDBC authentication")
+	/**
+	 * Password for WMI authentication
+	 */
+	@Option(
+		names = "--password",
+		order = 2,
+		paramLabel = "P4SSW0RD",
+		description = "Password for WMI authentication",
+		interactive = true,
+		arity = "0..1"
+	)
 	private char[] password;
 
+	/**
+	 * Timeout in seconds for WMI operations
+	 */
 	@Option(
 		names = "--timeout",
-		order = 4,
+		order = 3,
 		paramLabel = "TIMEOUT",
 		defaultValue = "" + DEFAULT_TIMEOUT,
-		description = "Timeout in seconds for SQL queries(default: ${DEFAULT-VALUE} s)"
+		description = "Timeout in seconds for WMI operations (default: ${DEFAULT-VALUE} s)"
 	)
 	private String timeout;
 
-	@Option(names = "--query", required = true, order = 5, paramLabel = "QUERY", description = "SQL query to execute")
+	@Option(names = "--query", required = true, order = 4, paramLabel = "QUERY", description = "WMI query to execute")
 	private String query;
+
+	/**
+	 * Forces a specific namespace for connectors that perform namespace auto-detection
+	 */
+	@Option(
+		names = "--namespace",
+		required = true,
+		order = 5,
+		paramLabel = "NAMESPACE",
+		description = "Force a specific namespace for connectors that perform namespace auto-detection (advanced)"
+	)
+	private String namespace;
 
 	@Option(
 		names = { "-h", "-?", "--help" },
@@ -140,12 +165,12 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 			tryInteractivePassword(System.console()::readPassword);
 		}
 
-		if (isCharArrayBlank(url)) {
-			throw new ParameterException(spec.commandLine(), "SQL url must not be empty nor blank.");
+		if (query.isBlank()) {
+			throw new ParameterException(spec.commandLine(), "WMI query must not be empty nor blank.");
 		}
 
-		if (query.isBlank()) {
-			throw new ParameterException(spec.commandLine(), "SQL query must not be empty nor blank.");
+		if (namespace.isBlank()) {
+			throw new ParameterException(spec.commandLine(), "WMI namespace must not be empty nor blank.");
 		}
 	}
 
@@ -156,25 +181,12 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	 */
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
-			password = (passwordReader.read("%s password for Jdbc: ", username));
+			password = (passwordReader.read("%s password for WMI: ", username));
 		}
 	}
 
 	/**
-	 *
-	 * @param charArray
-	 * @return
-	 */
-	public boolean isCharArrayBlank(final char[] charArray) {
-		boolean result = false;
-		if (charArray == null || charArray.length == 0 || new String(charArray).isBlank()) {
-			result = true;
-		}
-		return result;
-	}
-
-	/**
-	 * Entry point for the JDBC CLI application. Initializes necessary configurations,
+	 * Entry point for the WMI CLI application. Initializes necessary configurations,
 	 * processes command line arguments, and executes the CLI.
 	 *
 	 * @param args The command line arguments passed to the application.
@@ -185,7 +197,7 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 		// Enable colors on Windows terminal
 		AnsiConsole.systemInstall();
 
-		final CommandLine cli = new CommandLine(new JdbcCli());
+		final CommandLine cli = new CommandLine(new WmiCli());
 
 		// Keep the below line commented for future reference
 		// Using JAnsi on Windows breaks the output of Unicode (UTF-8) chars
@@ -230,26 +242,24 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
 					configurationNode.set("username", new TextNode(username));
-
-					if (password != null) {
-						configurationNode.set("password", new TextNode(String.valueOf(password)));
-					}
-
-					configurationNode.set("url", new TextNode(String.valueOf(url)));
+					configurationNode.set("password", new TextNode(String.valueOf(password)));
 					configurationNode.set("timeout", new TextNode(timeout));
+					configurationNode.set("namespace", new TextNode(namespace));
 
 					// Build an IConfiguration from the configuration ObjectNode
-					IConfiguration configuration = extension.buildConfiguration(PROTOCOL_IDENTIFIER, configurationNode, null);
+					final IConfiguration configuration = extension.buildConfiguration(hostname, configurationNode, null);
 					configuration.setHostname(hostname);
 
-					// display the query
+					configuration.validateConfiguration(hostname);
+
+					// display the request
 					displayQuery();
-					// Execute the SQL query
+					// Execute the WMI query
 					final String result = extension.executeQuery(configuration, getQuery());
 					// display the returned result
 					displayResult(result);
 				} catch (Exception e) {
-					throw new IllegalStateException("Failed to execute SQL query.\n", e);
+					throw new IllegalStateException("Failed to execute WMI query.\n", e);
 				}
 			});
 		return CommandLine.ExitCode.OK;
@@ -259,19 +269,19 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 	 * Prints query details.
 	 */
 	void displayQuery() {
-		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing SQL request."));
-		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());
+		printWriter.println(Ansi.ansi().a("Hostname ").bold().a(hostname).a(" - Executing WMI request."));
 		printWriter.println(Ansi.ansi().a("Query: ").fgBrightBlack().a(query).reset().toString());
+		printWriter.println(Ansi.ansi().a("Namespace: ").fgBrightBlack().a(namespace).reset().toString());
 		printWriter.flush();
 	}
 
 	/**
 	 * Prints the query result.
 	 *
-	 * @param result      the query result
+	 * @param result the query result
 	 */
-	void displayResult(String result) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result: \n").reset().a(result).toString());
+	void displayResult(final String result) {
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
 		printWriter.flush();
 	}
 }

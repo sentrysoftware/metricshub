@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.snmp;
+package org.sentrysoftware.metricshub.cli;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

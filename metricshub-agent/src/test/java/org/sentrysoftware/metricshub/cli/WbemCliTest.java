@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.wbem;
+package org.sentrysoftware.metricshub.cli;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,25 +47,25 @@ public class WbemCliTest {
 		// testing query validation
 		wbemCli.setQuery("");
 		ParameterException parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem query must not be empty nor blank.", parameterException.getMessage());
+		assertEquals("WBEM query must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setQuery(" ");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem query must not be empty nor blank.", parameterException.getMessage());
+		assertEquals("WBEM query must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setQuery(WBEM_TEST_QUERY);
 
 		// testing namespace validation
 		wbemCli.setNamespace("");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem namespace must not be empty nor blank.", parameterException.getMessage());
+		assertEquals("WBEM namespace must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setNamespace(" ");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertEquals("Wbem namespace must not be empty nor blank.", parameterException.getMessage());
+		assertEquals("WBEM namespace must not be empty nor blank.", parameterException.getMessage());
 		wbemCli.setNamespace(WBEM_TEST_NAMESPACE);
 
 		// testing transport protocol validation
 		wbemCli.setProtocol("IPMI");
 		parameterException = assertThrows(ParameterException.class, () -> wbemCli.validate());
-		assertTrue(parameterException.getMessage().contains("Invalid Wbem transport protocol"));
+		assertTrue(parameterException.getMessage().contains("Invalid WBEM transport protocol"));
 		wbemCli.setProtocol("HTTP");
 		assertDoesNotThrow(() -> wbemCli.validate());
 	}

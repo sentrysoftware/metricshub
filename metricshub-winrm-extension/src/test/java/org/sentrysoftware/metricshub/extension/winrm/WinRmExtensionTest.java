@@ -38,6 +38,7 @@ import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
@@ -527,7 +528,7 @@ class WinRmExtensionTest {
 			.build();
 		final String result = winRmExtension.executeQuery(configuration, queryNode);
 		final String expectedResult = TextTableHelper.generateTextTable(
-			TextTableHelper.extractColumns(WQL),
+			StringHelper.extractColumns(WQL),
 			WQL_SUCCESS_RESPONSE
 		);
 		assertEquals(expectedResult, result);

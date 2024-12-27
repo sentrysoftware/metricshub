@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.cli.jdbc;
+package org.sentrysoftware.metricshub.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
