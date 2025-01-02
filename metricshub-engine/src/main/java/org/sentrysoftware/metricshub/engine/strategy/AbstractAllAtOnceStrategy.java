@@ -263,13 +263,7 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		processSameTypeMonitors(currentConnector, mapping, monitorType, hostname, monitorJob);
 		final long jobEndTime = System.currentTimeMillis();
 		// Set the job duration metric in the host monitor
-		setJobDurationMetricInHostMonitorWithMonitorType(
-			getJobName(),
-			monitorType,
-			currentConnector.getCompiledFilename(),
-			jobStartTime,
-			jobEndTime
-		);
+		setJobDurationMetric(getJobName(), monitorType, currentConnector.getCompiledFilename(), jobStartTime, jobEndTime);
 	}
 
 	/**

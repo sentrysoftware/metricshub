@@ -426,13 +426,13 @@ public abstract class AbstractStrategy implements IStrategy {
 			.anyMatch(monitorJob -> {
 				switch (strategyJobName.toLowerCase()) {
 					case "discovery":
-						return monitorJob instanceof StandardMonitorJob && ((StandardMonitorJob) monitorJob).getDiscovery() != null;
+						return monitorJob instanceof StandardMonitorJob standardJob && standardJob.getDiscovery() != null;
 					case "collect":
-						return monitorJob instanceof StandardMonitorJob && ((StandardMonitorJob) monitorJob).getCollect() != null;
+						return monitorJob instanceof StandardMonitorJob standardJob && standardJob.getCollect() != null;
 					case "simple":
-						return monitorJob instanceof SimpleMonitorJob && ((SimpleMonitorJob) monitorJob).getSimple() != null;
+						return monitorJob instanceof SimpleMonitorJob simpleJob && simpleJob.getSimple() != null;
 					default:
-						return false;
+						throw new IllegalArgumentException("Unknown strategy job name: " + strategyJobName);
 				}
 			});
 	}
@@ -468,7 +468,7 @@ public abstract class AbstractStrategy implements IStrategy {
 		final long jobEndTime = System.currentTimeMillis();
 
 		// Set the job duration metric of the connector monitor in the host monitor
-		setJobDurationMetricInHostMonitorWithMonitorType(
+		setJobDurationMetric(
 			jobName,
 			KnownMonitorType.CONNECTOR.getKey(),
 			currentConnector.getCompiledFilename(),
@@ -568,35 +568,23 @@ public abstract class AbstractStrategy implements IStrategy {
 	 * Sets the job duration metric in the host monitor with a monitor type.
 	 *
 	 * @param jobName      the name of the job
-	 * @param monitorType  the type of monitor
+	 * @param monitorType  the monitor type in the job
 	 * @param connectorId  the ID of the connector
-	 * @param startTime the start time of the job in milliseconds
-	 * @param endTime   the end time of the job in milliseconds
+	 * @param jobStartTime the start time of the job in milliseconds
+	 * @param jobEndTime   the end time of the job in milliseconds
 	 */
-	protected void setJobDurationMetricInHostMonitorWithMonitorType(
+	protected void setJobDurationMetric(
 		final String jobName,
 		final String monitorType,
 		final String connectorId,
-		final long startTime,
-		final long endTime
+		final long jobStartTime,
+		final long jobEndTime
 	) {
-		// If the enableSelfMonitoring flag is set to true, or it's not configured at all,
-		// set the job duration metric on the monitor. Otherwise, don't set it.
-		// By default, self monitoring is enabled
-		if (telemetryManager.getHostConfiguration().isEnableSelfMonitoring()) {
-			// Build the job duration metric key
-			final String jobDurationMetricKey = new StringBuilder()
-				.append("metricshub.job.duration{job.type=\"")
-				.append(jobName)
-				.append("\", monitor.type=\"")
-				.append(monitorType)
-				.append("\", connector_id=\"")
-				.append(connectorId)
-				.append("\"}")
-				.toString();
-			// Collect the job duration metric
-			collectJobDurationMetric(jobDurationMetricKey, startTime, endTime);
-		}
+		setJobDurationMetric(
+			() -> generateJobDurationMetricKey(jobName, monitorType, connectorId),
+			jobStartTime,
+			jobEndTime
+		);
 	}
 
 	/**
@@ -604,12 +592,27 @@ public abstract class AbstractStrategy implements IStrategy {
 	 *
 	 * @param jobName      the name of the job
 	 * @param connectorId  the ID of the connector
+	 * @param jobStartTime the start time of the job in milliseconds
+	 * @param jobEndTime   the end time of the job in milliseconds
+	 */
+	protected void setJobDurationMetric(
+		final String jobName,
+		final String connectorId,
+		final long jobStartTime,
+		final long jobEndTime
+	) {
+		setJobDurationMetric(() -> generateJobDurationMetricKey(jobName, connectorId), jobStartTime, jobEndTime);
+	}
+
+	/**
+	 * Sets the job duration metric in the host monitor with a monitor type.
+	 *
+	 * @param metricKeySupplier the supplier of the metric key
 	 * @param startTime the start time of the job in milliseconds
 	 * @param endTime   the end time of the job in milliseconds
 	 */
-	protected void setJobDurationMetricInHostMonitorWithoutMonitorType(
-		final String jobName,
-		final String connectorId,
+	private void setJobDurationMetric(
+		final Supplier<String> metricKeySupplier,
 		final long startTime,
 		final long endTime
 	) {
@@ -618,16 +621,49 @@ public abstract class AbstractStrategy implements IStrategy {
 		// By default, self monitoring is enabled
 		if (telemetryManager.getHostConfiguration().isEnableSelfMonitoring()) {
 			// Build the job duration metric key
-			final String jobDurationMetricKey = new StringBuilder()
-				.append("metricshub.job.duration{job.type=\"")
-				.append(jobName)
-				.append("\", connector_id=\"")
-				.append(connectorId)
-				.append("\"}")
-				.toString();
+			final String jobDurationMetricKey = metricKeySupplier.get();
 			// Collect the job duration metric
 			collectJobDurationMetric(jobDurationMetricKey, startTime, endTime);
 		}
+	}
+
+	/**
+	 * Generates the job duration metric key.
+	 * @param jobName     the name of the job
+	 * @param monitorType the monitor type
+	 * @param connectorId the ID of the connector
+	 * @return the job duration metric key.
+	 */
+	private String generateJobDurationMetricKey(
+		final String jobName,
+		final String monitorType,
+		final String connectorId
+	) {
+		return new StringBuilder()
+			.append("metricshub.job.duration{job.type=\"")
+			.append(jobName)
+			.append("\", monitor.type=\"")
+			.append(monitorType)
+			.append("\", connector_id=\"")
+			.append(connectorId)
+			.append("\"}")
+			.toString();
+	}
+
+	/**
+	 * Generate the job duration metric key.
+	 * @param jobName      the name of the job
+	 * @param connectorId  the ID of the
+	 * @return the job duration metric key.
+	 */
+	private String generateJobDurationMetricKey(final String jobName, final String connectorId) {
+		return new StringBuilder()
+			.append("metricshub.job.duration{job.type=\"")
+			.append(jobName)
+			.append("\", connector_id=\"")
+			.append(connectorId)
+			.append("\"}")
+			.toString();
 	}
 
 	/**

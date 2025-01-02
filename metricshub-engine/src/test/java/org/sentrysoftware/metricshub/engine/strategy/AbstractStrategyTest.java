@@ -1,7 +1,11 @@
 package org.sentrysoftware.metricshub.engine.strategy;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.CONNECTOR;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
@@ -18,9 +22,13 @@ import org.sentrysoftware.metricshub.engine.client.ClientsExecutor;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.MonitorJob;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Simple;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
+import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.surrounding.BeforeAllStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -68,7 +76,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
+		collectStrategy.setJobDurationMetric(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -130,7 +138,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
+		collectStrategy.setJobDurationMetric(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -192,7 +200,7 @@ class AbstractStrategyTest {
 			.clientsExecutor(new ClientsExecutor())
 			.extensionManager(new ExtensionManager())
 			.build();
-		collectStrategy.setJobDurationMetricInHostMonitorWithMonitorType(
+		collectStrategy.setJobDurationMetric(
 			"collect",
 			KnownMonitorType.CONNECTOR.getKey(),
 			TEST_CONNECTOR_ID,
@@ -254,7 +262,7 @@ class AbstractStrategyTest {
 			.extensionManager(new ExtensionManager())
 			.connector(new Connector())
 			.build();
-		beforeAllStrategy.setJobDurationMetricInHostMonitorWithoutMonitorType(
+		beforeAllStrategy.setJobDurationMetric(
 			"beforeAll",
 			TEST_CONNECTOR_ID,
 			System.currentTimeMillis() - 200,
@@ -269,5 +277,66 @@ class AbstractStrategyTest {
 				.getMetric("metricshub.job.duration{job.type=\"beforeAll\", connector_id=\"TestConnector\"}")
 				.getValue()
 		);
+	}
+
+	@Test
+	void testHasExpectedJobTypesMatching() {
+		// Set the monitor jobs in the connector
+		final Connector connector = new Connector();
+		final SimpleMonitorJob simpleJob = SimpleMonitorJob.simpleBuilder().simple(new Simple()).build();
+		final Map<String, MonitorJob> monitors = new HashMap<>(Map.of("simple", simpleJob));
+		connector.setMonitors(monitors);
+
+		// Check whether there is a connector monitor job that matches the strategy job name
+		final SimpleStrategy simpleStrategy = SimpleStrategy
+			.builder()
+			.strategyTime(120L)
+			.telemetryManager(TelemetryManager.builder().build())
+			.clientsExecutor(new ClientsExecutor())
+			.extensionManager(new ExtensionManager())
+			.build();
+		assertTrue(simpleStrategy.hasExpectedJobTypes(connector, "simple"));
+	}
+
+	@Test
+	void testHasExpectedJobTypesNotMatching() {
+		// Set the monitor jobs in the connector
+		final Connector connector = new Connector();
+		final SimpleMonitorJob simpleJob = SimpleMonitorJob.simpleBuilder().simple(new Simple()).build();
+		final Map<String, MonitorJob> monitors = new HashMap<>(Map.of("simple", simpleJob));
+		connector.setMonitors(monitors);
+
+		// Check whether there is a connector monitor job that matches the strategy job name
+		final SimpleStrategy simpleStrategy = SimpleStrategy
+			.builder()
+			.strategyTime(120L)
+			.telemetryManager(TelemetryManager.builder().build())
+			.clientsExecutor(new ClientsExecutor())
+			.extensionManager(new ExtensionManager())
+			.build();
+		assertFalse(simpleStrategy.hasExpectedJobTypes(connector, "collect"));
+	}
+
+	@Test
+	void testHasExpectedJobTypesUnknownJobType() {
+		// Set the monitor jobs in the connector
+		final Connector connector = new Connector();
+		final SimpleMonitorJob simpleJob = SimpleMonitorJob.simpleBuilder().simple(new Simple()).build();
+		final Map<String, MonitorJob> monitors = new HashMap<>(Map.of("simple", simpleJob));
+		connector.setMonitors(monitors);
+
+		// Check whether an IllegalArgumentException is thrown when the strategy job name is invalid
+		final SimpleStrategy simpleStrategy = SimpleStrategy
+			.builder()
+			.strategyTime(120L)
+			.telemetryManager(TelemetryManager.builder().build())
+			.clientsExecutor(new ClientsExecutor())
+			.extensionManager(new ExtensionManager())
+			.build();
+		final IllegalArgumentException exception = assertThrows(
+			IllegalArgumentException.class,
+			() -> simpleStrategy.hasExpectedJobTypes(connector, "unknown")
+		);
+		assertEquals("Unknown strategy job name: unknown", exception.getMessage());
 	}
 }

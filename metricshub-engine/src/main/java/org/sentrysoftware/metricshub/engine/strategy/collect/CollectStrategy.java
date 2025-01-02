@@ -290,13 +290,7 @@ public class CollectStrategy extends AbstractStrategy {
 			}
 			final long jobEndTime = System.currentTimeMillis();
 			// Set the job duration metric in the host monitor
-			setJobDurationMetricInHostMonitorWithMonitorType(
-				JOB_NAME,
-				monitorType,
-				currentConnector.getCompiledFilename(),
-				jobStartTime,
-				jobEndTime
-			);
+			setJobDurationMetric(JOB_NAME, monitorType, currentConnector.getCompiledFilename(), jobStartTime, jobEndTime);
 		}
 	}
 
