@@ -33,6 +33,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,6 +49,11 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class StringHelper {
+
+	/**
+	 * The regular expression pattern used to extract the column names from a SELECT
+	 */
+	private static final Pattern SQL_PATTERN = Pattern.compile("(?i)select\\s+(.*?)\\s+from", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Execute the given callable to get the resulting Object as String value.
@@ -264,5 +270,21 @@ public class StringHelper {
 	public static String protectCaseInsensitiveRegex(final String value) {
 		isTrue(value != null && !value.isEmpty(), "Input string must not be null or empty.");
 		return value.isBlank() ? value : "(?i)" + Pattern.quote(value);
+	}
+
+	/**
+	 * Extracts column names from a SELECT query.
+	 *
+	 * @param query the SQL query string
+	 * @return an array of column names, or an empty array if none are found
+	 */
+	public static String[] extractColumns(String query) {
+		// Normalize the query by ignoring case for SELECT and FROM
+		final Matcher matcher = SQL_PATTERN.matcher(query.trim());
+
+		if (matcher.find()) {
+			return Stream.of(matcher.group(1).trim().split(",")).map(String::trim).toArray(String[]::new);
+		}
+		return new String[] {}; // Return empty if no match is found
 	}
 }

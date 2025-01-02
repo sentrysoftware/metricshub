@@ -2,10 +2,12 @@ package org.sentrysoftware.metricshub.extension.ping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -186,5 +188,19 @@ class PingExtensionTest {
 	@Test
 	void testProcessSource() {
 		assertEquals(SourceTable.empty(), pingExtension.processSource(new HttpSource(), CONNECTOR_ID, telemetryManager));
+	}
+
+	@Test
+	void testExecuteQuery() throws Exception {
+		doReturn(Boolean.TRUE).when(pingRequestExecutorMock).ping(anyString(), anyInt());
+		PingConfiguration pingConfiguration = PingConfiguration.builder().hostname(HOST_NAME).timeout(5L).build();
+		assertTrue(Boolean.valueOf(pingExtension.executeQuery(pingConfiguration, null)));
+	}
+
+	@Test
+	void testExecuteQueryExecuteThrowsException() throws UnknownHostException {
+		doThrow(UnknownHostException.class).when(pingRequestExecutorMock).ping(anyString(), anyInt());
+		PingConfiguration pingConfiguration = PingConfiguration.builder().hostname(HOST_NAME).timeout(5L).build();
+		assertThrows(UnknownHostException.class, () -> pingExtension.executeQuery(pingConfiguration, null));
 	}
 }

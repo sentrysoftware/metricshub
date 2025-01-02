@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +61,8 @@ class HttpExtensionTest {
 	private static final String RESULT = "result";
 	private static final String ERROR = "error";
 	private static final String HTTP_GET = "GET";
+	private static final String TEST_HEADER = "Content-Type: application/xml";
+	private static final String HTTP_SUCCESSFUL_RESPONSE = "Successful HTTP query";
 
 	/**
 	 * Creates a TelemetryManager instance with an HTTP configuration.
@@ -73,7 +74,7 @@ class HttpExtensionTest {
 			Map.of(HOST.getKey(), Map.of(HOST_NAME, hostMonitor))
 		);
 
-		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().build();
+		final HttpConfiguration httpConfiguration = HttpConfiguration.builder().hostname(HOST_NAME).build();
 
 		final Connector connector = Connector.builder().build();
 
@@ -271,7 +272,7 @@ class HttpExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionRequestWrongResultTest() throws IOException {
+	void testProcessCriterionRequestWrongResultTest() {
 		initHttp();
 
 		final HttpCriterion httpCriterion = HttpCriterion
@@ -324,7 +325,7 @@ class HttpExtensionTest {
 	}
 
 	@Test
-	void testProcessCriterionOk() throws IOException {
+	void testProcessCriterionOk() {
 		// Test case where the HTTP request is executed successfully and matches the
 		// expected result
 		{
@@ -532,5 +533,39 @@ class HttpExtensionTest {
 				telemetryManager
 			)
 		);
+	}
+
+	@Test
+	void testExecuteQuery() {
+		initHttp();
+		HttpConfiguration httpConfiguration = (HttpConfiguration) telemetryManager
+			.getHostConfiguration()
+			.getConfigurations()
+			.get(HttpConfiguration.class);
+		ObjectNode httpQueryConfiguration = JsonNodeFactory.instance.objectNode();
+		httpQueryConfiguration.set("hostname", new TextNode(HOST_NAME));
+		httpQueryConfiguration.set("method", new TextNode("GET"));
+		httpQueryConfiguration.set("url", new TextNode(TEST_URL));
+		httpQueryConfiguration.set("header", new TextNode(TEST_HEADER));
+		httpQueryConfiguration.set("body", new TextNode(TEST_BODY));
+
+		HttpRequest httpRequest = HttpRequest
+			.builder()
+			.hostname(HOST_NAME)
+			.httpConfiguration(httpConfiguration)
+			.method(HTTP_GET)
+			.url(TEST_URL)
+			.header(TEST_HEADER, Map.of(), "", HOST_NAME)
+			.body(TEST_BODY, Map.of(), "", HOST_NAME)
+			.resultContent(ResultContent.detect(ResultContent.ALL_WITH_STATUS.getName()))
+			.build();
+
+		// Mock HTTP Client response
+		doReturn(HTTP_SUCCESSFUL_RESPONSE)
+			.when(httpRequestExecutorMock)
+			.executeHttp(eq(httpRequest), anyBoolean(), any(TelemetryManager.class));
+
+		final String result = httpExtension.executeQuery(httpConfiguration, httpQueryConfiguration);
+		assertEquals(HTTP_SUCCESSFUL_RESPONSE, result);
 	}
 }

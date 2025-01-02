@@ -77,10 +77,10 @@ public class JdbcConfiguration implements IConfiguration {
 	public void validateConfiguration(String resourceKey) throws InvalidConfigurationException {
 		StringHelper.validateConfigurationAttribute(
 			username,
-			attr -> attr == null || attr.isBlank(),
+			attr -> attr != null && attr.isBlank(),
 			() ->
 				"""
-				Resource %s - No username configured for JDBC. \
+				Resource %s - Username value is invalid for JDBC. \
 				This resource will not be monitored. \
 				Please verify the configured username value.\
 				""".formatted(resourceKey)

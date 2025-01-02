@@ -38,7 +38,7 @@ public class SnmpRequestExecutor extends AbstractSnmpRequestExecutor {
 			hostname,
 			snmpConfig.getPort(),
 			snmpConfig.getIntVersion(),
-			null,
+			snmpConfig.getRetryIntervals(),
 			String.valueOf(snmpConfig.getCommunity()),
 			null,
 			null,
