@@ -16,20 +16,20 @@ class CommandLineSourceDeserializerTest extends DeserializerTest {
 
 	@Override
 	public String getResourcePath() {
-		return "src/test/resources/test-files/source/osCommand/";
+		return "src/test/resources/test-files/source/commandLine/";
 	}
 
 	@Test
-	void testDeserializeOsCommand() throws IOException {
-		final Connector connector = getConnector("osCommand");
+	void testDeserializeCommandLine() throws IOException {
+		final Connector connector = getConnector("commandLine");
 
 		Map<String, Source> expected = new LinkedHashMap<>();
 		expected.put(
-			"oscommand1",
+			"commandLine1",
 			CommandLineSource
 				.builder()
-				.key("${source::beforeAll.oscommand1}")
-				.type("osCommand")
+				.key("${source::beforeAll.commandLine1}")
+				.type("commandLine")
 				.timeout((long) 30)
 				.exclude("excludeRegExp")
 				.keep("keepRegExp")

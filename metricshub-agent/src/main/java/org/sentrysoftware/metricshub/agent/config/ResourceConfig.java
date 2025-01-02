@@ -71,6 +71,7 @@ public class ResourceConfig {
 	private Integer discoveryCycle;
 	private AlertingSystemConfig alertingSystemConfig;
 	private Boolean sequential;
+	private Boolean enableSelfMonitoring;
 	private Boolean resolveHostnameToFqdn;
 
 	@JsonSetter(nulls = SKIP)
@@ -126,6 +127,7 @@ public class ResourceConfig {
 			.discoveryCycle(discoveryCycle)
 			.alertingSystemConfig(alertingSystemConfig)
 			.sequential(sequential)
+			.enableSelfMonitoring(enableSelfMonitoring)
 			.monitorFilters(monitorFilters)
 			.resolveHostnameToFqdn(resolveHostnameToFqdn)
 			.jobTimeout(jobTimeout)

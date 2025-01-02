@@ -519,7 +519,7 @@ class SourceUpdaterProcessorTest {
 	}
 
 	@Test
-	void testProcessOSCommandSource() {
+	void testProcessCommandLineSource() {
 		doReturn(SourceTable.empty()).when(sourceProcessor).process(any(CommandLineSource.class));
 
 		assertEquals(

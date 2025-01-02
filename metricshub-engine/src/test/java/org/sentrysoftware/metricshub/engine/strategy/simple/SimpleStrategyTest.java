@@ -200,6 +200,28 @@ class SimpleStrategyTest {
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
 
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"disk_controller\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"enclosure\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+
 		// Mock detection criteria result to switch to a failing criterion processing case
 		doReturn(CriterionTestResult.failure(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
 			.when(protocolExtensionMock)
@@ -228,28 +250,6 @@ class SimpleStrategyTest {
 			"Conclusion:\n" +
 			"Test on ec-02 FAILED",
 			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
-		);
-
-		// Check job duration metrics values
-		assertNotNull(
-			telemetryManager
-				.getMonitors()
-				.get("host")
-				.get("monitor1")
-				.getMetric(
-					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"disk_controller\", connector_id=\"TestConnectorWithSimple\"}"
-				)
-				.getValue()
-		);
-		assertNotNull(
-			telemetryManager
-				.getMonitors()
-				.get("host")
-				.get("monitor1")
-				.getMetric(
-					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"enclosure\", connector_id=\"TestConnectorWithSimple\"}"
-				)
-				.getValue()
 		);
 	}
 }

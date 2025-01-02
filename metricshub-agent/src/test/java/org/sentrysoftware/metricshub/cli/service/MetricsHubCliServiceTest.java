@@ -59,27 +59,20 @@ class MetricsHubCliServiceTest {
 
 	@Test
 	void testSetLogLevel() {
-		final MetricsHubCliService metricsHubCliService = new MetricsHubCliService();
-
 		assertDoesNotThrow(() -> {
-			metricsHubCliService.verbose = new boolean[] {};
-			metricsHubCliService.setLogLevel();
+			MetricsHubCliService.setLogLevel(new boolean[] {});
 		});
 		assertDoesNotThrow(() -> {
-			metricsHubCliService.verbose = new boolean[] { true };
-			metricsHubCliService.setLogLevel();
+			MetricsHubCliService.setLogLevel(new boolean[] { true });
 		});
 		assertDoesNotThrow(() -> {
-			metricsHubCliService.verbose = new boolean[] { true, true };
-			metricsHubCliService.setLogLevel();
+			MetricsHubCliService.setLogLevel(new boolean[] { true, true });
 		});
 		assertDoesNotThrow(() -> {
-			metricsHubCliService.verbose = new boolean[] { true, true, true };
-			metricsHubCliService.setLogLevel();
+			MetricsHubCliService.setLogLevel(new boolean[] { true, true, true });
 		});
 		assertDoesNotThrow(() -> {
-			metricsHubCliService.verbose = new boolean[] { true, true, true, true };
-			metricsHubCliService.setLogLevel();
+			MetricsHubCliService.setLogLevel(new boolean[] { true, true, true, true });
 		});
 	}
 

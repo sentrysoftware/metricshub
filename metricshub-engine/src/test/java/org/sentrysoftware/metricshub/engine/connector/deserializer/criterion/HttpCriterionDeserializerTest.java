@@ -126,7 +126,7 @@ class HttpCriterionDeserializerTest extends DeserializerTest {
 				Assertions.fail(JSON_MAPPING_EXCEPTION_MSG);
 			} catch (JsonMappingException e) {
 				String message =
-					"not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER]";
+					"not one of the values accepted for Enum class: [all, body, HTTP_STATUS, httpStatus, header, ALL, BODY, http_status, HEADER, all_with_status, ALL_WITH_STATUS]";
 				checkMessage(e, message);
 			}
 		}

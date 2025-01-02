@@ -3,5 +3,5 @@ connector:
   detection:
     appliesTo: [ linux ]
     criteria:
-      - type: osCommand
+      - type: commandLine
         commandLine:

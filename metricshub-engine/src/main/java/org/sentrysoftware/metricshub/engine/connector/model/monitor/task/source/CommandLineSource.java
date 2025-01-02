@@ -113,7 +113,7 @@ public class CommandLineSource extends Source {
 	private String selectColumns;
 
 	/**
-	 * Builder for creating instances of {@code OsCommandSource}.
+	 * Builder for creating instances of {@code CommandLineSource}.
 	 *
 	 * @param type                 The type of the source.
 	 * @param computes             List of computations to be applied to the source.

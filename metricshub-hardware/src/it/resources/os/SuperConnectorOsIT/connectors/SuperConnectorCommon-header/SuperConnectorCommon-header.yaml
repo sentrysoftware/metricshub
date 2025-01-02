@@ -63,7 +63,7 @@ monitors:
             separators: ;
             # Add some text to each additional information
             # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
-          - type: leftConcat
+          - type: prepend
             column: 5
             value: WWN=
       mapping:
@@ -193,10 +193,10 @@ monitors:
           - type: keepOnlyMatchingLines
             column: 3
             valueList: "Blade1,Blade2"
-          - type: leftConcat
+          - type: prepend
             column: 4
             value: S*
-          - type: rightConcat
+          - type: append
             column: 4
             value: '*N'
       mapping:
