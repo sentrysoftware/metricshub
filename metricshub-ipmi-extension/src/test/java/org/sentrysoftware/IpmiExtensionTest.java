@@ -3,8 +3,10 @@ package org.sentrysoftware;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
@@ -361,5 +363,40 @@ class IpmiExtensionTest {
 			SourceTable.empty(),
 			ipmiExtension.processSource(IpmiSource.builder().build(), CONNECTOR_ID, telemetryManager)
 		);
+	}
+
+	@Test
+	void testExecuteQuery() throws Exception {
+		final String message = String.format("Successful IPMI query");
+		initIpmi();
+		doReturn(message).when(ipmiRequestExecutorMock).executeIpmiGetSensors(anyString(), any(IpmiConfiguration.class));
+		IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.timeout(120L)
+			.skipAuth(false)
+			.bmcKey(BMC_KEY)
+			.build();
+		assertEquals(message, ipmiExtension.executeQuery(ipmiConfiguration, null));
+	}
+
+	@Test
+	void testExecuteQueryThrows() throws Exception {
+		initIpmi();
+		doThrow(TimeoutException.class)
+			.when(ipmiRequestExecutorMock)
+			.executeIpmiGetSensors(anyString(), any(IpmiConfiguration.class));
+		IpmiConfiguration ipmiConfiguration = IpmiConfiguration
+			.builder()
+			.hostname(HOST_NAME)
+			.username(USERNAME)
+			.password(PASSWORD.toCharArray())
+			.timeout(120L)
+			.skipAuth(false)
+			.bmcKey(BMC_KEY)
+			.build();
+		assertThrows(Exception.class, () -> ipmiExtension.executeQuery(ipmiConfiguration, null));
 	}
 }

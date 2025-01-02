@@ -306,4 +306,19 @@ public class OsCommandExtension implements IProtocolExtension {
 	public String getIdentifier() {
 		return "ssh";
 	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
+		final String commandLine = queryNode.get("commandLine").asText();
+		final SshConfiguration sshConfiguration = (SshConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		return OsCommandService.runSshCommand(
+			commandLine,
+			hostname,
+			sshConfiguration,
+			sshConfiguration.getTimeout(),
+			null,
+			commandLine
+		);
+	}
 }

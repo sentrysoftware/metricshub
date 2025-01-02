@@ -11,12 +11,19 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
+import static org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Extension.GET;
+import static org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Extension.GET_NEXT;
+import static org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Extension.TABLE;
+import static org.sentrysoftware.metricshub.extension.snmpv3.SnmpV3Extension.WALK;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +35,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
@@ -50,6 +58,12 @@ class SnmpV3ExtensionTest {
 	public static final String SNMP_GET_NEXT_FOURTH_RESULT = "1.3.6.1.4.1.674.10893.1.20.1 ASN_OCT";
 	public static final String EXECUTE_SNMP_GET_RESULT = "CMC DELL";
 	public static final String SNMP_VERSION = "2.4.6";
+	public static final String SUCCESSFUL_SNMPV3_QUERY_RESULT = "Successful SNMPv3 %s Query";
+	public static final String[] COLUMNS_ARRAY = { "value1a", "value1b" };
+	public static final List<List<String>> SNMP_TABLE_RESULT = Arrays.asList(
+		Arrays.asList("value1a", "value2a", "value3a"),
+		Arrays.asList("value1b", "value2b", "value3b")
+	);
 
 	@Mock
 	private SnmpV3RequestExecutor snmpv3RequestExecutorMock;
@@ -585,6 +599,108 @@ class SnmpV3ExtensionTest {
 				.timeout(120L)
 				.build(),
 			snmpV3Extension.buildConfiguration("snmpv3", configuration, null)
+		);
+	}
+
+	@Test
+	void testExecuteGetQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMPV3_QUERY_RESULT, GET);
+		initSnmp();
+		doReturn(message)
+			.when(snmpv3RequestExecutorMock)
+			.executeSNMPGet(anyString(), any(SnmpV3Configuration.class), anyString(), eq(false));
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpV3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpV3QueryConfiguration.set("action", new TextNode(GET));
+		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(message, snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration));
+	}
+
+	@Test
+	void testExecuteGetNextQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMPV3_QUERY_RESULT, GET_NEXT);
+		initSnmp();
+		doReturn(message)
+			.when(snmpv3RequestExecutorMock)
+			.executeSNMPGetNext(anyString(), any(SnmpV3Configuration.class), anyString(), eq(false));
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpV3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpV3QueryConfiguration.set("action", new TextNode(GET_NEXT));
+		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(message, snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration));
+	}
+
+	@Test
+	void testExecuteWalkQuery() throws Exception {
+		final String message = String.format(SUCCESSFUL_SNMPV3_QUERY_RESULT, WALK);
+		initSnmp();
+		doReturn(message)
+			.when(snmpv3RequestExecutorMock)
+			.executeSNMPWalk(anyString(), any(SnmpV3Configuration.class), anyString(), eq(false));
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpV3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpV3QueryConfiguration.set("action", new TextNode(WALK));
+		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(message, snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration));
+	}
+
+	@Test
+	void testExecuteTableQuery() throws Exception {
+		initSnmp();
+		doReturn(SNMP_TABLE_RESULT)
+			.when(snmpv3RequestExecutorMock)
+			.executeSNMPTable(anyString(), any(String[].class), any(SnmpV3Configuration.class), anyString(), eq(false));
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpv3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpv3QueryConfiguration.set("action", new TextNode(TABLE));
+		final String[] columnsArray = { "value1a", "value1b" };
+		final ArrayNode columns = snmpv3QueryConfiguration.putArray("columns");
+		Arrays.stream(columnsArray).forEach(columns::add);
+		snmpv3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(
+			TextTableHelper.generateTextTable(columnsArray, SNMP_TABLE_RESULT),
+			snmpV3Extension.executeQuery(snmpV3Configuration, snmpv3QueryConfiguration)
+		);
+	}
+
+	@Test
+	void testThrowsExceptionWithQuery() throws Exception {
+		initSnmp();
+		doThrow(new InterruptedException())
+			.when(snmpv3RequestExecutorMock)
+			.executeSNMPWalk(anyString(), any(SnmpV3Configuration.class), anyString(), eq(false));
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpV3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpV3QueryConfiguration.set("action", new TextNode(WALK));
+		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(
+			"Failed Executing SNMP query",
+			snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration)
+		);
+	}
+
+	@Test
+	void testThrowsExceptionQuery() {
+		initSnmp();
+
+		SnmpV3Configuration snmpV3Configuration = SnmpV3Configuration.builder().hostname(HOST_NAME).build();
+		ObjectNode snmpV3QueryConfiguration = JsonNodeFactory.instance.objectNode();
+		snmpV3QueryConfiguration.set("action", new TextNode(""));
+		snmpV3QueryConfiguration.set("oid", new TextNode(SnmpV3Extension.SNMP_OID));
+
+		assertEquals(
+			"Failed Executing SNMP query",
+			snmpV3Extension.executeQuery(snmpV3Configuration, snmpV3QueryConfiguration)
 		);
 	}
 }

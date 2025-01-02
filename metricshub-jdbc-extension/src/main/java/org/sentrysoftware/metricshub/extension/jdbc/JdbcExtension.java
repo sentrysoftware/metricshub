@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
@@ -198,5 +200,19 @@ public class JdbcExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
+		final String hostname = configuration.getHostname();
+		final String sqlQuery = queryNode.get("query").asText();
+		final JdbcConfiguration jdbcConfiguration = (JdbcConfiguration) configuration;
+		final List<List<String>> resultList = sqlRequestExecutor.executeSql(hostname, jdbcConfiguration, sqlQuery, false);
+		final String[] columns = StringHelper.extractColumns(sqlQuery);
+		if (columns.length == 1 && columns[0].equals("*")) {
+			return TextTableHelper.generateTextTable(resultList);
+		} else {
+			return TextTableHelper.generateTextTable(columns, resultList);
+		}
 	}
 }

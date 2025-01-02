@@ -94,7 +94,7 @@ public class SnmpExtension extends AbstractSnmpExtension {
 	}
 
 	@Override
-	protected AbstractSnmpRequestExecutor getRequestExecutor() {
+	public AbstractSnmpRequestExecutor getRequestExecutor() {
 		return snmpRequestExecutor;
 	}
 }

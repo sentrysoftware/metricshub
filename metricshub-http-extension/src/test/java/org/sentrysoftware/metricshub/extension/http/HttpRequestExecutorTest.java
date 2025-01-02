@@ -21,7 +21,7 @@ import org.sentrysoftware.metricshub.extension.http.utils.HttpRequest;
 class HttpRequestExecutorTest {
 
 	@Test
-	void testExecuteHttpGetBody() throws IOException {
+	void testExecuteHttpGetBody() {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";
@@ -91,7 +91,7 @@ class HttpRequestExecutorTest {
 	}
 
 	@Test
-	void testExecuteHttpGetHeader() throws IOException {
+	void testExecuteHttpGetHeader() {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";
@@ -160,7 +160,7 @@ class HttpRequestExecutorTest {
 	}
 
 	@Test
-	void testExecuteHttpGetStatus() throws IOException {
+	void testExecuteHttpGetStatus() {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";
@@ -228,7 +228,7 @@ class HttpRequestExecutorTest {
 	}
 
 	@Test
-	void testExecuteHttpGetAllContent() throws IOException {
+	void testExecuteHttpGetAllContent() {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";
@@ -298,7 +298,7 @@ class HttpRequestExecutorTest {
 	}
 
 	@Test
-	void testExecuteHttpThrowsException() throws IOException {
+	void testExecuteHttpThrowsException() {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";
@@ -369,7 +369,7 @@ class HttpRequestExecutorTest {
 
 	@ParameterizedTest
 	@ValueSource(ints = { 500, 503, 504, 507 })
-	void testExecuteHttpRetry(final int httpStatusCode) throws IOException {
+	void testExecuteHttpRetry(final int httpStatusCode) {
 		try (MockedStatic<HttpClient> httpClientMock = mockStatic(HttpClient.class)) {
 			final String path = "/";
 			final String method = "GET";

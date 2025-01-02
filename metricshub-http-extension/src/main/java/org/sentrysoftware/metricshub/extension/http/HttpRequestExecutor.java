@@ -278,6 +278,9 @@ public class HttpRequestExecutor {
 				case ALL:
 					result = httpResponse.toString();
 					break;
+				case ALL_WITH_STATUS:
+					result = "Status: %s\n%s".formatted(statusCode, httpResponse.toString()); // NOSONAR
+					break;
 				default:
 					throw new IllegalArgumentException("Unsupported ResultContent: " + resultContent);
 			}

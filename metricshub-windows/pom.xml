@@ -278,6 +278,26 @@
 								<argument>MetricsHub-Encrypt=metricshub-encrypt.properties</argument>
 								<argument>--add-launcher</argument>
 								<argument>MetricsHubServiceManager=metricshub-agent.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>snmp=metricshub-snmp.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>http=metricshub-http.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>ipmi=metricshub-ipmi.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>snmpv3=metricshub-snmpv3.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>wbem=metricshub-wbem.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>wmi=metricshub-wmi.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>winrm=metricshub-winrm.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>jdbc=metricshub-jdbc.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>ssh=metricshub-ssh.properties</argument>
+								<argument>--add-launcher</argument>
+								<argument>ping=metricshub-ping.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>

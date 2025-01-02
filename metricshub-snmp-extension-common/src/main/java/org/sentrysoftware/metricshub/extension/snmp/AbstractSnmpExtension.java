@@ -22,7 +22,9 @@ package org.sentrysoftware.metricshub.extension.snmp;
  */
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -32,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
@@ -59,6 +62,11 @@ public abstract class AbstractSnmpExtension implements IProtocolExtension {
 	 * The SNMP OID value to use in the health check test
 	 */
 	public static final String SNMP_OID = "1.3.6.1";
+
+	public static final String GET = "get";
+	public static final String GET_NEXT = "getNext";
+	public static final String WALK = "walk";
+	public static final String TABLE = "table";
 
 	/**
 	 * Returns the SNMP request executor used for executing SNMP requests.
@@ -175,6 +183,46 @@ public abstract class AbstractSnmpExtension implements IProtocolExtension {
 	@Override
 	public boolean isSupportedConfigurationType(String configurationType) {
 		return getIdentifier().equalsIgnoreCase(configurationType);
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) {
+		final ISnmpConfiguration snmpConfiguration = (ISnmpConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		String result = "Failed Executing SNMP query";
+		final String action = queryNode.get("action").asText();
+		final String oId = queryNode.get("oid").asText();
+
+		final AbstractSnmpRequestExecutor executor = getRequestExecutor();
+		try {
+			switch (action) {
+				case GET:
+					result = executor.executeSNMPGet(oId, snmpConfiguration, hostname, false);
+					break;
+				case GET_NEXT:
+					result = executor.executeSNMPGetNext(oId, snmpConfiguration, hostname, false);
+					break;
+				case WALK:
+					result = executor.executeSNMPWalk(oId, snmpConfiguration, hostname, false);
+					break;
+				case TABLE:
+					final String[] columns = new ObjectMapper().convertValue(queryNode.get("columns"), String[].class);
+					final List<List<String>> resultList = executor.executeSNMPTable(
+						oId,
+						columns,
+						snmpConfiguration,
+						hostname,
+						false
+					);
+					result = TextTableHelper.generateTextTable(columns, resultList);
+					break;
+				default:
+					throw new IllegalArgumentException(String.format("Hostname %s - Invalid SNMP Operation", hostname));
+			}
+		} catch (Exception e) {
+			log.debug("Hostname {} - Error while executing SNMP {} query. Message: {}", hostname, action, e);
+		}
+		return result;
 	}
 
 	/**
