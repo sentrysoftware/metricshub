@@ -281,9 +281,7 @@ class BeforeAllStrategyTest {
 				.getMonitors()
 				.get("host")
 				.get("anyMonitorId")
-				.getMetric(
-					"metricshub.job.duration{job.type=\"beforeAll\", monitor.type=\"none\", connector_id=\"beforeAllSource\"}"
-				)
+				.getMetric("metricshub.job.duration{job.type=\"beforeAll\", connector_id=\"beforeAllSource\"}")
 				.getValue()
 		);
 		assertNotNull(

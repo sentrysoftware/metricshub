@@ -252,6 +252,16 @@ class CollectStrategyTest {
 				)
 				.getValue()
 		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"connector\", connector_id=\"TestConnector\"}"
+				)
+				.getValue()
+		);
 
 		// Mock detection criteria result to switch to a failing criterion processing case
 		doReturn(CriterionTestResult.failure(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
