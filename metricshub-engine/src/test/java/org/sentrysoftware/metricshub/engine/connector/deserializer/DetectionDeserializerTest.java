@@ -81,7 +81,7 @@ class DetectionDeserializerTest extends DeserializerTest {
 			getConnector("appliesToEmpty");
 			fail(IO_EXCEPTION_MSG);
 		} catch (Exception e) {
-			final String message = "' ' is not a supported device kind.";
+			final String message = "'' is not a supported device kind.";
 			checkMessage(e, message);
 		}
 	}

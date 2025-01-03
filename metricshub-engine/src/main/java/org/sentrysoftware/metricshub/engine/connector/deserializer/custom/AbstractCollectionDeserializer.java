@@ -26,8 +26,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -61,7 +61,13 @@ public abstract class AbstractCollectionDeserializer<T> extends JsonDeserializer
 
 			return Optional
 				.ofNullable(parser.getValueAsString())
-				.map(str -> fromCollection(Collections.singleton(valueExtractor().apply(str))))
+				.map(str ->
+					Arrays
+						.stream(str.split(","))
+						.map(String::trim) // optional: trim spaces
+						.map(valueExtractor()) // apply the custom extractor
+						.collect(collector())
+				) // collect into your custom container
 				.orElse(emptyCollection());
 		} catch (IllegalArgumentException e) {
 			throw new IOException(e.getMessage());
@@ -89,12 +95,4 @@ public abstract class AbstractCollectionDeserializer<T> extends JsonDeserializer
 	 * @return {@link Collector} function
 	 */
 	protected abstract Collector<T, ?, Collection<T>> collector();
-
-	/**
-	 * Builds a collection from another collection
-	 *
-	 * @param collection
-	 * @return new {@link Collection}
-	 */
-	protected abstract Collection<T> fromCollection(Collection<T> collection);
 }

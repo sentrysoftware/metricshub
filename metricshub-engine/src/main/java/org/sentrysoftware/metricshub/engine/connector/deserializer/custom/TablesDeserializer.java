@@ -45,9 +45,4 @@ public class TablesDeserializer extends AbstractNonBlankNonNullInCollectionDeser
 	protected Collector<String, ?, Collection<String>> collector() {
 		return Collectors.toCollection(ArrayList::new);
 	}
-
-	@Override
-	protected Collection<String> fromCollection(Collection<String> collection) {
-		return new ArrayList<>(collection);
-	}
 }

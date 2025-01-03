@@ -22,7 +22,7 @@ package org.sentrysoftware.metricshub.engine.connector.deserializer.custom;
  */
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -33,21 +33,16 @@ public class PlatformsDeserializer extends AbstractNonBlankNonNullInCollectionDe
 
 	@Override
 	protected String getErrorMessage() {
-		return "The connector referenced by 'platforms' cannot be empty.";
+		return "The platform referenced in 'platforms' cannot be empty.";
 	}
 
 	@Override
 	protected Collection<String> emptyCollection() {
-		return new HashSet<>();
+		return new LinkedHashSet<>();
 	}
 
 	@Override
 	protected Collector<String, ?, Collection<String>> collector() {
-		return Collectors.toCollection(HashSet::new);
-	}
-
-	@Override
-	protected Collection<String> fromCollection(Collection<String> collection) {
-		return new HashSet<>(collection);
+		return Collectors.toCollection(LinkedHashSet::new);
 	}
 }
