@@ -294,6 +294,16 @@ class DiscoveryStrategyTest {
 				)
 				.getValue()
 		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"discovery\"," + " monitor.type=\"connector\", connector_id=\"AAC\"}"
+				)
+				.getValue()
+		);
 	}
 
 	@Test

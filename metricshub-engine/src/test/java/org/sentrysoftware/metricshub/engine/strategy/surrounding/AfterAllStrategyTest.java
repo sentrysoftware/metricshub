@@ -281,9 +281,7 @@ class AfterAllStrategyTest {
 				.getMonitors()
 				.get("host")
 				.get("anyMonitorId")
-				.getMetric(
-					"metricshub.job.duration{job.type=\"afterAll\", monitor.type=\"none\", connector_id=\"afterAllSource\"}"
-				)
+				.getMetric("metricshub.job.duration{job.type=\"afterAll\", connector_id=\"afterAllSource\"}")
 				.getValue()
 		);
 		assertNotNull(
