@@ -45,9 +45,4 @@ public class NonBlankInLinkedHashSetDeserializer extends AbstractNonBlankNonNull
 	protected Collector<String, ?, Collection<String>> collector() {
 		return Collectors.toCollection(LinkedHashSet::new);
 	}
-
-	@Override
-	protected Collection<String> fromCollection(Collection<String> collection) {
-		return new LinkedHashSet<>(collection);
-	}
 }
