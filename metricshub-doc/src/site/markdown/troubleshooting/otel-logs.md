@@ -1,15 +1,15 @@
 keywords: logs
-description: How to enable the logging mode of the OpenTelemetry Collector.
+description: How to enable the debug mode of the OpenTelemetry Collector.
 
 # OTel Logs
 
 <!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
 
-The **OTel Collector** is in charge of pulling metrics, traces, and logs periodically and pushing them to the observability platform. Enable its debug mode if data is missing to obtain the `otelcol-$timestamp.log` log and get more details about the **MetricsHub** operations (initialization, pipeline, termination.
+The **OTel Collector** periodically retrieves metrics, traces, and logs, then forwards them to the observability platform. If you encounter missing data, enabling its debug mode can provide a more detailed output in the `otelcol-$timestamp.log` file. This additional verbosity offers deeper insights into MetricsHub operations, including initialization, pipeline processes, and termination workflows
 
 ## Enable debug
 
-First set the log `level` to `error`, `warn`, or `debug` in the **otel/otel-config.yaml** file:
+First set the log `level` to `debug` in the **otel/otel-config.yaml** file:
 
 ```yaml
 service:
@@ -37,18 +37,18 @@ Finally look for any connection issues or authentication failures to the configu
 
 ### Get more details about the exported data
 
-You can enable the `logging` exporter in the **otel/otel-config.yaml** file to check which metrics, labels, and values are sent by the *Collector* to the observability platforms and verify that the configured processors did not alter the collected data.
+You can enable the `debug` exporter in the **otel/otel-config.yaml** file to check which metrics, labels, and values are sent by the *Collector* to the observability platforms and verify that the configured processors did not alter the collected data.
 
-First, list the `logging` exporter under the `exporters` section and set `verbosity` to `detailed`:
+First, list the `debug` exporter under the `exporters` section and set `verbosity` to `detailed`:
 
 ```yaml
 exporters:
 # [...]
-  logging:
+  debug:
     verbosity: detailed
 ```
 
-Then, declare the `logging` exporter in the pipeline:
+Then, declare the `debug` exporter in the pipeline:
 
 ```yaml
 service:
@@ -56,14 +56,14 @@ service:
     metrics:
       receivers: # receivers
       processors: # processors
-      exporters: [prometheusremotewrite/your-server,logging] # <-- added logging
+      exporters: [prometheusremotewrite/your-server,debug] # <-- added debug
 ```
 
 Restart the *Collector* for the new settings to be considered.
 
 The metric name, its labels and value are listed in the **logs/otelcol-\<timestamp\>.log** file.
 
-> **Important**: Disable the `logging` exporter when unused as its operation may affect the overall performance of the *Collector* and fill your file system.
+> **Important**: Disable the `debug` exporter when unused as its operation may affect the overall performance of the *Collector* and fill your file system.
 
 ### Reduce the amount of information logged
 
