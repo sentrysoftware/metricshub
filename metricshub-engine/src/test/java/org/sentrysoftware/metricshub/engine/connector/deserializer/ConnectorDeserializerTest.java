@@ -32,7 +32,11 @@ class ConnectorDeserializerTest extends DeserializerTest {
 		expectedPlatforms.add("testPlatform2");
 		expectedPlatforms.add("testPlatform3");
 		final Set<String> actualPlatforms = connectorIdentity.getPlatforms();
-		assertEquals(new ArrayList<>(expectedPlatforms), new ArrayList<>(actualPlatforms), "The order of platforms does not match!");
+		assertEquals(
+			new ArrayList<>(expectedPlatforms),
+			new ArrayList<>(actualPlatforms),
+			"The order of platforms does not match!"
+		);
 
 		// Check other connector identity fields
 		assertEquals("testReliesOn", connectorIdentity.getReliesOn());
@@ -54,7 +58,11 @@ class ConnectorDeserializerTest extends DeserializerTest {
 		expectedPlatforms.add("testPlatform2");
 		expectedPlatforms.add("testPlatform3");
 		final Set<String> actualPlatforms = connectorIdentity.getPlatforms();
-		assertEquals(new ArrayList<>(expectedPlatforms), new ArrayList<>(actualPlatforms), "The order of platforms does not match!");
+		assertEquals(
+			new ArrayList<>(expectedPlatforms),
+			new ArrayList<>(actualPlatforms),
+			"The order of platforms does not match!"
+		);
 
 		// Check other connector identity fields
 		assertEquals("testReliesOn", connectorIdentity.getReliesOn());
