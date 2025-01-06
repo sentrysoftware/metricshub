@@ -22,13 +22,14 @@ Only a few options are required to run the `metricshub` command:
 * Protocols to be used:
   * HTTP
   * IPMI-over-LAN
-  * SSH
+  * JDBC
+  * Ping
   * SNMP
   * SNMPV3
+  * SSH
   * WBEM
   * WMI (on Windows only)
   * WinRM
-  * JDBC
 * Credentials
 
 ![Usage of MetricsHub](../images/metricshub-usage.png)
