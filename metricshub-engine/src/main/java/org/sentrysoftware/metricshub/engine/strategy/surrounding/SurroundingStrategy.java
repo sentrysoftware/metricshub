@@ -122,7 +122,8 @@ public abstract class SurroundingStrategy extends AbstractStrategy {
 		processSourcesAndComputes(orderedSources.getSources(), jobInfo);
 
 		final long jobEndTime = System.currentTimeMillis();
-		setJobDurationMetricInHostMonitor(jobName, "none", connectorId, jobStartTime, jobEndTime);
+		// Set the job duration metric in the host monitor
+		setJobDurationMetric(jobName, connectorId, jobStartTime, jobEndTime);
 	}
 
 	/**

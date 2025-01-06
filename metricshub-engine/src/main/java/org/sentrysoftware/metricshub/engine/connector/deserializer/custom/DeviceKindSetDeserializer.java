@@ -47,9 +47,4 @@ public class DeviceKindSetDeserializer extends AbstractCollectionDeserializer<De
 	protected Collector<DeviceKind, ?, Collection<DeviceKind>> collector() {
 		return Collectors.toCollection(HashSet::new);
 	}
-
-	@Override
-	protected Collection<DeviceKind> fromCollection(Collection<DeviceKind> collection) {
-		return new HashSet<>(collection);
-	}
 }

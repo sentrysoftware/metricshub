@@ -84,6 +84,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @EqualsAndHashCode(callSuper = true)
 public class CollectStrategy extends AbstractStrategy {
 
+	private static final String JOB_NAME = "collect";
+
 	/**
 	 * Constructs a new {@code CollectStrategy} using the provided telemetry manager, strategy time, and
 	 * clients executor.
@@ -106,10 +108,17 @@ public class CollectStrategy extends AbstractStrategy {
 	/**
 	 * This method collects the monitors and their metrics
 	 * @param currentConnector Connector instance
-	 * @param hostname the host name
+	 * @param hostname The host name
 	 */
 	private void collect(final Connector currentConnector, final String hostname) {
-		if (!validateConnectorDetectionCriteria(currentConnector, hostname)) {
+		// Check whether the strategy job name matches at least one of the monitor jobs names of the current connector
+		final boolean connectorHasExpectedJobTypes = hasExpectedJobTypes(currentConnector, JOB_NAME);
+		// If the connector doesn't define any monitor job of type collect, log a message then exit the current collect operation
+		if (!connectorHasExpectedJobTypes) {
+			log.debug("Connector doesn't define any monitor job of type collect.");
+			return;
+		}
+		if (!validateConnectorDetectionCriteria(currentConnector, hostname, JOB_NAME)) {
 			log.error(
 				"Hostname {} - The connector {} no longer matches the host. Stopping the connector's collect job.",
 				hostname,
@@ -280,13 +289,8 @@ public class CollectStrategy extends AbstractStrategy {
 				}
 			}
 			final long jobEndTime = System.currentTimeMillis();
-			setJobDurationMetricInHostMonitor(
-				"collect",
-				monitorType,
-				currentConnector.getCompiledFilename(),
-				jobStartTime,
-				jobEndTime
-			);
+			// Set the job duration metric in the host monitor
+			setJobDurationMetric(JOB_NAME, monitorType, currentConnector.getCompiledFilename(), jobStartTime, jobEndTime);
 		}
 	}
 
@@ -414,7 +418,7 @@ public class CollectStrategy extends AbstractStrategy {
 						.connectorId(connectorId)
 						.hostname(hostname)
 						.monitorType(monitorType)
-						.jobName("collect")
+						.jobName(JOB_NAME)
 						.build()
 				)
 				.collectTime(strategyTime)

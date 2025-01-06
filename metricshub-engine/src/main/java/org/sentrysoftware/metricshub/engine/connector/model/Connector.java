@@ -115,7 +115,7 @@ public class Connector implements Serializable {
 	private Map<String, Source> afterAll = new HashMap<>();
 
 	/**
-	 * Map of monitor jobs, where each key is the name of the monitor job and the value is its definition.
+	 * Map of monitor jobs, where each key is the name of the monitor type and the value is the monitor job instance.
 	 */
 	@Default
 	private Map<String, MonitorJob> monitors = new LinkedHashMap<>();
