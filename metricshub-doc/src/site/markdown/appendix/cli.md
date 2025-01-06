@@ -23,7 +23,6 @@ Only a few options are required to run the `metricshub` command:
   * HTTP
   * IPMI-over-LAN
   * JDBC
-  * Ping
   * SNMP
   * SNMPV3
   * SSH
