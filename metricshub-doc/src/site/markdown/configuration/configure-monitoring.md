@@ -1209,33 +1209,27 @@ hw.status{state="degraded"} 1
 
 In this case, only the `degraded` state is reported, and the zero values for `ok` and `failed` are suppressed after the initial state transition.
 
-## Self-Monitoring
+#### Self-Monitoring
 
-**MetricsHub** includes **self-monitoring capabilities** to track its own performance. This feature can monitor key aspects such **job duration metrics**.
+The self-monitoring feature helps you track **MetricsHub**'s performance by providing metrics like job duration. These metrics offer detailed insights into task execution times, helping identify bottlenecks or inefficiencies and optimizing performance.
 
-### Configuration: `enableSelfMonitoring`
+To enable this feature, set the `enableSelfMonitoring` parameter to `true` in the relevant section of the `config/metricshub.yaml` file as described below:
 
-This configuration controls whether **MetricsHub** reports internal signals such as job duration metrics.
 
-#### Supported Values
+| Self-Monitoring                                    | Set enableSelfMonitoring to true                                |
+|----------------------------------------------------|---------------------------------------------------------|
+| For all resources                                  | In the global section (top of the file)                 |
+| For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
+| For a specific resource                            | Under the corresponding `<resource-id>` section         |
 
-- `true` (default): Enables self-monitoring capabilities.
-- `false`: Disables self-monitoring capabilities.
-
-#### Configuration Scopes
-
-You can configure `enableSelfMonitoring` at the following levels:
-
-1. **Global Configuration**
-   Applies to all monitored resources.
+##### Example 1: Enabling self-monitoring for all resources
 
    ```yaml
    enableSelfMonitoring: true # Set to "false" to disable
    resourceGroups: ...
    ```
 
-2. **Per Resource Group**
-   Applies to all resources within a specific group.
+##### Example 2: Enabling self-monitoring for all resources of a specific resource group
 
    ```yaml
    resourceGroups:
@@ -1244,8 +1238,7 @@ You can configure `enableSelfMonitoring` at the following levels:
        resources: ...
    ```
 
-3. **Per Resource**
-   Applies to an individual resource.
+##### Example 3: Enabling self-monitoring for a specific resource
 
    ```yaml
    resourceGroups:
@@ -1255,9 +1248,7 @@ You can configure `enableSelfMonitoring` at the following levels:
            enableSelfMonitoring: true # Set to "false" to disable
    ```
 
-### Examples of Self-Monitoring Metrics
-
-When enabled, **MetricsHub** reports the `metricshub.job.duration` metrics, for example:
+When enabled, **MetricsHub** reports the `metricshub.job.duration` metrics. For example:
 
 ```
 metricshub.job.duration{job.type="discovery", monitor.type="enclosure", connector_id="HPEGen10IloREST"} 0.020
@@ -1268,21 +1259,16 @@ metricshub.job.duration{job.type="collect", monitor.type="cpu", connector_id="HP
 ```
 
 Where:
-- **`job.type`**: Specifies the type of operation performed by MetricsHub.
-    - Possible values:
-        - `discovery`: Identifies and registers components.
-        - `collect`: Gathers telemetry data from the monitored components.
-        - `simple`: Executes a single straightforward task.
-        - `beforeAll` or `afterAll`: Runs preparatory or cleanup operations.
-- **`monitor.type`**: Indicates the specific category of component being monitored.
-    - Examples:
-        - Hardware components like `cpu`, `memory`, `physical_disk`, or `disk_controller`.
-        - Environmental metrics like `temperature` or `battery`.
-        - Logical entities like `connector`.
-- **`connector_id`**: The unique identifier of the connector defining the method and protocol to collect metrics for the specified component.
-    - Example: `"HPEGen10IloREST"` denotes the HPE Gen10 iLO REST connector.
-
-These metrics provide granular insights into task execution times, enabling the identification of bottlenecks or inefficiencies and helping optimize monitoring performance.
+* **`job.type`**: is the operation performed by **MetricsHub**. Possible values are:
+  * `discovery`: identifies and registers components.
+  * `collect`: gathers telemetry data from monitored components.
+  * `simple`: executes a straightforward task.
+  * `beforeAll` or `afterAll`: performs preparatory or cleanup operations.
+* ***`monitor.type`**: is the component being monitored. Examples:
+    * Hardware: `cpu`, `memory`, `physical_disk`, or `disk_controller`.
+    * Environmental metrics: `temperature` or `battery`.
+    * Logical entities: `connector`.
+- **`connector_id`**: is a unique identifier for the connector defining the collection method and protocol. `HPEGen10IloREST` refers for example to the `HPE Gen10 iLO REST` connector.
 
 #### Timeout, duration and period format
 
