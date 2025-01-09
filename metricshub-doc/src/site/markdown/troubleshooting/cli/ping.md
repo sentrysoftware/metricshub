@@ -1,10 +1,9 @@
 keywords: ping, cli
-description: The MetricsHub Ping CLI provides a command-line interface for MetricsHub's core Ping client. It enables to efficiently troubleshoot and ping monitored resources directly from the command line.
+description: How to execute ICMP ping requests with the MetricsHub Ping CLI.
 
 # ICMP Ping CLI Documentation
 
-ICMP (Internet Control Message Protocol) is used for diagnostic and error-reporting purposes in network communications. Ping is an application of ICMP that tests the reachability of a host by sending echo request messages and measuring the time it takes for responses.
-The Ping CLI allows users to execute ICMP ping requests to test the reachability and response time of a network host.
+The **MetricsHub Ping CLI** is a command-line utility you can use to execute ICMP ping requests against your resources to verify that they can be reached within an acceptable response time.
 
 ## Syntax
 
@@ -16,10 +15,10 @@ ping <HOSTNAME> --timeout <TIMEOUT>
 
 | Option       | Description                                                       | Default Value   |
 | ------------ | ----------------------------------------------------------------- | --------------- |
-| `HOSTNAME`   | Hostname or IP address of the host to ping.                       | None (required) |
+| `HOSTNAME`   |  Hostname or IP address of the host to ping. **This option is required.**                  |  None |
 | `--timeout`  | Timeout in seconds for the ICMP Ping operation.                   | 5               |
-| `-v`         | Enables verbose mode. Repeat to increase verbosity (e.g., `-vv`). | None            |
-| `-h, --help` | Displays help information for the Ping CLI.                       | None            |
+| `-v`         | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs. | None            |
+| `-h, --help` | Displays detailed help information about available options.         | None            |
 
 ## Examples
 
@@ -35,7 +34,7 @@ ping dev-01
 ping dev-01 --timeout 10
 ```
 
-### Example 3: Debug Verbose Mode
+### Example 3: ICMP Ping with Debug Verbose Mode
 
 ```bash
 ping dev-01 --timeout 5 -vvv

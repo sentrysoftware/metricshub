@@ -1,12 +1,14 @@
 keywords: ssh, cli
-description: The MetricsHub SSH CLI provides a command-line interface for MetricsHub's core SSH client. It enables to efficiently troubleshoot and run SSH requests against monitored resources directly from the command line.
+description: How to execute remote commands on SSH-enabled devices with the MetricsHub SSH CLI.
 
 # SSH CLI Documentation
 
-SSH (Secure Shell) is a protocol used for securely accessing and managing devices over a network. It provides secure remote login and command execution, making it ideal for configuration management, monitoring, and troubleshooting.
-The SSH CLI in MetricsHub facilitates executing remote commands on SSH-enabled devices. It supports authentication via username/password or public key, with options to configure timeout and port settings.
+The **MetricsHub SSH CLI** allows you to execute commands on SSH-enabled devices. When running the CLI, you can choose to authenticate yourself with credentials or a public key and configure additional settings, such as timeout and port.
+
+Before using the CLI, ensure your platform supports SSH monitoring by checking the [Connector Directory](https://metricshub.com/docs/latest/metricshub-connectors-directory.html).
 
 ## Syntax
+
 ### SSH with Username and Password
 
 ```bash
@@ -23,15 +25,15 @@ ssh <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --por
 
 | Option         | Description                                                          | Default Value   |
 | -------------- | -------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`     | Hostname or IP address of the SSH-enabled device.                    | None (required) |
+| `HOSTNAME`     | Hostname or IP address of the SSH-enabled device. **This option is required.**                 | None |
 | `--username`   | Username for SSH authentication.                                     | None            |
-| `--password`   | Password for SSH authentication. If omitted, prompted interactively. | None            |
+| `--password`   | Password for SSH authentication. If not provided, you will be prompted interactively.    | None            |
 | `--public-key` | Path to the public key file for SSH authentication.                  | None            |
-| `--command`    | The command to execute on the remote device.                         | `sudo`          |
+| `--command`    | Command to execute on the remote device.                         | `sudo`          |
 | `--timeout`    | Timeout in seconds for the SSH operation.                            | 30              |
 | `--port`       | Port for the SSH connection.                                         | 22              |
-| `-v`           | Enables verbose mode. Repeat to increase verbosity (e.g., `-vv`).    | None            |
-| `-h, --help`   | Displays help information for the SSH CLI.                           | None            |
+| `-v`           | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.   | None            |
+| `-h, --help`   | Displays detailed help information about available options.           | None            |
 
 ## Examples
 
@@ -47,7 +49,7 @@ ssh dev-01 --username admin --password secret --command="echo Hello, World!" --t
 ssh dev-01 --public-key="/opt/ssh-rsa.txt" --command="ls /home/admin" --timeout 30 --port 22
 ```
 
-### Example 3: Interactive Password Input
+### Example 3: SSH Command with Interactive Password Input
 
 ```bash
 ssh dev-01 --username admin --command="whoami"

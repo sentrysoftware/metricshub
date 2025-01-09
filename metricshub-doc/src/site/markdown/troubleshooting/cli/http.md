@@ -1,10 +1,13 @@
 keywords: http, cli
-description: The MetricsHub HTTP CLI provides a command-line interface for MetricsHub's core HTTP client. It enables to efficiently troubleshoot and run HTTP requests against monitored resources directly from the command line.
+description: How to test connectivity to HTTP-based resources with MetricsHub HTTP CLI.
 
 # HTTP CLI Documentation
 
-HTTP (Hypertext Transfer Protocol) is the foundation of data communication on the web. It is used for transferring requests and responses between clients and servers. In MetricsHub, the HTTP CLI facilitates HTTP-based interactions to monitor resources, query data, or send configuration updates.
-The HTTP CLI is a command-line utility that allows users to send HTTP requests, such as GET, POST, PUT, and DELETE, to specified endpoints. It supports authentication, custom headers, and request body configurations.
+<!-- MACRO{toc|fromDepth=1|toDepth=2|id=toc} -->
+
+The **MetricsHub HTTP CLI** is a powerful command-line utility for interacting with monitored resources. It supports common HTTP methods (`GET`, `POST`, `PUT`, and `DELETE`) to validate configurations, troubleshoot connectivity issues, and perform HTTP-based operations directly from the command line. The CLI supports authentication, custom headers, and request body configurations.
+
+Before using the CLI, ensure your platform supports HTTP monitoring by checking the [Connector Directory](https://metricshub.com/docs/latest/metricshub-connectors-directory.html).
 
 ## Syntax
 
@@ -14,19 +17,19 @@ http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password
 
 ## Options
 
-| Option          | Description                                                           | Default Value |
-| --------------- | --------------------------------------------------------------------- | ------------- |
-| `--url`         | The URL for the HTTP request.                                         | None          |
-| `--method`      | HTTP method to use (`GET`, `POST`, `PUT`, `DELETE`).                  | `GET`         |
-| `--header`      | Custom headers for the request. Multiple headers can be added.        | None          |
-| `--header-file` | Path to a file containing headers for the request.                    | None          |
-| `--body`        | Request body as a string.                                             | None          |
-| `--body-file`   | Path to a file containing the request body.                           | None          |
-| `--username`    | Username for HTTP authentication.                                     | None          |
-| `--password`    | Password for HTTP authentication. If omitted, prompted interactively. | None          |
-| `--timeout`     | Timeout for the HTTP operation in seconds.                            | 120           |
-| `-v`            | Enable verbose mode. Repeat to increase verbosity (e.g., `-vv`).      | None          |
-| `-h, --help`    | Display help information.                                             | None          |
+| Option          | Description                                                                              | Default Value |
+|-----------------|------------------------------------------------------------------------------------------|---------------|
+| `--url`         | The URL for the HTTP request.                                                            | None          |
+| `--method`      | the HTTP method to use for the request. Possible values: `GET`, `POST`, `PUT`, `DELETE`. | `GET`         |
+| `--header`      | Custom headers for the request. Can be specified multiple times.                         | None          |
+| `--header-file` | Path to a file containing headers for the request.                                       | None          |
+| `--body`        | Request body as a string.                                                                | None          |
+| `--body-file`   | Path to a file containing the request body.                                              | None          |
+| `--username`    | Username for HTTP authentication.                                                        | None          |
+| `--password`    | Password for HTTP authentication. If not provided, you will be prompted interactively.              | None          |
+| `--timeout`     | Timeout in seconds for the HTTP operation.                                               | 120           |
+| `-v`            | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.                  | None          |
+| `-h, --help`    | Displays detailed help information about available options.                              | None          |
 
 ## Examples
 
@@ -42,9 +45,10 @@ http --method get --url https://dev-01:443/users --username username --password 
 http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" --body-file="/opt/metricshub/body.txt" --timeout 120
 ```
 
-### Example 3: Interactive Password Input
+### Example 3: HTTP Get Request with Interactive Password Input
 
 ```bash
 http --method get --url https://example.com --username user
 ```
+
 The CLI prompts for a password if not provided.

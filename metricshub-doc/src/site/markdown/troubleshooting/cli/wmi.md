@@ -1,10 +1,9 @@
 keywords: wmi, cli
-description: The MetricsHub WMI CLI provides a command-line interface for MetricsHub's core WMI client. It enables to efficiently troubleshoot and run WMI requests against Windows systems directly from the command line.
+description: How to execute WMI queries on remote systems with MetricsHub WMI CLI.
 
-# WMI CLI 
+# WMI CLI
 
-WMI (Windows Management Instrumentation) is a Microsoft technology for managing and monitoring Windows-based systems. It enables querying system information and executing management tasks programmatically via namespaces and WQL (WMI Query Language).
-The WMI CLI in MetricsHub facilitates execution of WMI queries on remote systems. It supports querying namespaces, retrieving system information, and managing resources.
+The **MetricsHub WMI CLI** allows you to execute WMI queries on remote systems. It supports querying namespaces, retrieving system information, and managing resources.
 
 ## Syntax
 
@@ -13,16 +12,17 @@ wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPAC
 ```
 
 ## Options
-| Option        | Description                                                          | Default Value   |
-| ------------- | -------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`    | Hostname or IP address of the WMI-enabled device.                    | None (required) |
-| `--username`  | Username for WMI authentication.                                     | None            |
-| `--password`  | Password for WMI authentication. If omitted, prompted interactively. | None            |
-| `--timeout`   | Timeout in seconds for WMI operations.                               | 30              |
-| `--query`     | WMI query to execute.                                                | None (required) |
-| `--namespace` | Namespace for the WMI query.                                         | None (required) |
-| `-v`          | Enables verbose mode. Repeat to increase verbosity (e.g., `-vv`).    | None            |
-| `-h, --help`  | Displays help information for the WMI CLI.                           | None            |
+
+| Option        | Description                                                                   | Default Value   |
+|---------------|-------------------------------------------------------------------------------|-----------------|
+| `HOSTNAME`    | Hostname or IP address of the WMI-enabled device. **This option is required** | None            |
+| `--username`  | Username for WMI authentication.                                              | None            |
+| `--password`  | Password for WMI authentication. If not provided, you will be prompted interactively.          | None            |
+| `--timeout`   | Timeout in seconds for WMI operations.                                        | 30              |
+| `--query`     | WMI query to execute.                                                         | None (required) |
+| `--namespace` | Namespace for the WMI query.                                                  | None (required) |
+| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.       | None            |
+| `-h, --help`  | Displays detailed help information about available options.                   | None            |
 
 ## Examples
 
@@ -37,4 +37,5 @@ wmi dev-01 --username admin --password secret --namespace "root/cimv2" --query "
 ```bash
 wmi dev-01 --username admin --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement"
 ```
+
 The CLI prompts for the password if not provided.

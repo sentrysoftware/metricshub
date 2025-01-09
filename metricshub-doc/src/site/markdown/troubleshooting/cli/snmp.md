@@ -1,12 +1,14 @@
 keywords: snmp, cli
-description: The MetricsHub SNMP CLI provides a command-line interface for MetricsHub's core SNMP client. It enables to efficiently troubleshoot and run SNMP v1 and v2c requests against monitored resources directly from the command line.
+description: How to use MetricsHub SNMP CLI to interact with SNMP-enabled devices.
 
 # SNMP CLI Documentation
 
-SNMP (Simple Network Management Protocol) is a protocol used for monitoring and managing devices on IP networks. It enables retrieving and modifying device configuration or obtaining real-time information using Object Identifiers (OIDs).
-The SNMP CLI in MetricsHub facilitates various SNMP queries, such as `GET`, `GETNEXT`, `WALK`, and `TABLE`, to interact with SNMP-enabled devices. It supports configuration of SNMP versions, community strings, ports, and retry intervals.
+The **MetricsHub SNMP CLI** allows you to interact with SNMP-enabled devices using the `GET`, `GETNEXT`, `WALK`, and `TABLE` queries. When running the CLI, you can configure the SNMP version to be used (v1 or v2c), community string, port, and retry intervals. To use SNMP v3, refer to MetricsHub [SNMPv3 CLI](snmpv3.md).
+
+Before using the CLI, ensure your platform supports SNMP monitoring by checking the [Connector Directory](https://www.aws-dev.metricshub.com/docs/latest/metricshub-connectors-directory.html).
 
 ## Syntax
+
 ### SNMP Get Request
 
 ```bash
@@ -33,21 +35,21 @@ snmp <HOSTNAME> --table <OID> --columns <COLUMN,COLUMN,...> --community <COMMUNI
 
 ## Options
 
-| Option        | Description                                                         | Default Value   |
-| ------------- | ------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`    | Hostname or IP address of the SNMP-enabled device.                  | None (required) |
-| `--version`   | SNMP protocol version to use: `1` or `2c`.                          | `v2c`           |
-| `--community` | Community string for SNMP authentication.                           | `public`        |
-| `--port`      | Port on which the SNMP agent is listening.                          | `161`           |
-| `--timeout`   | Timeout in seconds for SNMP operations.                             | 5               |
-| `--retry`     | Comma-separated retry intervals in milliseconds (e.g., `500,1000`). | None            |
-| `--get`       | Object Identifier (OID) for SNMP Get request.                       | None            |
-| `--getNext`   | OID for SNMP Get Next request.                                      | None            |
-| `--walk`      | OID for SNMP Walk request.                                          | None            |
-| `--table`     | OID for SNMP Table request.                                         | None            |
-| `--columns`   | Comma-separated columns for SNMP Table request.                     | None            |
-| `-v`          | Enables verbose mode. Repeat to increase verbosity (e.g., `-vv`).   | None            |
-| `-h, --help`  | Displays help information for the SNMP CLI.                         | None            |
+| Option        | Description                                                                     | Default Value |
+|---------------|---------------------------------------------------------------------------------|---------------|
+| `HOSTNAME`    | Hostname or IP address of the SNMP-enabled device. **This option is required.** | None          |
+| `--version`   | SNMP version to use. Possible values: `1` or `2c`.                              | `2c`          |
+| `--community` | Community string for SNMP authentication.                                       | `public`      |
+| `--port`      | Port on which the SNMP agent is listening.                                      | `161`         |
+| `--timeout`   | Timeout in seconds for SNMP operations.                                         | 5             |
+| `--retry`     | Comma-separated retry intervals in milliseconds (e.g., `500,1000`).             | None          |
+| `--get`       | OID for SNMP Get request.                                                       | None          |
+| `--getNext`   | OID for SNMP Get Next request.                                                  | None          |
+| `--walk`      | OID for SNMP Walk request.                                                      | None          |
+| `--table`     | OID for SNMP Table request.                                                     | None          |
+| `--columns`   | Comma-separated list of column names for SNMP Table request.                    | None          |
+| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.         | None          |
+| `-h, --help`  | Displays detailed help information about available options.                     | None          |
 
 ## Examples
 

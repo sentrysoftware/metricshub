@@ -1,17 +1,19 @@
 keywords: protocol, cli
-description: The MetricsHub protocol CLIs provide command-line interfaces for MetricsHub's core protocol clients. They enable efficient troubleshooting by running requests against monitored resources directly from the command line.
+description: MetricsHub Protocol CLIs provide powerful command-line tools for administrators to validate configurations and diagnose connectivity issues with monitored resources.
 
 # Overview
 
-The MetricsHub Protocol CLIs are designed for troubleshooting purposes, providing specialized command-line tools for various protocols. They enable administrators to efficiently interact with resources, diagnose issues, and validate configurations.
+**MetricsHub** provides a **Protocol CLI** for each core protocol client, enabling administrators to interact with configured resources, validate settings, and troubleshoot connectivity or configuration issues. These tools offer a streamlined way to ensure **MetricsHub** can connect to your resources to extract metrics.
 
-- **[HTTP](http.md)**: Facilitates troubleshooting and testing of HTTP-based resources using GET, POST, PUT, or DELETE methods.
-- **[IPMI](ipmi.md)**: Enables communication with hardware components via IPMI-over-LAN.
-- **[JDBC](jdbc.md)**: Allows direct interaction with relational databases to test SQL queries and database connectivity.
-- **[Ping](ping.md)**: Verifies the reachability of network hosts using ICMP ping requests and measures response times.
-- **[SNMP](snmp.md)**: Supports running SNMP v1 and v2c requests.
-- **[SNMPv3](snmpv3.md)**: Provides secure SNMP communication with support for authentication and encryption.
-- **[SSH](ssh.md)**: Executes commands on remote systems over a secure SSH connection.
-- **[WBEM](wbem.md)**: Executes CIM-compliant queries on WBEM-enabled systems.
-- **[WinRm](winrm.md)**: Facilitates querying and management of Windows systems using the WS-Management protocol.
-- **[WMI](wmi.md)**: Executes WMI queries to extract detailed information from Windows-based systems.
+Use the below protocol CLIs:
+
+* **[HTTP](http.md)**: to test connectivity to HTTP-based resources using the `GET`, `POST`, `PUT`, or `DELETE` methods
+* **[IPMI](ipmi.md)**: to verify the communication with hardware components via IPMI-over-LAN
+* **[JDBC](jdbc.md)**: to validate SQL queries and database connectivity
+* **[Ping](ping.md)**: to check the reachability of network systems using ICMP (Internet Control Message Protocol) and measure response times
+* **[SNMP](snmp.md)**: to test SNMP v1 and v2c communication
+* **[SNMPv3](snmpv3.md)**: to validate SNMP v3 communication, including security configurations
+* **[SSH](ssh.md)**: to confirm secure SSH connections to your resources
+* **[WBEM](wbem.md)**: to execute CIM-compliant queries on WBEM-enabled systems
+* **[WinRm](winrm.md)**: to query and manage Windows systems using the WS-Management protocol
+* **[WMI](wmi.md)**: to execute WMI queries on Windows-based systems.

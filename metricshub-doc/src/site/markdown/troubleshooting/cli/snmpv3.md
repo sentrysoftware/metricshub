@@ -1,12 +1,14 @@
 keywords: snmpv3, cli
-description: The MetricsHub SNMPv3 CLI provides a command-line interface for MetricsHub's core SNMPv3 client. It enables to efficiently troubleshoot and run SNMP v3 requests against monitored resources directly from the command line.
+description: How to execute SNMPv3 queries with MetricsHub SNMPv3 CLI.
 
 # SNMPv3 CLI Documentation
 
-SNMPv3 (Simple Network Management Protocol Version 3) is an enhanced version of SNMP, providing secure communication with features like encryption, authentication, and access control. It is widely used for monitoring and managing devices in a secure environment.
-The SNMPv3 CLI in MetricsHub facilitates secure interaction with SNMPv3-enabled devices. It supports queries such as `GET`, `GETNEXT`, `WALK`, and `TABLE`, with configurable options for authentication, encryption, and context.
+SNMPv3 (Simple Network Management Protocol Version 3) is an enhanced version of SNMP, providing secure communication with features like encryption, authentication, and access control. It is widely used for monitoring and managing devices in a secure environment. Refer to [JSimple Network Management Protocol Version 3](https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol#Version_3) for more details.
+
+The **MetricsHub SNMPv3 CLI** allows users to interact with SNMPv3-enabled devices through `GET`, `GETNEXT`, `WALK`, and `TABLE` queries. Users can configure options such as authentication, encryption, and context name.
 
 ## Syntax
+
 ### SNMPv3 Get Request
 
 ```bash
@@ -35,12 +37,12 @@ snmpv3 <HOSTNAME> --table <OID> --columns <COLUMN,COLUMN,...> --privacy <DES|AES
 
 | Option               | Description                                                             | Default Value   |
 | -------------------- | ----------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`           | Hostname or IP address of the SNMPv3-enabled device.                    | None (required) |
-| `--privacy`          | Encryption type: `DES`, `AES`, or `none`.                               | None            |
+| `HOSTNAME`           | Hostname or IP address of the SNMPv3-enabled device. **This option is required.**                    | None |
+| `--privacy`          | Encryption type. Possible values: `DES`, `AES`, or `none`.                               | None            |
 | `--privacy-password` | Password for SNMPv3 encryption.                                         | None            |
-| `--auth`             | Authentication type: `SHA`, `MD5`, or `NO_AUTH`.                        | None            |
+| `--auth`             | Authentication type. Possible values: `SHA`, `MD5`, or `NO_AUTH`.                        | None            |
 | `--username`         | Username for SNMPv3 authentication.                                     | None            |
-| `--password`         | Password for SNMPv3 authentication. If omitted, prompted interactively. | None            |
+| `--password`         | Password for SNMPv3 authentication. If not provided, you will be prompted interactively.    | None            |
 | `--context-name`     | Context name for SNMPv3.                                                | None            |
 | `--timeout`          | Timeout in seconds for SNMPv3 operations.                               | 5               |
 | `--port`             | Port of the SNMPv3 agent.                                               | 161             |
@@ -50,8 +52,8 @@ snmpv3 <HOSTNAME> --table <OID> --columns <COLUMN,COLUMN,...> --privacy <DES|AES
 | `--walk`             | OID for SNMPv3 Walk request.                                            | None            |
 | `--table`            | OID for SNMPv3 Table request.                                           | None            |
 | `--columns`          | Comma-separated columns for SNMPv3 Table request.                       | None            |
-| `-v`                 | Enables verbose mode. Repeat to increase verbosity (e.g., `-vv`).       | None            |
-| `-h, --help`         | Displays help information for the SNMPv3 CLI.                           | None            |
+| `-v`                 | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.     | None            |
+| `-h, --help`         | Displays detailed help information about available options.         | None            |
 
 ## Examples
 
