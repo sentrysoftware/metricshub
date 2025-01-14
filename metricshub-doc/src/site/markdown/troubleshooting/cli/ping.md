@@ -13,12 +13,12 @@ ping <HOSTNAME> --timeout <TIMEOUT>
 
 ## Options
 
-| Option       | Description                                                       | Default Value   |
-| ------------ | ----------------------------------------------------------------- | --------------- |
-| `HOSTNAME`   |  Hostname or IP address of the host to ping. **This option is required.**                  |  None |
-| `--timeout`  | Timeout in seconds for the ICMP Ping operation.                   | 5               |
-| `-v`         | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs. | None            |
-| `-h, --help` | Displays detailed help information about available options.         | None            |
+| Option       | Description                                                              | Default Value |
+| ------------ | ------------------------------------------------------------------------ | ------------- |
+| `HOSTNAME`   | Hostname or IP address of the host to ping. **This option is required.** | None          |
+| `--timeout`  | Timeout in seconds for the ICMP Ping operation.                          | 5             |
+| `-v`         | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.  | None          |
+| `-h, --help` | Displays detailed help information about available options.              | None          |
 
 ## Examples
 

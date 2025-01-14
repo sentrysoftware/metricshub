@@ -23,17 +23,17 @@ ssh <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --por
 
 ## Options
 
-| Option         | Description                                                          | Default Value   |
-| -------------- | -------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`     | Hostname or IP address of the SSH-enabled device. **This option is required.**                 | None |
-| `--username`   | Username for SSH authentication.                                     | None            |
-| `--password`   | Password for SSH authentication. If not provided, you will be prompted interactively.    | None            |
-| `--public-key` | Path to the public key file for SSH authentication.                  | None            |
-| `--command`    | Command to execute on the remote device.                         | `sudo`          |
-| `--timeout`    | Timeout in seconds for the SSH operation.                            | 30              |
-| `--port`       | Port for the SSH connection.                                         | 22              |
-| `-v`           | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.   | None            |
-| `-h, --help`   | Displays detailed help information about available options.           | None            |
+| Option         | Description                                                                           | Default Value |
+| -------------- | ------------------------------------------------------------------------------------- | ------------- |
+| `HOSTNAME`     | Hostname or IP address of the SSH-enabled device. **This option is required.**        | None          |
+| `--username`   | Username for SSH authentication.                                                      | None          |
+| `--password`   | Password for SSH authentication. If not provided, you will be prompted interactively. | None          |
+| `--public-key` | Path to the public key file for SSH authentication.                                   | None          |
+| `--command`    | Command to execute on the remote device.                                              | `sudo`        |
+| `--timeout`    | Timeout in seconds for the SSH operation.                                             | 30            |
+| `--port`       | Port for the SSH connection.                                                          | 22            |
+| `-v`           | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.               | None          |
+| `-h, --help`   | Displays detailed help information about available options.                           | None          |
 
 ## Examples
 
@@ -54,4 +54,5 @@ ssh dev-01 --public-key="/opt/ssh-rsa.txt" --command="ls /home/admin" --timeout 
 ```bash
 ssh dev-01 --username admin --command="whoami"
 ```
+
 The CLI prompts for the password if not provided.

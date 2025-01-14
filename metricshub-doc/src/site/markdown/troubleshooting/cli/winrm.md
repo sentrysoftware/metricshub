@@ -18,7 +18,7 @@ winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESP
 ## Options
 
 | Option              | Description                                                                             | Default Value     |
-|---------------------|-----------------------------------------------------------------------------------------|-------------------|
+| ------------------- | --------------------------------------------------------------------------------------- | ----------------- |
 | `HOSTNAME`          | Hostname or IP address of the WinRM-enabled device. **This option is required.**        | None              |
 | `--transport`       | Transport protocol for WinRM. Possible values: `HTTP` or `HTTPS`.                       | `HTTP`            |
 | `--username`        | Username for WinRM authentication.                                                      | None              |

@@ -36,7 +36,7 @@ snmp <HOSTNAME> --table <OID> --columns <COLUMN,COLUMN,...> --community <COMMUNI
 ## Options
 
 | Option        | Description                                                                     | Default Value |
-|---------------|---------------------------------------------------------------------------------|---------------|
+| ------------- | ------------------------------------------------------------------------------- | ------------- |
 | `HOSTNAME`    | Hostname or IP address of the SNMP-enabled device. **This option is required.** | None          |
 | `--version`   | SNMP version to use. Possible values: `1` or `2c`.                              | `2c`          |
 | `--community` | Community string for SNMP authentication.                                       | `public`      |

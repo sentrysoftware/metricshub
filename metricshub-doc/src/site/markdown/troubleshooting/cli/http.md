@@ -18,7 +18,7 @@ http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password
 ## Options
 
 | Option          | Description                                                                              | Default Value |
-|-----------------|------------------------------------------------------------------------------------------|---------------|
+| --------------- | ---------------------------------------------------------------------------------------- | ------------- |
 | `--url`         | The URL for the HTTP request.                                                            | None          |
 | `--method`      | the HTTP method to use for the request. Possible values: `GET`, `POST`, `PUT`, `DELETE`. | `GET`         |
 | `--header`      | Custom headers for the request. Can be specified multiple times.                         | None          |
@@ -26,7 +26,7 @@ http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password
 | `--body`        | Request body as a string.                                                                | None          |
 | `--body-file`   | Path to a file containing the request body.                                              | None          |
 | `--username`    | Username for HTTP authentication.                                                        | None          |
-| `--password`    | Password for HTTP authentication. If not provided, you will be prompted interactively.              | None          |
+| `--password`    | Password for HTTP authentication. If not provided, you will be prompted interactively.   | None          |
 | `--timeout`     | Timeout in seconds for the HTTP operation.                                               | 120           |
 | `-v`            | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.                  | None          |
 | `-h, --help`    | Displays detailed help information about available options.                              | None          |

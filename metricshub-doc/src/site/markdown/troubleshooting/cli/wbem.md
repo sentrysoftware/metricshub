@@ -15,19 +15,19 @@ wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --
 
 ## Options
 
-| Option        | Description                                                           | Default Value     |
-| ------------- | --------------------------------------------------------------------- | ----------------- |
-| `HOSTNAME`    | Hostname or IP address of the WBEM-enabled device. **This option is required.**                   | None   |
-| `--query`     | WBEM query to execute.                                                | None (required)   |
-| `--transport` | Transport protocol for WBEM: `HTTP` or `HTTPS`.                       | `HTTPS`           |
-| `--port`      | Port of the WBEM server. By default, `5988` for HTTP, `5989` for HTTPS. | Based on protocol |
-| `--username`  | Username for WBEM authentication.                                     | None              |
-| `--password`  | Password for WBEM authentication. If not provided, you will be prompted interactively.    | None              |
-| `--timeout`   | Timeout in seconds for WBEM operations.                               | 30                |
-| `--namespace` | WBEM namespace for the query. **This option is required.**                                        | None  |
-| `--vcenter`   | VCenter hostname providing the authentication ticket (if applicable). | None              |
-| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.     | None              |
-| `-h, --help`  | Displays detailed help information about available options.           | None              |
+| Option        | Description                                                                            | Default Value     |
+| ------------- | -------------------------------------------------------------------------------------- | ----------------- |
+| `HOSTNAME`    | Hostname or IP address of the WBEM-enabled device. **This option is required.**        | None              |
+| `--query`     | WBEM query to execute.                                                                 | None (required)   |
+| `--transport` | Transport protocol for WBEM: `HTTP` or `HTTPS`.                                        | `HTTPS`           |
+| `--port`      | Port of the WBEM server. By default, `5988` for HTTP, `5989` for HTTPS.                | Based on protocol |
+| `--username`  | Username for WBEM authentication.                                                      | None              |
+| `--password`  | Password for WBEM authentication. If not provided, you will be prompted interactively. | None              |
+| `--timeout`   | Timeout in seconds for WBEM operations.                                                | 30                |
+| `--namespace` | WBEM namespace for the query. **This option is required.**                             | None              |
+| `--vcenter`   | VCenter hostname providing the authentication ticket (if applicable).                  | None              |
+| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.                | None              |
+| `-h, --help`  | Displays detailed help information about available options.                            | None              |
 
 ## Examples
 

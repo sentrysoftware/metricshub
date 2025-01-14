@@ -18,7 +18,7 @@ ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --ti
 ## Options
 
 | Option        | Description                                                                                     | Default Value |
-|---------------|-------------------------------------------------------------------------------------------------|---------------|
+| ------------- | ----------------------------------------------------------------------------------------------- | ------------- |
 | `HOSTNAME`    | Hostname or IP address of the system to monitor.                                                | None          |
 | `--username`  | Username for IPMI-over-LAN authentication.                                                      | None          |
 | `--password`  | Password for IPMI-over-LAN authentication. If not provided, you will be prompted interactively. | None          |

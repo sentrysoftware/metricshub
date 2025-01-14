@@ -35,25 +35,25 @@ snmpv3 <HOSTNAME> --table <OID> --columns <COLUMN,COLUMN,...> --privacy <DES|AES
 
 ## Options
 
-| Option               | Description                                                             | Default Value   |
-| -------------------- | ----------------------------------------------------------------------- | --------------- |
-| `HOSTNAME`           | Hostname or IP address of the SNMPv3-enabled device. **This option is required.**                    | None |
-| `--privacy`          | Encryption type. Possible values: `DES`, `AES`, or `none`.                               | None            |
-| `--privacy-password` | Password for SNMPv3 encryption.                                         | None            |
-| `--auth`             | Authentication type. Possible values: `SHA`, `MD5`, or `NO_AUTH`.                        | None            |
-| `--username`         | Username for SNMPv3 authentication.                                     | None            |
-| `--password`         | Password for SNMPv3 authentication. If not provided, you will be prompted interactively.    | None            |
-| `--context-name`     | Context name for SNMPv3.                                                | None            |
-| `--timeout`          | Timeout in seconds for SNMPv3 operations.                               | 5               |
-| `--port`             | Port of the SNMPv3 agent.                                               | 161             |
-| `--retry`            | Comma-separated retry intervals in milliseconds (e.g., `500,1000`).     | None            |
-| `--get`              | OID for SNMPv3 Get request.                                             | None            |
-| `--getNext`          | OID for SNMPv3 Get Next request.                                        | None            |
-| `--walk`             | OID for SNMPv3 Walk request.                                            | None            |
-| `--table`            | OID for SNMPv3 Table request.                                           | None            |
-| `--columns`          | Comma-separated columns for SNMPv3 Table request.                       | None            |
-| `-v`                 | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.     | None            |
-| `-h, --help`         | Displays detailed help information about available options.         | None            |
+| Option               | Description                                                                              | Default Value |
+| -------------------- | ---------------------------------------------------------------------------------------- | ------------- |
+| `HOSTNAME`           | Hostname or IP address of the SNMPv3-enabled device. **This option is required.**        | None          |
+| `--privacy`          | Encryption type. Possible values: `DES`, `AES`, or `none`.                               | None          |
+| `--privacy-password` | Password for SNMPv3 encryption.                                                          | None          |
+| `--auth`             | Authentication type. Possible values: `SHA`, `MD5`, or `NO_AUTH`.                        | None          |
+| `--username`         | Username for SNMPv3 authentication.                                                      | None          |
+| `--password`         | Password for SNMPv3 authentication. If not provided, you will be prompted interactively. | None          |
+| `--context-name`     | Context name for SNMPv3.                                                                 | None          |
+| `--timeout`          | Timeout in seconds for SNMPv3 operations.                                                | 5             |
+| `--port`             | Port of the SNMPv3 agent.                                                                | 161           |
+| `--retry`            | Comma-separated retry intervals in milliseconds (e.g., `500,1000`).                      | None          |
+| `--get`              | OID for SNMPv3 Get request.                                                              | None          |
+| `--getNext`          | OID for SNMPv3 Get Next request.                                                         | None          |
+| `--walk`             | OID for SNMPv3 Walk request.                                                             | None          |
+| `--table`            | OID for SNMPv3 Table request.                                                            | None          |
+| `--columns`          | Comma-separated columns for SNMPv3 Table request.                                        | None          |
+| `-v`                 | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.                  | None          |
+| `-h, --help`         | Displays detailed help information about available options.                              | None          |
 
 ## Examples
 

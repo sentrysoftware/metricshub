@@ -13,16 +13,16 @@ wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPAC
 
 ## Options
 
-| Option        | Description                                                                   | Default Value   |
-|---------------|-------------------------------------------------------------------------------|-----------------|
-| `HOSTNAME`    | Hostname or IP address of the WMI-enabled device. **This option is required** | None            |
-| `--username`  | Username for WMI authentication.                                              | None            |
-| `--password`  | Password for WMI authentication. If not provided, you will be prompted interactively.          | None            |
-| `--timeout`   | Timeout in seconds for WMI operations.                                        | 30              |
-| `--query`     | WMI query to execute.                                                         | None (required) |
-| `--namespace` | Namespace for the WMI query.                                                  | None (required) |
-| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.       | None            |
-| `-h, --help`  | Displays detailed help information about available options.                   | None            |
+| Option        | Description                                                                           | Default Value   |
+| ------------- | ------------------------------------------------------------------------------------- | --------------- |
+| `HOSTNAME`    | Hostname or IP address of the WMI-enabled device. **This option is required**         | None            |
+| `--username`  | Username for WMI authentication.                                                      | None            |
+| `--password`  | Password for WMI authentication. If not provided, you will be prompted interactively. | None            |
+| `--timeout`   | Timeout in seconds for WMI operations.                                                | 30              |
+| `--query`     | WMI query to execute.                                                                 | None (required) |
+| `--namespace` | Namespace for the WMI query.                                                          | None (required) |
+| `-v`          | Enables verbose mode. Use `-v` for basic logs, `-vv` for detailed logs.               | None            |
+| `-h, --help`  | Displays detailed help information about available options.                           | None            |
 
 ## Examples
 

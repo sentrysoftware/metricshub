@@ -1,5 +1,5 @@
 keywords: jdbc, cli
-description:  How to execute SQL queries against relational databases with MetricsHub JDBC CLI.
+description: How to execute SQL queries against relational databases with MetricsHub JDBC CLI.
 
 # JDBC CLI Documentation
 
@@ -16,7 +16,7 @@ jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <JDBC URL> --q
 ## Options
 
 | Option       | Description                                                                            | Default Value |
-|--------------|----------------------------------------------------------------------------------------|---------------|
+| ------------ | -------------------------------------------------------------------------------------- | ------------- |
 | `HOSTNAME`   | Hostname or IP address of the database server.                                         | None          |
 | `--url`      | The JDBC URL for the database connection. **This option is required.**                 | None          |
 | `--username` | Username for JDBC authentication.                                                      | None          |
