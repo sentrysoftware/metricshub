@@ -10,9 +10,10 @@ This section provides guidance on:
 * **Troubleshooting common MetricsHub issues:**
   * [No data for a specific monitored resource](./no-data-resources.md)
   * [No data in the observability platforms](./no-data-observability-platforms.md)
-* **Enabling logs for:**
-  * [the MetricsHub Agent](./metricshub-logs.md)
-  * [the OTel Collector](./otel-logs.md).
+* **Enabling:**
+  * [MetricsHub's self-monitoring](./self-monitoring.md)
+  * [the MetricsHub Agent logs](./metricshub-logs.md)
+  * [the OTel Collector logs](./otel-logs.md).
 
 For further assistance, consider:
 

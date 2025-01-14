@@ -1248,27 +1248,6 @@ To enable this feature, set the `enableSelfMonitoring` parameter to `true` in th
            enableSelfMonitoring: true # Set to "false" to disable
    ```
 
-When enabled, **MetricsHub** reports the `metricshub.job.duration` metrics. For example:
-
-```
-metricshub.job.duration{job.type="discovery", monitor.type="enclosure", connector_id="HPEGen10IloREST"} 0.020
-metricshub.job.duration{job.type="discovery", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.030
-metricshub.job.duration{job.type="discovery", monitor.type="temperature", connector_id="HPEGen10IloREST"} 0.025
-metricshub.job.duration{job.type="discovery", monitor.type="connector", connector_id="HPEGen10IloREST"} 0.015
-metricshub.job.duration{job.type="collect", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.015
-```
-
-Where:
-* **`job.type`**: is the operation performed by **MetricsHub**. Possible values are:
-  * `discovery`: identifies and registers components.
-  * `collect`: gathers telemetry data from monitored components.
-  * `simple`: executes a straightforward task.
-  * `beforeAll` or `afterAll`: performs preparatory or cleanup operations.
-* ***`monitor.type`**: is the component being monitored. Examples:
-    * Hardware: `cpu`, `memory`, `physical_disk`, or `disk_controller`.
-    * Environmental metrics: `temperature` or `battery`.
-    * Logical entities: `connector`.
-- **`connector_id`**: is a unique identifier for the connector defining the collection method and protocol. `HPEGen10IloREST` refers for example to the `HPE Gen10 iLO REST` connector.
 
 #### Timeout, duration and period format
 
