@@ -112,6 +112,7 @@
 
 		<menu name="Troubleshooting">
 			<item name="Overview" href="troubleshooting/index.html"/>
+			<item name="Degraded Performance" href="troubleshooting/degraded-performance.html"/>
 			<item name="No Data for a Specific Resource" href="troubleshooting/no-data-resources.html"/>
 			<item name="No Data in Observability Platforms" href="troubleshooting/no-data-observability-platforms.html"/>
 			<item name="MetricsHub Self-Monitoring" href="troubleshooting/self-monitoring.html"/>
