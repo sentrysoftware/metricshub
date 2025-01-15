@@ -651,8 +651,8 @@ Follow the structure below to declare your monitor:
 ```
 
 Refer to:
-* [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
-* [Monitoring the health of a service](../usecases/service-health.md) for a practical example that demonstrates how to use this feature effectively.
+- [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
+- [Monitoring the health of a Web service](https://metricshub.com/usecases/monitoring-the-health-of-a-web-service/) for a practical example that demonstrates how to use this feature effectively.
 
 ### Basic Authentication settings
 
@@ -896,8 +896,8 @@ resources:
 > Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
 
 For practical examples demonstrating effective use of this feature, refer to the following pages:
-* [Monitoring a process command line](../usecases/process-command-line.md)
-* [Monitoring a service running on Linux](../usecases/service-linux.md).
+* [Monitoring a process command line](https://metricshub.com/usecases/monitoring-a-process-on-windows/)
+* [Monitoring a service running on Linux](https://metricshub.com/usecases/monitoring-a-service-running-on-linux/).
 
 #### Filter monitors
 
