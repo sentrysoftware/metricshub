@@ -8,7 +8,7 @@ The **MetricsHub WMI CLI** allows you to execute WMI queries on remote systems. 
 ## Syntax
 
 ```bash
-wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
+wmicli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
 ```
 
 ## Options
@@ -29,13 +29,13 @@ wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPAC
 ### Example 1: Basic WMI Query
 
 ```bash
-wmi dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_OperatingSystem" --timeout 30
+wmicli dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_OperatingSystem" --timeout 30
 ```
 
 ### Example 2: Interactive Password Input
 
 ```bash
-wmi dev-01 --username admin --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement"
+wmicli dev-01 --username admin --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement"
 ```
 
 The CLI prompts for the password if not provided.

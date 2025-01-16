@@ -119,9 +119,10 @@
 			<plugin>
 				<groupId>org.sentrysoftware.maven</groupId>
 				<artifactId>metricshub-connector-maven-plugin</artifactId>
-				<version>1.0.07</version>
+				<version>1.0.08-SNAPSHOT</version>
 				<configuration>
 					<sourceDirectory>${project.basedir}/../metricshub-agent/target/connectors</sourceDirectory>
+					<defaultPlatformIconFilename>default.png</defaultPlatformIconFilename>
 				</configuration>
 			</plugin>
 		</plugins>
