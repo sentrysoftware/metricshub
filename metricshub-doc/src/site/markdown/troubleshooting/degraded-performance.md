@@ -50,8 +50,7 @@ metricshub.job.duration{job.type="collect", monitor.type="network", connector_id
 ```
 
 1. Identify, the `job.type`, `monitor.type`, and `connector.id`. In this example, collecting network metrics with the `WbemGenNetwork` is the bottleneck
-2. Open the connector's configuration file and review the job steps
-3. Check the `metricshub-agent-$resourceId-$timestamp.log` file for the start and end timestamps of each job step to identify where performance degradation occurs.
+2. Check the `metricshub-agent-$resourceId-$timestamp.log` file for the start and end timestamps of each job step to identify where performance degradation occurs.
 
 You can also:
 
