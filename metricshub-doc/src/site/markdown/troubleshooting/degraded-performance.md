@@ -18,7 +18,7 @@ When self-monitoring is enabled, the `metricshub.job.duration` metric provides i
   * *Logical entities*: `connector`.
 * **`connector_id`**: The unique identifier for the connector, such as HPEGen10IloREST for the HPE Gen10 iLO REST connector.
 
-These metrics can be viewed in Prometheus/Grafana or in the `metricshub-agent-$resourceId-$timestamp.log`  file.
+These metrics can be viewed in Prometheus/Grafana or in the `metricshub-agent-$resourceId-$timestamp.log` file. Refer to the [MetricsHub Log Files](./metricshub-logs.md) page for details on locating and interpreting log files.
 
 ### Example
 
@@ -35,15 +35,25 @@ metricshub.job.duration{job.type="collect", monitor.type="cpu", connector_id="HP
 In this example:
 
 * during `discovery`:
-  * The `enclosure` monitor takes `0.020` s.
-  * The `cpu` monitor takes `0.030` s.
-  * The `temperature` monitor takes `0.025` s.
-  * The `connector` monitor takes `0.015` s.
-* during `collect`, the `cpu` metrics collection takes `0.015` s.
+  * The `enclosure` monitor takes `0.020` seconds.
+  * The `cpu` monitor takes `0.030` seconds.
+  * The `temperature` monitor takes `0.025` seconds.
+  * The `connector` monitor takes `0.015` seconds.
+* during `collect`, the `cpu` metrics collection takes `0.015` seconds.
 
-These metrics indicate that **MetricsHub** is functioning as expected, with task durations well within acceptable ranges.
+These metrics indicate that **MetricsHub** is functioning as expected, with task durations well within acceptable ranges. Jobs exceeding 5 seconds may require further investigation.
 
-If task durations are above 5 seconds, consider the following:
+For example, if a job takes more than 5 seconds, as shown below:
+
+```bash
+metricshub.job.duration{job.type="collect", monitor.type="network", connector_id="WbemGenNetwork"} 5.8
+```
+
+1. Identify, the `job.type`, `monitor.type`, and `connector.id`. In this example, collecting network metrics with the `WbemGenNetwork` is the bottleneck
+2. Open the connector's configuration file and review the job steps
+3. Check the `metricshub-agent-$resourceId-$timestamp.log` file for the start and end timestamps of each job step to identify where performance degradation occurs.
+
+You can also:
 
 * **Verify resource availability**: Ensure the monitored system has sufficient CPU, memory, and storage resources to handle monitoring tasks.
 * **Check MetricsHub configuration**: Review your configuration to ensure **MetricsHub** is set up correctly .
