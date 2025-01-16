@@ -48,7 +48,7 @@ ipmicli dev-01 --username admin --password secret --bmc-key AE4C7AB47FD --timeou
 ipmicli dev-01 --skip-auth true --timeout 90
 ```
 
-### Example 4: IMPI Query with Interactive Password Input
+### Example 4: IPMI Query with Interactive Password Input
 
 ```bash
 ipmicli dev-01 --username admin
