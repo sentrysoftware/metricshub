@@ -3,7 +3,7 @@ description: How to execute WinRM queries on remote systems with MetricsHub WinR
 
 # WinRM CLI Documentation
 
-Windows Remote Management (WinRM) is a protocol designed for remote management and command execution on Windows systems. Built on the WS-Management protocol, it enables secure communication between systems, streamlining administrative tasks and facilitating data retrieval.Refer to [Installation and Configuration for Windows Remote Management](https://learn.microsoft.com/en-us/windows/win32/winrm/installation-and-configuration-for-windows-remote-management) for more details.
+Windows Remote Management (WinRM) is a protocol designed for remote management and command execution on Windows systems. Built on the WS-Management protocol, it enables secure communication between systems, streamlining administrative tasks and facilitating data retrieval. Refer to [Installation and Configuration for Windows Remote Management](https://learn.microsoft.com/en-us/windows/win32/winrm/installation-and-configuration-for-windows-remote-management) for more details.
 
 The **MetricsHub WinRM CLI** allows users to execute WinRM queries on remote systems. It supports querying namespaces, retrieving specific data, and authenticating using protocols like NTLM and Kerberos.
 

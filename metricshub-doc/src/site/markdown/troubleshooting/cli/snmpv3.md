@@ -3,7 +3,7 @@ description: How to execute SNMPv3 queries with MetricsHub SNMPv3 CLI.
 
 # SNMPv3 CLI Documentation
 
-SNMPv3 (Simple Network Management Protocol Version 3) is an enhanced version of SNMP, providing secure communication with features like encryption, authentication, and access control. It is widely used for monitoring and managing devices in a secure environment. Refer to [JSimple Network Management Protocol Version 3](https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol#Version_3) for more details.
+SNMPv3 (Simple Network Management Protocol Version 3) is an enhanced version of SNMP, providing secure communication with features like encryption, authentication, and access control. It is widely used for monitoring and managing devices in a secure environment. Refer to [Simple Network Management Protocol Version 3](https://en.wikipedia.org/wiki/Simple_Network_Management_Protocol#Version_3) for more details.
 
 The **MetricsHub SNMPv3 CLI** allows users to interact with SNMPv3-enabled devices through `GET`, `GETNEXT`, `WALK`, and `TABLE` queries. Users can configure options such as authentication, encryption, and context name.
 
