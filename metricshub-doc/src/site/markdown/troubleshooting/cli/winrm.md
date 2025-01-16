@@ -12,7 +12,7 @@ Before using the CLI, ensure your platform supports WinRM monitoring by checking
 ## Syntax
 
 ```bash
-winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT> --authentications <AUTH1>,<AUTH2>,...
+winrmcli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT> --authentications <AUTH1>,<AUTH2>,...
 ```
 
 ## Options
@@ -36,21 +36,21 @@ winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESP
 ### Example 1: Basic WinRM Query
 
 ```bash
-winrm dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_OperatingSystem" \
+winrmcli dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_OperatingSystem" \
 --transport https --port 5986 --timeout 30 --authentications NTLM
 ```
 
 ### Example 2: WinRM Query with Multiple Authentication Schemes
 
 ```bash
-winrm dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_LogicalDisk" \
+winrmcli dev-01 --username admin --password secret --namespace "root/cimv2" --query "SELECT * FROM Win32_LogicalDisk" \
 --transport http --port 5985 --timeout 60 --authentications NTLM,KERBEROS
 ```
 
 ### Example 3: WinRM Query with Interactive Password Input
 
 ```bash
-winrm dev-01 --username admin --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement"
+winrmcli dev-01 --username admin --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement"
 ```
 
 The CLI prompts for the password if not provided.

@@ -49,7 +49,7 @@ import picocli.CommandLine.Spec;
  */
 @Data
 @Slf4j
-@Command(name = "ping", description = "\nList of valid options: \n", footer = PingCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "pingcli", description = "\nList of valid options: \n", footer = PingCli.FOOTER, usageHelpWidth = 180)
 public class PingCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -69,9 +69,9 @@ public class PingCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		ping <HOSTNAME> --timeout <TIMEOUT>
+		pingcli <HOSTNAME> --timeout <TIMEOUT>
 
-		ping dev-01 --timeout 5s
+		pingcli dev-01 --timeout 5s
 		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")

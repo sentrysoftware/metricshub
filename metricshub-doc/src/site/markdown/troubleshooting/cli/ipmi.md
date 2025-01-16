@@ -12,7 +12,7 @@ Before using the CLI, ensure your platform supports IMPI monitoring by checking 
 ## Syntax
 
 ```bash
-ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
+ipmicli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
 ```
 
 ## Options
@@ -33,25 +33,25 @@ ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --ti
 ### Example 1: Basic IPMI Query with Authentication
 
 ```bash
-ipmi dev-01 --username admin --password secret --timeout 60
+ipmicli dev-01 --username admin --password secret --timeout 60
 ```
 
 ### Example 2: Basic IPMI Query with BMC Key
 
 ```bash
-ipmi dev-01 --username admin --password secret --bmc-key AE4C7AB47FD --timeout 120
+ipmicli dev-01 --username admin --password secret --bmc-key AE4C7AB47FD --timeout 120
 ```
 
 ### Example 3: IPMI Query Skipping Authentication
 
 ```bash
-ipmi dev-01 --skip-auth true --timeout 90
+ipmicli dev-01 --skip-auth true --timeout 90
 ```
 
 ### Example 4: IMPI Query with Interactive Password Input
 
 ```bash
-ipmi dev-01 --username admin
+ipmicli dev-01 --username admin
 ```
 
 The CLI prompts for the password if not provided.

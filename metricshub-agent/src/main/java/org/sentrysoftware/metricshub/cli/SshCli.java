@@ -50,7 +50,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing commands via SSH with validation and execution support.
  */
 @Data
-@Command(name = "ssh", description = "\nList of valid options: \n", footer = SshCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "sshcli", description = "\nList of valid options: \n", footer = SshCli.FOOTER, usageHelpWidth = 180)
 public class SshCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -76,14 +76,14 @@ public class SshCli implements IQuery, Callable<Integer> {
 		Example:
 
 		@|green # SSH basic authentication with username and password:|@
-		ssh <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+		sshcli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
 
-		ssh dev-01 --username username --password password --command="echo test" --timeout 30s --port 22
+		sshcli dev-01 --username username --password password --command="echo test" --timeout 30s --port 22
 
 		@|green # SSH authentication with a public key:|@
-		ssh <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+		sshcli <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
 
-		ssh dev-01 --public-key="/opt/ssh-rsa.txt" --command="echo test" --timeout 30s --port 22
+		sshcli dev-01 --public-key="/opt/ssh-rsa.txt" --command="echo test" --timeout 30s --port 22
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";

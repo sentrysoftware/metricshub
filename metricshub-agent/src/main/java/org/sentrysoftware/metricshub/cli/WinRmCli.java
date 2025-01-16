@@ -53,7 +53,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing WinRm queries with validation and execution support.
  */
 @Data
-@Command(name = "winrm", description = "\nList of valid options: \n", footer = WinRmCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "winrmcli", description = "\nList of valid options: \n", footer = WinRmCli.FOOTER, usageHelpWidth = 180)
 public class WinRmCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -85,10 +85,10 @@ public class WinRmCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		winrm <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> \
+		winrmcli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> \
 		--transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT> --authentications <AUTH1>,<AUTH2>,...
 
-		winrm dev-01 --username username --password password --namespace="root/cimv2" --query ="SELECT * FROM Win32_OperatingSystem" \
+		winrmcli dev-01 --username username --password password --namespace="root/cimv2" --query ="SELECT * FROM Win32_OperatingSystem" \
 		--transport https --port 5986 --timeout 30s --authentications NTLM,KERBEROS
 
 		Note: If --password is not provided, you will be prompted interactively.

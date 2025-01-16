@@ -12,7 +12,7 @@ Before using the CLI, ensure your platform supports HTTP monitoring by checking 
 ## Syntax
 
 ```bash
-http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> | --body-file <FILE PATH>] [--header <HEADER> | --header-file <FILE PATH>] --timeout <TIMEOUT>
+httpcli --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> | --body-file <FILE PATH>] [--header <HEADER> | --header-file <FILE PATH>] --timeout <TIMEOUT>
 ```
 
 ## Options
@@ -36,19 +36,19 @@ http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password
 ### Example 1: HTTP GET Request with Headers and Body
 
 ```bash
-http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type:application/xml" --header="Accept:application/json" --body="<aaaLogin inName='username' inPassword='password' />" --timeout 120
+httpcli --method get --url https://dev-01:443/users --username username --password password --header="Content-Type:application/xml" --header="Accept:application/json" --body="<aaaLogin inName='username' inPassword='password' />" --timeout 120
 ```
 
 ### Example 2: HTTP POST Request with Header and Body Files
 
 ```bash
-http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" --body-file="/opt/metricshub/body.txt" --timeout 120
+httpcli --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" --body-file="/opt/metricshub/body.txt" --timeout 120
 ```
 
 ### Example 3: HTTP Get Request with Interactive Password Input
 
 ```bash
-http --method get --url https://example.com --username user
+httpcli --method get --url https://example.com --username user
 ```
 
 The CLI prompts for a password if not provided.
