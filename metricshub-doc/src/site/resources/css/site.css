@@ -80,17 +80,17 @@ body.dark {
 	--main-fgcolor: #e9ecef;
 }
 
-body.dark .platform-tile {
+body.metricshub.dark .platform-tile {
     background: #333;
     color: #ffffff;
     box-shadow: none;
 }
 
-body.dark .platform-tile:hover {
+body.metricshub.dark .platform-tile:hover {
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-body.dark .platform-tile .platform-title {
+body.metricshub.dark .platform-tile .platform-title {
     color: #fff;
 }
 
