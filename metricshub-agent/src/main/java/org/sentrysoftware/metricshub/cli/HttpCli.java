@@ -60,7 +60,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing HTTP requests with validation and support for various operations.
  */
 @Data
-@Command(name = "http", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "httpcli", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
 public class HttpCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -88,15 +88,15 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 		Examples:
 
-		http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
+		httpcli --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
 		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --timeout <TIMEOUT>
 
 		@|green # HTTP GET request with a body and two headers.|@
-		http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
+		httpcli --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
 		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --timeout 2m
 
 		@|green # HTTP POST request with a header file and a body file.|@
-		http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
+		httpcli --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
 		--body-file="/opt/metricshub/body.txt" --timeout 2m
 
 		Note: If --password is not provided, you will be prompted interactively.

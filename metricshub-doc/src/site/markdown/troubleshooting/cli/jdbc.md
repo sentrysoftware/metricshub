@@ -10,7 +10,7 @@ The **MetricsHub JDBC CLI** allows users to connect to databases, execute querie
 ## Syntax
 
 ```bash
-jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <JDBC URL> --query <SQL QUERY>
+jdbccli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <JDBC URL> --query <SQL QUERY>
 ```
 
 ## Options
@@ -31,13 +31,13 @@ jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <JDBC URL> --q
 ### Example 1: Basic SQL Query
 
 ```bash
-jdbc dev-01 --username admin --password secret --url="jdbc:mysql://dev-01:3306/MyDb" --query="SELECT * FROM users"
+jdbccli dev-01 --username admin --password secret --url="jdbc:mysql://dev-01:3306/MyDb" --query="SELECT * FROM users"
 ```
 
 ### Example 2: Basic SQL Query with Interactive Password Input
 
 ```bash
-jdbc dev-01 --username admin --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM employees"
+jdbccli dev-01 --username admin --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM employees"
 ```
 
 The CLI prompts for the password if not provided.
@@ -45,5 +45,5 @@ The CLI prompts for the password if not provided.
 ### Example 3: Basic SQL Query with Timeout Configuration
 
 ```bash
-jdbc dev-01 --username admin --password secret --url="jdbc:oracle:thin:@dev-01:1521/MyDb" --query="UPDATE accounts SET balance = balance - 100" --timeout 60
+jdbccli dev-01 --username admin --password secret --url="jdbc:oracle:thin:@dev-01:1521/MyDb" --query="UPDATE accounts SET balance = balance - 100" --timeout 60
 ```

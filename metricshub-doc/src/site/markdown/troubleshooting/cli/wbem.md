@@ -10,7 +10,7 @@ Before using the CLI, ensure your platform supports WBEM monitoring by checking 
 ## Syntax
 
 ```bash
-wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
+wbemcli <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
 ```
 
 ## Options
@@ -34,21 +34,21 @@ wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --
 ### Example 1: Basic WBEM Query
 
 ```bash
-wbem esx-01 --namespace "root/cimv2" --query "SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity" \
+wbemcli esx-01 --namespace "root/cimv2" --query "SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity" \
 --username admin --password secret --vcenter hci-vcenter
 ```
 
 ### Example 2: emc-san Namespace Query
 
 ```bash
-wbem emc-san --namespace "root/emc" --query "SELECT DeviceID FROM EMC_DiskDrive" \
+wbemcli emc-san --namespace "root/emc" --query "SELECT DeviceID FROM EMC_DiskDrive" \
 --transport https --username admin --password secret
 ```
 
 ### Example 3: WBEM Query wih Interactive Password Input
 
 ```bash
-wbem esx-01 --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement" --username admin
+wbemcli esx-01 --namespace "root/cimv2" --query "SELECT * FROM CIM_ManagedElement" --username admin
 ```
 
 The CLI prompts for the password if not provided.
