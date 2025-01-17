@@ -82,6 +82,7 @@
 			<item name="Overview" href="index.html" />
 			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
+			<item name="Connectors Full Listing" href="metricshub-connectors-full-listing.html" />
 		</menu>
 
 		<menu name="Installation">
@@ -113,6 +114,7 @@
 
 		<menu name="Troubleshooting">
 			<item name="Overview" href="troubleshooting/index.html"/>
+			<item name="Degraded Performance" href="troubleshooting/degraded-performance.html"/>
 			<item name="No Data for a Specific Resource" href="troubleshooting/no-data-resources.html"/>
 			<item name="No Data in Observability Platforms" href="troubleshooting/no-data-observability-platforms.html"/>
 			<item name="MetricsHub Logs" href="troubleshooting/metricshub-logs.html"/>
