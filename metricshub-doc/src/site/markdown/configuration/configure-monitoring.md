@@ -888,7 +888,7 @@ resources:
 
 | Property                 | Description                                                                                                                    |
 |--------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `<connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `<connector-custom-id>`  | Custom ID for this additional connector.                                                                                       |
 | `uses`                   | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
 | `force`                  | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
 | `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
@@ -1219,7 +1219,7 @@ The self-monitoring feature helps you track **MetricsHub**'s performance by prov
 
 To enable this feature, set the `enableSelfMonitoring` parameter to `true` in the relevant section of the `config/metricshub.yaml` file as described below:
 
-| Self-Monitoring                                    | Set enableSelfMonitoring to true                                |
+| Self-Monitoring                                   | Set enableSelfMonitoring to true                      |
 |----------------------------------------------------|---------------------------------------------------------|
 | For all resources                                  | In the global section (top of the file)                 |
 | For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
