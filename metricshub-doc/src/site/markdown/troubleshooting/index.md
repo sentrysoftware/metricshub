@@ -7,12 +7,14 @@ description: How to troubleshoot MetricsHub common issues and basic steps to res
 
 This section provides guidance on:
 
-* **Troubleshooting common MetricsHub issues:**
+* **Troubleshooting common MetricsHub issues**, such as:
+  * [Degraded performance](./degraded-performance.md)
   * [No data for a specific monitored resource](./no-data-resources.md)
   * [No data in the observability platforms](./no-data-observability-platforms.md)
-* **Enabling logs for:**
-  * [the MetricsHub Agent](./metricshub-logs.md)
-  * [the OTel Collector](./otel-logs.md).
+
+* **Enabling:**
+  * [the MetricsHub Agent logs](./metricshub-logs.md)
+  * [the OTel Collector logs](./otel-logs.md).
 
 For further assistance, consider:
 
