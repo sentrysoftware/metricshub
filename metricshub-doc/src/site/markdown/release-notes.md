@@ -81,7 +81,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#533**](https://github.com/sentrysoftware/metricshub/issues/533) | Documented the self-monitoring feature                                                            |
 | [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Create a Troubleshooting section in the user documentation                                        |
 
-### MetricsHub Community Connectors v1.0.07
+### MetricsHub Community Connectors v1.0.08
 
 ### What's New
 
