@@ -8,7 +8,7 @@ The **MetricsHub Ping CLI** is a command-line utility you can use to execute ICM
 ## Syntax
 
 ```bash
-ping <HOSTNAME> --timeout <TIMEOUT>
+pingcli <HOSTNAME> --timeout <TIMEOUT>
 ```
 
 ## Options
@@ -25,17 +25,17 @@ ping <HOSTNAME> --timeout <TIMEOUT>
 ### Example 1: Basic ICMP Ping
 
 ```bash
-ping dev-01
+pingcli dev-01
 ```
 
 ### Example 2: ICMP Ping with Custom Timeout
 
 ```bash
-ping dev-01 --timeout 10
+pingcli dev-01 --timeout 10
 ```
 
 ### Example 3: ICMP Ping with Debug Verbose Mode
 
 ```bash
-ping dev-01 --timeout 5 -vvv
+pingcli dev-01 --timeout 5 -vvv
 ```

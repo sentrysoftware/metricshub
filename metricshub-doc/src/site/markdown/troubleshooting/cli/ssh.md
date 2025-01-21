@@ -12,13 +12,13 @@ Before using the CLI, ensure your platform supports SSH monitoring by checking t
 ### SSH with Username and Password
 
 ```bash
-ssh <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+sshcli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
 ```
 
 ### SSH with Public Key Authentication
 
 ```bash
-ssh <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
+sshcli <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --port <PORT>
 ```
 
 ## Options
@@ -40,19 +40,19 @@ ssh <HOSTNAME> --public-key <PATH> --command <COMMAND> --timeout <TIMEOUT> --por
 ### Example 1: Basic Authentication with Username and Password
 
 ```bash
-ssh dev-01 --username admin --password secret --command="echo Hello, World!" --timeout 30 --port 22
+sshcli dev-01 --username admin --password secret --command="echo Hello, World!" --timeout 30 --port 22
 ```
 
 ### Example 2: Authentication with Public Key
 
 ```bash
-ssh dev-01 --public-key="/opt/ssh-rsa.txt" --command="ls /home/admin" --timeout 30 --port 22
+sshcli dev-01 --public-key="/opt/ssh-rsa.txt" --command="ls /home/admin" --timeout 30 --port 22
 ```
 
 ### Example 3: SSH Command with Interactive Password Input
 
 ```bash
-ssh dev-01 --username admin --command="whoami"
+sshcli dev-01 --username admin --command="whoami"
 ```
 
 The CLI prompts for the password if not provided.

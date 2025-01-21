@@ -49,7 +49,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing SQL queries via JDBC with validation and execution support.
  */
 @Data
-@Command(name = "jdbc", description = "\nList of valid options: \n", footer = JdbcCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "jdbccli", description = "\nList of valid options: \n", footer = JdbcCli.FOOTER, usageHelpWidth = 180)
 public class JdbcCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -70,9 +70,9 @@ public class JdbcCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		jdbc <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <jdbc:<DB-TYPE>://<HOSTNAME>:PORT/<DB-NAME> --query <QUERY>
+		jdbccli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --url <jdbc:<DB-TYPE>://<HOSTNAME>:PORT/<DB-NAME> --query <QUERY>
 
-		jdbc dev-01 --username username --password password --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM users"
+		jdbccli dev-01 --username username --password password --url="jdbc:postgresql://dev-01:5432/MyDb" --query="SELECT * FROM users"
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";

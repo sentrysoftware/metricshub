@@ -279,25 +279,25 @@
 								<argument>--add-launcher</argument>
 								<argument>MetricsHubServiceManager=metricshub-agent.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>snmp=metricshub-snmp.properties</argument>
+								<argument>snmpcli=metricshub-snmpcli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>http=metricshub-http.properties</argument>
+								<argument>httpcli=metricshub-httpcli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>ipmi=metricshub-ipmi.properties</argument>
+								<argument>ipmicli=metricshub-ipmicli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>snmpv3=metricshub-snmpv3.properties</argument>
+								<argument>snmpv3cli=metricshub-snmpv3cli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>wbem=metricshub-wbem.properties</argument>
+								<argument>wbemcli=metricshub-wbemcli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>wmi=metricshub-wmi.properties</argument>
+								<argument>wmicli=metricshub-wmicli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>winrm=metricshub-winrm.properties</argument>
+								<argument>winrmcli=metricshub-winrmcli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>jdbc=metricshub-jdbc.properties</argument>
+								<argument>jdbccli=metricshub-jdbccli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>ssh=metricshub-ssh.properties</argument>
+								<argument>sshcli=metricshub-sshcli.properties</argument>
 								<argument>--add-launcher</argument>
-								<argument>ping=metricshub-ping.properties</argument>
+								<argument>pingcli=metricshub-pingcli.properties</argument>
 								<argument>@jpackage.txt</argument>
 							</arguments>
 							<workingDirectory>${project.build.directory}/jpackage</workingDirectory>
