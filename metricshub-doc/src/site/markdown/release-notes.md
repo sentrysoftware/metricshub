@@ -3,6 +3,105 @@ description: Learn more about the new features, changes and improvements, and bu
 
 # Release Notes
 
+## MetricsHub Enterprise Edition v1.1.00
+
+### MetricsHub Enterprise Edition v1.1.00
+
+#### What's New
+
+| ID       | Description                                                                                                        |
+|----------|--------------------------------------------------------------------------------------------------------------------|
+| M8BEE-37 | Added protocol CLIs to validate configurations, troubleshoot connectivity, and ensure successful metric extraction |
+
+#### Changes and Improvements
+
+| ID       | Description                                                |
+|----------|------------------------------------------------------------|
+| M8BEE-38 | Updated OpenTelemetry Collector Contrib to version 0.116.0 |
+
+### MetricsHub Enterprise Connectors v103
+
+#### What's New
+
+| ID    | Description                                                                                      |
+|-------|--------------------------------------------------------------------------------------------------|
+| EC-72 | Added performance and capacity metrics for Pure Storage FlashArray storage systems via REST API  |
+| EC-75 | Added performance and capacity metrics for NetApp FAS and AFF storage systems via ONTAP REST API |
+| EC-86 | Added support for Citrix NetScaler via SNMP                                                      |
+
+#### Changes and Improvements
+
+| ID     | Description                                                                                                                       |
+|--------|-----------------------------------------------------------------------------------------------------------------------------------|
+| EC-10  | Enhanced detection criteria in the `EMC VPLEX Version 5`, `EMC VPLEX Version 6`, and `Huawei OceanStor (REST)` connectors         |
+| EC-57  | **Pure Storage FA Series (REST Token Authentication)**: NVRAM modules are now reported as memory monitors                         |
+| EC-88  | Added support for HPE ProLiant Gen 11 servers via iLO 6                                                                           |
+| EC-90  | **HP iLO Gen 10 (REST)**: Split into two connectors: `HPE iLO 5 (ProLiant Gen10 and Gen10 Plus)` and `HPE iLO 6 (ProLiant Gen11)` |
+| EC-91  | **HP iLO Gen 9 (REST)**: Renamed to `HPE iLO4 (ProLiant Gen 8, Gen9)`                                                             |
+| EC-100 | **EMC uemcli (VNXe)**: Power and temperature metrics are now collected                                                            |
+
+#### Fixed issues
+
+| ID    | Description                                                                                                                    |
+|-------|--------------------------------------------------------------------------------------------------------------------------------|
+| EC-84 | **Pure Storage FA Series**: The `hw.parent.type` attribute is reported as `DiskController` instead of `disk_controller`        |
+| EC-95 | **Dell EMC PowerStore (REST)**: Metrics are missing for physical disks, network cards, memory modules, fans and power supplies |
+| EC-97 | **Pure Storage FA Series (SSH)**: `hw.temperature` metrics are not collected                                                   |
+| EC-98 | **Dell iDRAC9 (REST)**: Incorrect JSON response handling leads to HTTP 404 error on network devices                            |
+
+### MetricsHub Community Edition v1.0.00
+
+### What's New
+
+| ID                                                                   | Description                                                                                                        |
+|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| [**\#424**](https://github.com/sentrysoftware/metricshub/issues/424) | Added protocol CLIs to validate configurations, troubleshoot connectivity, and ensure successful metric extraction |
+
+#### Changes and Improvements
+
+| ID                                                                   | Description                                                                                                                            |
+|----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| [**\#519**](https://github.com/sentrysoftware/metricshub/issues/519) | Updated connector semantics by replacing `leftConcat` with `prepend`, `rightConcat` with `append`, and `osCommand` with `commandLine`. |
+| [**\#521**](https://github.com/sentrysoftware/metricshub/issues/521) | Updated OpenTelemetry Java dependencies to version `1.45.0`                                                                            |
+| [**\#525**](https://github.com/sentrysoftware/metricshub/issues/525) | Added the ability to enable or disable self-monitoring                                                                                 |
+
+#### Fixed issues
+
+| ID                                                                   | Description                                                                                 |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| [**\#523**](https://github.com/sentrysoftware/metricshub/issues/523) | The `hw.network.up` metric is not reported for connectors with `WARN` or `ALARM` link state |
+
+#### Documentation updates
+
+| ID                                                                   | Description                                                                                       |
+|----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| [**\#546**](https://github.com/sentrysoftware/metricshub/issues/546) | Integrated platform icons and enhanced connectors directory page                                  |
+| [**\#541**](https://github.com/sentrysoftware/metricshub/issues/541) | Moved use cases from the documentation to [MetricsHub Use Cases](https://metricshub.com/usecases) |
+| [**\#533**](https://github.com/sentrysoftware/metricshub/issues/533) | Documented the self-monitoring feature                                                            |
+| [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Created a Troubleshooting section in the user documentation                                       |
+
+### MetricsHub Community Connectors v1.0.08
+
+### What's New
+
+| ID                                                                                        | Description                                    |
+|-------------------------------------------------------------------------------------------|------------------------------------------------|
+| [**\#137**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/137) | Added support for `MySQL` databases via `JDBC` |
+
+#### Changes and Improvements
+
+| ID                                                                                        | Description                                                                       |
+|-------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------|
+| [**\#158**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/158) | Updated platforms for community connectors                                        |
+| [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Created Storage metric semantic conventions                                       |
+| [**\#163**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/163) | `MIB2Switch` and `GenericSwitchEnclosure` connectors now support Arista platforms |
+
+#### Fixed issues
+
+| ID                                                                                        | Description                                               |
+|-------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [**\#111**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/111) | LinuxIPNetwork: Fails to monitor some Ethernet interfaces |
+
 ## MetricsHub Enterprise Edition v1.0.02
 
 ### MetricsHub Enterprise Edition v1.0.02
