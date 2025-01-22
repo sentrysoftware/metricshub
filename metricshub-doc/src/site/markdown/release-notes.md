@@ -9,15 +9,15 @@ description: Learn more about the new features, changes and improvements, and bu
 
 #### What's New
 
-| ID       | Description                                                        |
-| -------- | ------------------------------------------------------------------ |
-| M8BEE-37 | Provided protocol CLI executables for easy troubleshooting purpose |
+| ID       | Description                                             |
+| -------- | ------------------------------------------------------- |
+| M8BEE-37 | Provided protocol CLIs for easy troubleshooting purpose |
 
 #### Changes and Improvements
 
-| ID       | Description                                               |
-| -------- | --------------------------------------------------------- |
-| M8BEE-38 | Update OpenTelemetry Collector Contrib to version 0.116.0 |
+| ID       | Description                                                |
+| -------- | ---------------------------------------------------------- |
+| M8BEE-38 | Updated OpenTelemetry Collector Contrib to version 0.116.0 |
 
 ### MetricsHub Enterprise Connectors v103
 
@@ -25,37 +25,37 @@ description: Learn more about the new features, changes and improvements, and bu
 
 | ID    | Description                                                                                      |
 | ----- | ------------------------------------------------------------------------------------------------ |
-| EC-72 | Added support for Pure Storage FlashArray storage systems via REST API                           |
+| EC-72 | Added performance and capacity metrics for Pure Storage FlashArray storage systems via REST API  |
 | EC-75 | Added performance and capacity metrics for NetApp FAS and AFF storage systems via ONTAP REST API |
 | EC-86 | Added support for Citrix NetScaler via SNMP                                                      |
 
 #### Changes and Improvements
 
-| ID     | Description                                                                                                                                 |
-| ------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| EC-10  | Detection criteria are enhanced in `EMC VPLEX Version 5`, `EMC VPLEX Version 6` and `Huawei OceanStor (REST)` connectors                    |
-| EC-57  | Pure Storage FA Series (REST Token Authentication): NVRAM modules are now reported as memory monitors                                       |
-| EC-88  | Added support for HPE ProLiant Gen 11 servers via iLO 6                                                                                     |
-| EC-90  | HP iLO Gen 10 (REST): Renamed to HPE iLO 5 (ProLiant Gen10 and Gen10 Plus) and iLO6 support moved to `HPE iLO 6 (ProLiant Gen11)` connector |
-| EC-91  | HP iLO Gen 9 (REST): Renamed to `HPE iLO4 (ProLiant Gen 8, Gen9)`                                                                           |
-| EC-100 | EMC uemcli (VNXe): Power and temperature values are now collected                                                                           |
+| ID     | Description                                                                                                                   |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| EC-10  | Detection criteria are enhanced in `EMC VPLEX Version 5`, `EMC VPLEX Version 6` and `Huawei OceanStor (REST)` connectors      |
+| EC-57  | Pure Storage FA Series (REST Token Authentication): NVRAM modules are now reported as memory monitors                         |
+| EC-88  | Added support for HPE ProLiant Gen 11 servers via iLO 6                                                                       |
+| EC-90  | HP iLO Gen 10 (REST): Split into two connectors: `HPE iLO 5 (ProLiant Gen10 and Gen10 Plus)` and `HPE iLO 6 (ProLiant Gen11)` |
+| EC-91  | HP iLO Gen 9 (REST): Renamed to `HPE iLO4 (ProLiant Gen 8, Gen9)`                                                             |
+| EC-100 | EMC uemcli (VNXe): Power and temperature metrics are now collected                                                            |
 
 #### Fixed issues
 
-| ID    | Description                                                                                                         |
-| ----- | ------------------------------------------------------------------------------------------------------------------- |
-| EC-84 | Pure Storage FA Series: The `hw.parent.type` attribute reports `DiskController` instead of `disk_controller`        |
-| EC-95 | Dell EMC PowerStore: Metrics for physical disks, network cards, memory modules, fans and power supplies are missing |
-| EC-97 | Pure Storage FA Series (SSH): `hw.temperature` metrics are not collected                                            |
-| EC-98 | Dell iDRAC9 (REST): Incorrect JSON response handling leads to HTTP 404 error on network devices                     |
+| ID    | Description                                                                                                                |
+| ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| EC-84 | Pure Storage FA Series: The `hw.parent.type` attribute is reported as `DiskController` instead of `disk_controller`        |
+| EC-95 | Dell EMC PowerStore (REST): Metrics are missing for physical disks, network cards, memory modules, fans and power supplies |
+| EC-97 | Pure Storage FA Series (SSH): `hw.temperature` metrics are not collected                                                   |
+| EC-98 | Dell iDRAC9 (REST): Incorrect JSON response handling leads to HTTP 404 error on network devices                            |
 
 ### MetricsHub Community Edition v1.0.00
 
 ### What's New
 
-| ID                                                                   | Description                                                        |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| [**\#424**](https://github.com/sentrysoftware/metricshub/issues/424) | Provided protocol CLI executables for easy troubleshooting purpose |
+| ID                                                                   | Description                                             |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| [**\#424**](https://github.com/sentrysoftware/metricshub/issues/424) | Provided protocol CLIs for easy troubleshooting purpose |
 
 #### Changes and Improvements
 
@@ -63,7 +63,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | [**\#525**](https://github.com/sentrysoftware/metricshub/issues/518) | Ability to enable or disable self monitoring                                                                                |
 | [**\#519**](https://github.com/sentrysoftware/metricshub/issues/519) | Replaced `leftConcat` with `prepend`, `rightConcat` with `append` and `osCommand` with `commandLine` in connector semantics |
-| [**\#521**](https://github.com/sentrysoftware/metricshub/issues/521) | Updated OpenTelemetry Java dependencies to version 1.45.0                                                                   |
+| [**\#521**](https://github.com/sentrysoftware/metricshub/issues/521) | Updated OpenTelemetry Java dependencies to version `1.45.0`                                                                 |
 | [**\#525**](https://github.com/sentrysoftware/metricshub/issues/525) | Ability to enable or disable self-monitoring                                                                                |
 
 #### Fixed issues
@@ -76,7 +76,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 | ID                                                                   | Description                                                                                       |
 | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| [**\#546**](https://github.com/sentrysoftware/metricshub/issues/546) | Integrate platform icons and enhance documentation connectors directory page                      |
+| [**\#546**](https://github.com/sentrysoftware/metricshub/issues/546) | Integrated platform icons and enhanced connectors directory page                                  |
 | [**\#541**](https://github.com/sentrysoftware/metricshub/issues/541) | Moved use cases from the documentation to [MetricsHub Use Cases](https://metricshub.com/usecases) |
 | [**\#533**](https://github.com/sentrysoftware/metricshub/issues/533) | Documented the self-monitoring feature                                                            |
 | [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Create a Troubleshooting section in the user documentation                                        |
@@ -85,16 +85,17 @@ description: Learn more about the new features, changes and improvements, and bu
 
 ### What's New
 
-| ID                                                                                        | Description                                |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| [**\#137**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/137) | Added support for MySQL databases via JDBC |
+| ID                                                                                        | Description                                    |
+| ----------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [**\#137**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/137) | Added support for `MySQL` databases via `JDBC` |
 
 #### Changes and Improvements
 
-| ID                                                                                        | Description                                |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------ |
-| [**\#158**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/158) | Updated platforms for community connectors |
-| [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Create Storage metric semantic conventions |
+| ID                                                                                        | Description                                                                       |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [**\#158**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/158) | Updated platforms for community connectors                                        |
+| [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Create Storage metric semantic conventions                                        |
+| [**\#163**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/163) | `MIB2Switch` and `GenericSwitchEnclosure` connectors now support Arista platforms |
 
 #### Fixed issues
 
