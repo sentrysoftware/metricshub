@@ -61,7 +61,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 | ID                                                                   | Description                                                                                                                 |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [**\#525**](https://github.com/sentrysoftware/metricshub/issues/518) | Ability to enable or disable self monitoring                                                                                |
+| [**\#518**](https://github.com/sentrysoftware/metricshub/issues/518) | Ability to enable or disable self monitoring                                                                                |
 | [**\#519**](https://github.com/sentrysoftware/metricshub/issues/519) | Replaced `leftConcat` with `prepend`, `rightConcat` with `append` and `osCommand` with `commandLine` in connector semantics |
 | [**\#521**](https://github.com/sentrysoftware/metricshub/issues/521) | Updated OpenTelemetry Java dependencies to version `1.45.0`                                                                 |
 | [**\#525**](https://github.com/sentrysoftware/metricshub/issues/525) | Ability to enable or disable self-monitoring                                                                                |
@@ -79,7 +79,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#546**](https://github.com/sentrysoftware/metricshub/issues/546) | Integrated platform icons and enhanced connectors directory page                                  |
 | [**\#541**](https://github.com/sentrysoftware/metricshub/issues/541) | Moved use cases from the documentation to [MetricsHub Use Cases](https://metricshub.com/usecases) |
 | [**\#533**](https://github.com/sentrysoftware/metricshub/issues/533) | Documented the self-monitoring feature                                                            |
-| [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Create a Troubleshooting section in the user documentation                                        |
+| [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Created a Troubleshooting section in the user documentation                                       |
 
 ### MetricsHub Community Connectors v1.0.08
 
@@ -94,7 +94,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | ID                                                                                        | Description                                                                       |
 | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
 | [**\#158**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/158) | Updated platforms for community connectors                                        |
-| [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Create Storage metric semantic conventions                                        |
+| [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Created Storage metric semantic conventions                                       |
 | [**\#163**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/163) | `MIB2Switch` and `GenericSwitchEnclosure` connectors now support Arista platforms |
 
 #### Fixed issues
