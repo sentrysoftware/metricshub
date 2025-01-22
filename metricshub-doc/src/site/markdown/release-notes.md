@@ -68,9 +68,9 @@ description: Learn more about the new features, changes and improvements, and bu
 
 #### Fixed issues
 
-| ID                                                      | Description                                                                          |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| https://github.com/sentrysoftware/metricshub/issues/523 | `hw.network.up` metric not reported for connectors with `WARN` or `ALARM` link state |
+| ID                                                                   | Description                                                                          |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [**\#523**](https://github.com/sentrysoftware/metricshub/issues/523) | `hw.network.up` metric not reported for connectors with `WARN` or `ALARM` link state |
 
 #### Documentation updates
 
