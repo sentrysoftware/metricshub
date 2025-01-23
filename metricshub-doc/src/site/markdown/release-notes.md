@@ -40,7 +40,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | EC-91  | **HP iLO Gen 9 (REST)**: Renamed to `HPE iLO4 (ProLiant Gen 8, Gen9)`                                                             |
 | EC-100 | **EMC uemcli (VNXe)**: Power and temperature metrics are now collected                                                            |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID    | Description                                                                                                                    |
 |-------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -51,7 +51,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 ### MetricsHub Community Edition v1.0.00
 
-### What's New
+#### What's New
 
 | ID                                                                   | Description                                                                                                        |
 |----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
@@ -65,13 +65,13 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#521**](https://github.com/sentrysoftware/metricshub/issues/521) | Updated OpenTelemetry Java dependencies to version `1.45.0`                                                                            |
 | [**\#525**](https://github.com/sentrysoftware/metricshub/issues/525) | Added the ability to enable or disable self-monitoring                                                                                 |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                   | Description                                                                                 |
 |----------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
 | [**\#523**](https://github.com/sentrysoftware/metricshub/issues/523) | The `hw.network.up` metric is not reported for connectors with `WARN` or `ALARM` link state |
 
-#### Documentation updates
+#### Documentation Updates
 
 | ID                                                                   | Description                                                                                       |
 |----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
@@ -82,7 +82,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 ### MetricsHub Community Connectors v1.0.08
 
-### What's New
+#### What's New
 
 | ID                                                                                        | Description                                    |
 |-------------------------------------------------------------------------------------------|------------------------------------------------|
@@ -96,7 +96,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#160**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/160) | Created Storage metric semantic conventions                                       |
 | [**\#163**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/163) | `MIB2Switch` and `GenericSwitchEnclosure` connectors now support Arista platforms |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                                        | Description                                               |
 |-------------------------------------------------------------------------------------------|-----------------------------------------------------------|
@@ -120,7 +120,7 @@ description: Learn more about the new features, changes and improvements, and bu
 |-------|-----------------------------------------------------------------------------------|
 | EC-87 | The `StatusInformation` of the `led` monitor now reports the `LedIndicator` value |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID    | Description                                                                                                            |
 |-------|------------------------------------------------------------------------------------------------------------------------|
@@ -146,7 +146,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#474**](https://github.com/sentrysoftware/metricshub/issues/474) | Handled blank values when creating INSERT queries for `internalDbQuery` Sources                    |
 | [**\#498**](https://github.com/sentrysoftware/metricshub/issues/498) | Improved monitoring jobs when invoking **Jawk** sources in connectors                              |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                   | Description                                                             |
 |----------------------------------------------------------------------|-------------------------------------------------------------------------|
@@ -155,7 +155,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#500**](https://github.com/sentrysoftware/metricshub/issues/500) | Only one monitor is processed due to incorrect indexing                 |
 | [**\#502**](https://github.com/sentrysoftware/metricshub/issues/502) | Incorrect link status check leads to an incorrect power consumption     |
 
-#### Documentation updates
+#### Documentation Updates
 
 | ID                                                                   | Description                                                                                                                                                                                                                                                                |
 |----------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -176,7 +176,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#143**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/143) | **Linux OS**: The connector no longer reports services, as these are now handled by the `LinuxService` connector |
 | [**\#148**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/148) | **Linux OS**: Enhanced `filesystem` utilization calculation                                                      |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                                        | Description                                                                                                                                       |
 |-------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -184,7 +184,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#145**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/145) | **IpmiTool**: The `hw.status` metric is not collected because `enclosure.awk` reports `OK`, `WARN`, `ALARM` instead of `ok`, `degraded`, `failed` |
 | [**\#152**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/152) | Connectors reporting voltage metrics do not set the `high.critical` threshold                                                                     |
 
-#### Documentation updates
+#### Documentation Updates
 
 | ID                                                                                        | Description                                             |
 |-------------------------------------------------------------------------------------------|---------------------------------------------------------|
@@ -210,7 +210,7 @@ description: Learn more about the new features, changes and improvements, and bu
 |----------|----------------------------------------------------------------|
 | **EC-9** | The hw.network.bandwidth.limit metric is now reported in bytes |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID        | Description                                                            |
 |-----------|------------------------------------------------------------------------|
@@ -232,7 +232,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#302**](https://github.com/sentrysoftware/metricshub/issues/302) | Defined `afterAll` and `beforeAll` jobs in YAML connectors                                                               |
 | [**\#423**](https://github.com/sentrysoftware/metricshub/issues/423) | Added the ability to filter monitors                                                                                     |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                   | Description                                                                      |
 |----------------------------------------------------------------------|----------------------------------------------------------------------------------|
@@ -253,7 +253,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#122**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/122) | Added default values for connector variables in `WindowsService`, `LinuxService`, `WindowsProcess` & `LinuxProcess` |
 | [**\#114**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/114) | The `hw.network.bandwidth.limit` metric is now displayed in bytes                                                   |
 
-#### Fixed issues
+#### Fixed Issues
 
 | ID                                                                                        | Description                                                              |
 |-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
