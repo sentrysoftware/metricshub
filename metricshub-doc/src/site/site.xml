@@ -4,7 +4,7 @@
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
 		<artifactId>sentry-maven-skin</artifactId>
-		<version>6.4.00</version>
+		<version>6.4.01</version>
 	</skin>
 
 	<bannerLeft>
