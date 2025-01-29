@@ -75,9 +75,12 @@ public class SqlClientExecutor {
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 		final String connectionName = "jdbc:h2:mem:" + hostId + UUID.randomUUID().toString();
-
 		// Creation of the connection to the H2 database in memory
-		try (Connection connection = DriverManager.getConnection(connectionName)) {
+		Connection connection = null;
+		try {
+			connection = DriverManager.getConnection(connectionName);
+			connection.setAutoCommit(false);
+
 			// Prepare the SQL tables
 			for (SqlTable sqlTable : sqlTables) {
 				createAndInsert(sqlTable, connection);
@@ -88,6 +91,15 @@ public class SqlClientExecutor {
 			log.error("Error when creating the database for the Internal DB Query: {}", exception.getMessage());
 			log.debug("SQL Exception: ", exception);
 			return new ArrayList<>();
+		} finally {
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException exception) {
+				log.error("Error when closing the connection to the Internal DB Query database: {}", exception.getMessage());
+				log.debug("SQL Exception: ", exception);
+			}
 		}
 	}
 
@@ -144,6 +156,7 @@ public class SqlClientExecutor {
 			final Statement statement = connection.createStatement();
 
 			statement.execute(createTableQuery);
+			connection.commit();
 			log.debug("Executing CREATE TABLE query: {}", createTableQuery);
 		} catch (SQLException exception) {
 			log.error("Error when executing CREATE TABLE query {}: {}", createTableQuery, exception.getMessage());
@@ -160,6 +173,7 @@ public class SqlClientExecutor {
 			final Statement statement = connection.createStatement();
 
 			statement.execute(insertTableQuery);
+			connection.commit();
 			log.debug("Executing INSERT TABLE query: {}", insertTableQuery);
 		} catch (SQLException exception) {
 			log.error("Error when executing INSERT TABLE query {}: {}", insertTableQuery, exception.getMessage());
