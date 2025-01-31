@@ -117,7 +117,7 @@
 			<item name="Degraded Performance" href="troubleshooting/degraded-performance.html"/>
 			<item name="No Data for a Specific Resource" href="troubleshooting/no-data-resources.html"/>
 			<item name="No Data in Observability Platforms" href="troubleshooting/no-data-observability-platforms.html"/>
-			<item name="gRPC message size limit issues" href="troubleshooting/grpc-message-size-limit.html"/>
+			<item name="gRPC Message Size Limit Issues" href="troubleshooting/grpc-message-size-limit.html"/>
 			<item name="MetricsHub Logs" href="troubleshooting/metricshub-logs.html"/>
 			<item name="OTel Logs" href="troubleshooting/otel-logs.html"/>
 			<item name="Protocol CLIs" href="troubleshooting/cli/index.html">
