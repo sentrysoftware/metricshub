@@ -55,11 +55,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.snmp4j</groupId>
-			<artifactId>snmp4j-agent</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 		</dependency>
@@ -118,7 +113,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum>
+											<minimum>0.66</minimum>
 										</limit>
 									</limits>
 								</rule>
