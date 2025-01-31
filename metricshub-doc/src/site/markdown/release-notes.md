@@ -49,6 +49,14 @@ description: Learn more about the new features, changes and improvements, and bu
 | EC-97 | **Pure Storage FA Series (SSH)**: `hw.temperature` metrics are not collected                                                   |
 | EC-98 | **Dell iDRAC9 (REST)**: Incorrect JSON response handling leads to HTTP 404 error on network devices                            |
 
+### MetricsHub Enterprise Connectors v104
+
+#### Changes and Improvements
+
+| ID     | Description                                                                                             |
+|--------|---------------------------------------------------------------------------------------------------------|
+| EC-112 | Reduced high CPU usage caused by internal DB queries in `NetAppRESTv2` and `PureStorageREST` connectors |
+
 ### MetricsHub Community Edition v1.0.00
 
 #### What's New
@@ -79,6 +87,14 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#541**](https://github.com/sentrysoftware/metricshub/issues/541) | Moved use cases from the documentation to [MetricsHub Use Cases](https://metricshub.com/usecases) |
 | [**\#533**](https://github.com/sentrysoftware/metricshub/issues/533) | Documented the self-monitoring feature                                                            |
 | [**\#529**](https://github.com/sentrysoftware/metricshub/issues/529) | Created a Troubleshooting section in the user documentation                                       |
+
+### MetricsHub Community Edition v1.0.01
+
+#### Changes and Improvements
+
+| ID                                                                   | Description                                                                        |
+|----------------------------------------------------------------------|------------------------------------------------------------------------------------|
+| [**\#563**](https://github.com/sentrysoftware/metricshub/issues/563) | MetricsHub Engine Internal DB: Improved memory usage and data types identification |
 
 ### MetricsHub Community Connectors v1.0.08
 
