@@ -115,29 +115,32 @@ public class DatabaseHelper {
 				return true;
 			}
 
+			// Trim only for non-String types to avoid parsing errors
+			final String trimmedValue = trimValue(value, javaType);
+
 			// Map Java types to PreparedStatement setters
 			if (Integer.class.equals(javaType)) {
-				preparedStatement.setInt(position, Integer.parseInt(value));
+				preparedStatement.setInt(position, Integer.parseInt(trimmedValue));
 			} else if (Long.class.equals(javaType)) {
-				preparedStatement.setLong(position, Long.parseLong(value));
+				preparedStatement.setLong(position, Long.parseLong(trimmedValue));
 			} else if (BigDecimal.class.equals(javaType)) {
-				preparedStatement.setBigDecimal(position, new BigDecimal(value));
+				preparedStatement.setBigDecimal(position, new BigDecimal(trimmedValue));
 			} else if (Boolean.class.equals(javaType)) {
-				preparedStatement.setBoolean(position, Boolean.parseBoolean(value));
+				preparedStatement.setBoolean(position, Boolean.parseBoolean(trimmedValue));
 			} else if (Double.class.equals(javaType)) {
-				preparedStatement.setDouble(position, Double.parseDouble(value));
+				preparedStatement.setDouble(position, Double.parseDouble(trimmedValue));
 			} else if (Float.class.equals(javaType)) {
-				preparedStatement.setFloat(position, Float.parseFloat(value));
+				preparedStatement.setFloat(position, Float.parseFloat(trimmedValue));
 			} else if (java.sql.Date.class.equals(javaType)) {
-				preparedStatement.setDate(position, java.sql.Date.valueOf(value));
+				preparedStatement.setDate(position, java.sql.Date.valueOf(trimmedValue));
 			} else if (java.sql.Time.class.equals(javaType)) {
-				preparedStatement.setTime(position, java.sql.Time.valueOf(value));
+				preparedStatement.setTime(position, java.sql.Time.valueOf(trimmedValue));
 			} else if (java.sql.Timestamp.class.equals(javaType)) {
-				preparedStatement.setTimestamp(position, java.sql.Timestamp.valueOf(value));
+				preparedStatement.setTimestamp(position, java.sql.Timestamp.valueOf(trimmedValue));
 			} else if (Byte.class.equals(javaType)) {
-				preparedStatement.setByte(position, Byte.parseByte(value));
+				preparedStatement.setByte(position, Byte.parseByte(trimmedValue));
 			} else if (Short.class.equals(javaType)) {
-				preparedStatement.setShort(position, Short.parseShort(value));
+				preparedStatement.setShort(position, Short.parseShort(trimmedValue));
 			} else {
 				// Default to String
 				preparedStatement.setString(position, value);
@@ -148,5 +151,16 @@ public class DatabaseHelper {
 			log.error("Error setting value '{}' at position {}: {}", value, position, ex.getMessage());
 			return false;
 		}
+	}
+
+	/**
+	 * Trim the value if it is not a String.
+	 *
+	 * @param value    The value to trim.
+	 * @param javaType The Java type of the value.
+	 * @return The trimmed value.
+	 */
+	private static String trimValue(final String value, final Class<?> javaType) {
+		return String.class.equals(javaType) ? value : value.trim();
 	}
 }
