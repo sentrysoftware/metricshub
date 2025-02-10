@@ -242,7 +242,9 @@ public class WmiCli implements IQuery, Callable<Integer> {
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
 

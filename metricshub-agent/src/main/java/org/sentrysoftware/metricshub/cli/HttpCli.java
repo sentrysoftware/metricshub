@@ -105,7 +105,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
+	@Option(names = "--url", required = true, order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
 	@Option(
@@ -415,7 +415,9 @@ public class HttpCli implements IQuery, Callable<Integer> {
 					configurationNode.set("port", new IntNode(resolvePortFromUrl()));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
 
 					// Build an IConfiguration from the configuration ObjectNode
 					final IConfiguration configuration = extension.buildConfiguration(HTTP, configurationNode, null);
