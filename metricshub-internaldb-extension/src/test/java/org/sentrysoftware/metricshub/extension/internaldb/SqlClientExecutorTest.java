@@ -40,6 +40,9 @@ class SqlClientExecutorTest {
 	private static final String TRUE = "TRUE";
 	private static final String FALSE = "FALSE";
 	private static final String CONNECTOR_ID = "myConnector";
+	private static final String TIME = "14:30:00";
+	private static final String DATE = "2025-01-30";
+	private static final String TIMESTAMP = "2025-01-30 14:30:00";
 
 	@Test
 	void testSqlQuery() {
@@ -301,6 +304,102 @@ class SqlClientExecutorTest {
 		sqlTable1.setColumns(columnsTable1);
 		result =
 			sqlClientExecutor.executeQuery(Arrays.asList(sqlTable1), "SELECT COL1_1, COL2_1 FROM T1 WHERE COL2_1 IS NULL;");
+		assertEquals(expectedResult, result);
+	}
+
+	@Test
+	void testSqlQueryWithDatesAndTimes() {
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname("localhost")
+			.hostId("localhost")
+			.hostType(DeviceKind.LINUX)
+			.build();
+
+		final Map<String, SourceTable> mapSources = new HashMap<>();
+		SourceTable tabl1 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(LOWERCASE_A, LOWERCASE_V1, TRUE, ONE, DATE, TIME, TIMESTAMP),
+					Arrays.asList(LOWERCASE_B, LOWERCASE_V2, TRUE, TWO, DATE, TIME, TIMESTAMP),
+					Arrays.asList(LOWERCASE_C, LOWERCASE_V3, FALSE, THREE, DATE, TIME, TIMESTAMP),
+					Arrays.asList(LOWERCASE_D, LOWERCASE_V4, FALSE, FOUR, DATE, TIME, TIMESTAMP)
+				)
+			)
+			.build();
+		final SourceTable tabl2 = SourceTable
+			.builder()
+			.table(
+				Arrays.asList(
+					Arrays.asList(ONE, LOWERCASE_A, UPPERCASE_V1, TRUE),
+					Arrays.asList(ONE, LOWERCASE_B, UPPERCASE_V2, FALSE),
+					Arrays.asList(ONE, LOWERCASE_C, UPPERCASE_V3, TRUE),
+					Arrays.asList(TWO, LOWERCASE_D, UPPERCASE_V4, FALSE)
+				)
+			)
+			.build();
+		mapSources.put(TAB1_REF, tabl1);
+		mapSources.put(TAB2_REF, tabl2);
+
+		final ConnectorNamespace connectorNamespace = ConnectorNamespace.builder().sourceTables(mapSources).build();
+		final Map<String, ConnectorNamespace> connectorNamespaces = new HashMap<>();
+		connectorNamespaces.put(CONNECTOR_ID, connectorNamespace);
+
+		final HostProperties hostProperties = HostProperties
+			.builder()
+			.connectorNamespaces(connectorNamespaces)
+			.isLocalhost(true)
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager
+			.builder()
+			.hostConfiguration(hostConfiguration)
+			.hostProperties(hostProperties)
+			.build();
+		final SqlClientExecutor sqlClientExecutor = SqlClientExecutor
+			.builder()
+			.telemetryManager(telemetryManager)
+			.connectorId(CONNECTOR_ID)
+			.build();
+
+		// SqlSource with empty tables
+		List<SqlColumn> columnsTable1 = new ArrayList<>();
+		List<SqlColumn> columnsTable2 = new ArrayList<>();
+
+		// SqlSource well formed
+		SqlColumn sqlColumn1Table1 = SqlColumn.builder().name("COL1_1").number(1).type("VARCHAR(255)").build();
+		SqlColumn sqlColumn2Table1 = SqlColumn.builder().name("COL2_1").number(3).type("BOOLEAN").build();
+		SqlColumn sqlColumn3Table1 = SqlColumn.builder().name("COL3_1").number(5).type("DATE").build();
+		SqlColumn sqlColumn4Table1 = SqlColumn.builder().name("COL4_1").number(6).type("TIME").build();
+		SqlColumn sqlColumn5Table1 = SqlColumn.builder().name("COL5_1").number(7).type("TIMESTAMP").build();
+		columnsTable1.add(sqlColumn1Table1);
+		columnsTable1.add(sqlColumn2Table1);
+		columnsTable1.add(sqlColumn3Table1);
+		columnsTable1.add(sqlColumn4Table1);
+		columnsTable1.add(sqlColumn5Table1);
+
+		SqlColumn sqlColumn1Table2 = SqlColumn.builder().name("COL1_2").number(2).type("VARCHAR(255)").build();
+		SqlColumn sqlColumn2Table2 = SqlColumn.builder().name("COL2_2").number(4).type("BOOLEAN").build();
+		columnsTable2.add(sqlColumn1Table2);
+		columnsTable2.add(sqlColumn2Table2);
+
+		final SqlTable sqlTable1 = SqlTable.builder().alias("T1").columns(columnsTable1).source(TAB1_REF).build();
+		final SqlTable sqlTable2 = SqlTable.builder().alias("T2").columns(columnsTable2).source(TAB2_REF).build();
+
+		final List<SqlTable> sqlTables = Arrays.asList(sqlTable1, sqlTable2);
+
+		List<List<String>> result = sqlClientExecutor.executeQuery(
+			sqlTables,
+			"SELECT COL1_1, COL2_1, COL1_2, COL2_2, COL3_1, COL4_1, COL5_1 FROM T1 JOIN T2 ON COL1_1 = COL1_2;"
+		);
+
+		final List<List<String>> expectedResult = Arrays.asList(
+			Arrays.asList(LOWERCASE_A, TRUE, LOWERCASE_A, TRUE, DATE, TIME, TIMESTAMP),
+			Arrays.asList(LOWERCASE_B, TRUE, LOWERCASE_B, FALSE, DATE, TIME, TIMESTAMP),
+			Arrays.asList(LOWERCASE_C, FALSE, LOWERCASE_C, TRUE, DATE, TIME, TIMESTAMP),
+			Arrays.asList(LOWERCASE_D, FALSE, LOWERCASE_D, FALSE, DATE, TIME, TIMESTAMP)
+		);
+
 		assertEquals(expectedResult, result);
 	}
 }

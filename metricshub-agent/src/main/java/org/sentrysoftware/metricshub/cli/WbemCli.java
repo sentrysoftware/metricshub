@@ -51,7 +51,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing WBEM queries with validation and execution support.
  */
 @Data
-@Command(name = "wbem", description = "\nList of valid options: \n", footer = WbemCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "wbemcli", description = "\nList of valid options: \n", footer = WbemCli.FOOTER, usageHelpWidth = 180)
 public class WbemCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -83,11 +83,11 @@ public class WbemCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		wbem <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
+		wbemcli <HOSTNAME> --namespace <NAMESPACE> --query <QUERY> --username <USERNAME> --password <PASSWORD> --vcenter <VCENTER> --transport <PROTOCOL> --port <PORT> --timeout <TIMEOUT>
 
-		wbem esx-01 --namespace "root/cimv2" --query="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity" --username username --password password --vcenter hci-vcenter
+		wbemcli esx-01 --namespace "root/cimv2" --query="SELECT MajorVersion FROM VMware_HypervisorSoftwareIdentity" --username username --password password --vcenter hci-vcenter
 
-		wbem emc-san --namespace "root/emc" --query "SELECT DeviceID FROM EMC_DiskDrive" --transport https --username username --password password
+		wbemcli emc-san --namespace "root/emc" --query "SELECT DeviceID FROM EMC_DiskDrive" --transport https --username username --password password
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";

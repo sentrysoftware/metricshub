@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.09-SNAPSHOT</version>
+		<version>1.0.02-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-internaldb-extension</artifactId>
@@ -52,11 +52,6 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.snmp4j</groupId>
-			<artifactId>snmp4j-agent</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -118,7 +113,7 @@
 										<limit>
 											<counter>COMPLEXITY</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.5</minimum>
+											<minimum>0.66</minimum>
 										</limit>
 									</limits>
 								</rule>

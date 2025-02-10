@@ -23,12 +23,14 @@ package org.sentrysoftware.metricshub.extension.internaldb;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,18 +77,19 @@ public class SqlClientExecutor {
 
 		final String hostId = telemetryManager.getHostConfiguration().getHostId();
 		final String connectionName = "jdbc:h2:mem:" + hostId + UUID.randomUUID().toString();
-
 		// Creation of the connection to the H2 database in memory
 		try (Connection connection = DriverManager.getConnection(connectionName)) {
+			connection.setAutoCommit(false);
+
 			// Prepare the SQL tables
 			for (SqlTable sqlTable : sqlTables) {
 				createAndInsert(sqlTable, connection);
 			}
 
 			return executeQuery(query, connection);
-		} catch (SQLException exception) {
+		} catch (Exception exception) {
 			log.error("Error when creating the database for the Internal DB Query: {}", exception.getMessage());
-			log.debug("SQL Exception: ", exception);
+			log.debug("Exception: ", exception);
 			return new ArrayList<>();
 		}
 	}
@@ -99,7 +102,7 @@ public class SqlClientExecutor {
 	 * @param connection The connection to the database.
 	 * @return The result of the query.
 	 */
-	private List<List<String>> executeQuery(final String query, Connection connection) {
+	private List<List<String>> executeQuery(final String query, final Connection connection) {
 		final List<List<String>> result = new ArrayList<>();
 
 		try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query)) {
@@ -144,6 +147,7 @@ public class SqlClientExecutor {
 			final Statement statement = connection.createStatement();
 
 			statement.execute(createTableQuery);
+			connection.commit();
 			log.debug("Executing CREATE TABLE query: {}", createTableQuery);
 		} catch (SQLException exception) {
 			log.error("Error when executing CREATE TABLE query {}: {}", createTableQuery, exception.getMessage());
@@ -151,19 +155,88 @@ public class SqlClientExecutor {
 			return;
 		}
 
-		final String insertTableQuery = insertTableQuery(sqlTable);
-		if (insertTableQuery == null) {
+		insertTableDataBatch(sqlTable, connection);
+	}
+
+	/**
+	 * Insert the data from the {@link SourceTable} corresponding to the {@link SqlTable} object into the SQL table
+	 *
+	 * @param sqlTable   The table to insert the data from.
+	 * @param connection The connection to the database.
+	 */
+	private void insertTableDataBatch(final SqlTable sqlTable, final Connection connection) {
+		final SourceTable sourceTable = SourceTable
+			.lookupSourceTable(sqlTable.getSource(), connectorId, telemetryManager)
+			.orElse(null);
+		if (sourceTable == null) {
+			log.error(
+				"The source table {} is not found during the Internal DB Query job. Skip processing.",
+				sqlTable.getSource()
+			);
 			return;
 		}
 
-		try {
-			final Statement statement = connection.createStatement();
+		List<List<String>> table = sourceTable.getTable();
+		if (table == null || table.isEmpty()) {
+			log.error("The source table {} is empty. Skip Internal DB Query job processing.", sqlTable.getSource());
+			return;
+		}
 
-			statement.execute(insertTableQuery);
-			log.debug("Executing INSERT TABLE query: {}", insertTableQuery);
-		} catch (SQLException exception) {
-			log.error("Error when executing INSERT TABLE query {}: {}", insertTableQuery, exception.getMessage());
-			log.debug("INSERT TABLE SQL Exception: ", exception);
+		// Build the INSERT statement with placeholders
+		final String alias = sqlTable.getAlias().strip();
+		final List<SqlColumn> columns = sqlTable.getColumns();
+		final List<String> columnNames = columns.stream().map(SqlColumn::getName).toList();
+
+		final String joinedColumnNames = String.join(",", columnNames);
+		final String placeholders = String.join(",", columns.stream().map(c -> "?").toArray(String[]::new));
+
+		final String insertSQL = "INSERT INTO " + alias + " (" + joinedColumnNames + ") VALUES (" + placeholders + ")";
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+			// Prepare column metadata map
+			final Map<String, ColumnMetadata> columnMetadataMap = DatabaseHelper.prepareColumnMetadata(
+				preparedStatement,
+				columnNames
+			);
+
+			int batchSize = 1000; // this can be configured later if needed
+			int count = 0;
+
+			for (final List<String> row : table) {
+				for (final SqlColumn sqlColumn : columns) {
+					final ColumnMetadata metadata = columnMetadataMap.get(sqlColumn.getName());
+					final String value = row.get(sqlColumn.getNumber() - 1);
+					final boolean persisted = DatabaseHelper.set(value, metadata, preparedStatement);
+					if (!persisted) {
+						log.error(
+							"Error when setting value {} for column {} in lookup source table {}",
+							value,
+							sqlColumn.getName(),
+							sqlTable.getSource()
+						);
+					}
+				}
+
+				preparedStatement.addBatch();
+				count++;
+
+				// Execute batch and clear cache periodically
+				if (count % batchSize == 0) {
+					preparedStatement.executeBatch();
+					preparedStatement.clearBatch(); // Clears PreparedStatement cache
+					connection.commit();
+					log.debug("Batch INSERT executed: {} rows committed.", batchSize);
+				}
+			}
+
+			// Execute remaining batch
+			preparedStatement.executeBatch();
+			preparedStatement.clearBatch(); // Clears final cache
+			connection.commit();
+			log.debug("Final batch INSERT completed for table: {}. Total rows committed: {}", alias, count);
+		} catch (Exception exception) {
+			log.error("Error when batch inserting for table {}: {}", alias, exception.getMessage());
+			log.debug("Batch Insert SQL Exception: ", exception);
 		}
 	}
 
@@ -215,79 +288,5 @@ public class SqlClientExecutor {
 		queryBuilder.append(");");
 
 		return queryBuilder.toString();
-	}
-
-	/**
-	 * Create the INSERT SQL query needed to insert the values in the {@link SqlTable} into a SQL Database.
-	 * @param sqlTable The table to insert the data from.
-	 * @return The resulting SQL query.
-	 */
-	private String insertTableQuery(final SqlTable sqlTable) {
-		StringBuilder queryBuilder = new StringBuilder();
-		queryBuilder.append("INSERT INTO ");
-
-		final String alias = sqlTable.getAlias().strip();
-
-		queryBuilder.append(alias);
-		queryBuilder.append(" (");
-
-		final List<String> columnNames = new ArrayList<>();
-
-		sqlTable.getColumns().stream().forEach(sqlColumn -> columnNames.add(sqlColumn.getName()));
-
-		queryBuilder.append(String.join(",", columnNames));
-		queryBuilder.append(") VALUES ");
-
-		final String valuesToInsert = formatInsertValues(sqlTable);
-
-		// If there is no value to insert, we stop the job completely
-		if (valuesToInsert == null) {
-			return null;
-		}
-
-		queryBuilder.append(valuesToInsert);
-		queryBuilder.append(";");
-
-		return queryBuilder.toString();
-	}
-
-	/**
-	 * Extract the {@link SourceTable} from a {@link SqlTable}, extract its data and format them for a INSERT SQL query.
-	 * @param sqlTable The table to extract the {@link SourceTable} and the {@link SqlColumn} from.
-	 * @return The formated data.
-	 */
-	private String formatInsertValues(final SqlTable sqlTable) {
-		SourceTable sourceTable = SourceTable.lookupSourceTable(sqlTable.getSource(), connectorId, telemetryManager).get();
-
-		if (sourceTable == null) {
-			log.error(
-				"The source table {} is not found during the Internal DB Query job. Skip processing.",
-				sqlTable.getSource()
-			);
-			return null;
-		}
-
-		List<List<String>> table = sourceTable.getTable();
-
-		if (table == null || table.isEmpty()) {
-			log.error("The source table {} is empty. Skip Internal DB Query job processing.", sqlTable.getSource());
-			return null;
-		}
-
-		final List<SqlColumn> sqlColumns = sqlTable.getColumns();
-
-		final List<String> columnValues = new ArrayList<>();
-
-		for (final List<String> row : table) {
-			final List<String> rowValues = new ArrayList<>();
-			for (final SqlColumn sqlColumn : sqlColumns) {
-				final String separator = sqlColumn.getType().contains("CHAR") ? "'" : "";
-				final String value = row.get(sqlColumn.getNumber() - 1);
-				rowValues.add(value != null && !value.isEmpty() ? (separator + value + separator) : "NULL");
-			}
-			columnValues.add("(" + String.join(",", rowValues) + ")");
-		}
-
-		return String.join(",", columnValues);
 	}
 }

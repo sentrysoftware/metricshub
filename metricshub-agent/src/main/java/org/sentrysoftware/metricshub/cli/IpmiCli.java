@@ -47,7 +47,7 @@ import picocli.CommandLine.Spec;
 /**
  * CLI for executing IPMI queries with validation and support for various operations.
  */
-@Command(name = "ipmi", description = "\nList of valid options: \n", footer = IpmiCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "ipmicli", description = "\nList of valid options: \n", footer = IpmiCli.FOOTER, usageHelpWidth = 180)
 public class IpmiCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -63,9 +63,9 @@ public class IpmiCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		ipmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
+		ipmicli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --bmc-key <KEY> --timeout <TIMEOUT> --skip-auth <BOOLEAN>
 
-		ipmi dev-01 --username username --password password --bmc-key AE4C7AB47FD --timeout 1m --skip-auth false
+		ipmicli dev-01 --username username --password password --bmc-key AE4C7AB47FD --timeout 1m --skip-auth false
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
