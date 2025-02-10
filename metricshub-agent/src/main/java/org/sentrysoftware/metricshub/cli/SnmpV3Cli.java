@@ -181,7 +181,7 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	private int port;
 
 	@Option(
-		names = "--retryIntervals",
+		names = { "--retry-intervals", "--retry" },
 		order = 9,
 		paramLabel = "RETRY INTERVALS",
 		split = ",",
