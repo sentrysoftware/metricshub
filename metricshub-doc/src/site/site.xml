@@ -4,7 +4,7 @@
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
 		<artifactId>sentry-maven-skin</artifactId>
-		<version>6.4.00</version>
+		<version>6.4.01</version>
 	</skin>
 
 	<bannerLeft>
@@ -80,7 +80,9 @@
 
 		<menu name="Introduction">
 			<item name="Overview" href="index.html" />
+			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
+			<item name="Connectors Full Listing" href="metricshub-connectors-full-listing.html" />
 		</menu>
 
 		<menu name="Installation">
@@ -93,17 +95,46 @@
 
 		<menu name="Configuration">
 			<item name="Monitoring Configuration" href="configuration/configure-monitoring.html" />
-			<item name="Sending Telemetry" href="configuration/send-telemetry.html" />
+			<item name="Sending Telemetry Data" href="configuration/send-telemetry.html" />
 			<item name="Password Encryption" href="security/passwords.html" />
 		</menu>
 
+		<menu name="Integration">
+			<item name="Prometheus" href="prometheus/prometheus.html">
+				<item name="Prometheus AlertManager" href="prometheus/alertmanager.html" />
+				<item name="Grafana Dashboards" href="prometheus/grafana.html" />
+			</item>
+		</menu>
+
 		<menu name="Guides">
-			<item name="Quick Start - Windows" href="guides/quick-start-community-prometheus-windows.html"/>
-			<item name="Quick Start - Linux" href="guides/quick-start-community-prometheus-linux.html"/>
-			<item name="Sustainability" href="guides/configure-sustainability-metrics.html" />
+			<item name="Quick Start (Community Edition)" href="guides/quick-start-community-prometheus.html"/>
+			<item name="Sustainability " href="guides/configure-sustainability-metrics.html" />
 			<item name="Health Check (Enterprise Edition)" href="guides/status.html" />
-			<item name="Debugging" href="guides/debug.html" />
-			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="guides/cli.html" />
+		</menu>
+
+		<menu name="Troubleshooting">
+			<item name="Overview" href="troubleshooting/index.html"/>
+			<item name="Degraded Performance" href="troubleshooting/degraded-performance.html"/>
+			<item name="No Data for a Specific Resource" href="troubleshooting/no-data-resources.html"/>
+			<item name="No Data in Observability Platforms" href="troubleshooting/no-data-observability-platforms.html"/>
+			<item name="MetricsHub Logs" href="troubleshooting/metricshub-logs.html"/>
+			<item name="OTel Logs" href="troubleshooting/otel-logs.html"/>
+			<item name="Protocol CLIs" href="troubleshooting/cli/index.html">
+				<item name="HTTP CLI" href="troubleshooting/cli/http.html"/>
+				<item name="IPMI CLI" href="troubleshooting/cli/ipmi.html"/>
+				<item name="JDBC CLI" href="troubleshooting/cli/jdbc.html"/>
+				<item name="Ping CLI" href="troubleshooting/cli/ping.html"/>
+				<item name="SNMP CLI" href="troubleshooting/cli/snmp.html"/>
+				<item name="SNMPv3 CLI" href="troubleshooting/cli/snmpv3.html"/>
+				<item name="SSH CLI" href="troubleshooting/cli/ssh.html"/>
+				<item name="WBEM CLI" href="troubleshooting/cli/wbem.html"/>
+				<item name="WinRm CLI" href="troubleshooting/cli/winrm.html"/>
+				<item name="WMI CLI" href="troubleshooting/cli/wmi.html"/>
+			</item>
+		</menu>
+
+		<menu name="Appendix">
+			<item name="MetricsHub CLI (&lt;code&gt;metricshub&lt;/code&gt;)" href="appendix/cli.html" />
 		</menu>
 	</body>
 </project>

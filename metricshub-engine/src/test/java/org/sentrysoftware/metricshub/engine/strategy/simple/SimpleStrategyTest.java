@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.simple;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -10,6 +11,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorTy
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.ENCLOSURE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
+import static org.sentrysoftware.metricshub.engine.constants.Constants.STATUS_INFORMATION;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,7 +60,7 @@ class SimpleStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(HOST.getKey()).isEndpoint(true).build();
 		hostMonitor.getAttributes().put(IS_ENDPOINT, "true");
 
 		final Monitor connectorMonitor = Monitor.builder().type(CONNECTOR.getKey()).build();
@@ -175,6 +177,89 @@ class SimpleStrategyTest {
 		assertEquals(
 			1.0,
 			diskController.getMetric("hw.status{hw.type=\"disk_controller\"}", NumberMetric.class).getValue()
+		);
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing success case)
+		assertEquals(
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test succeeded:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on ec-02 SUCCEEDED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"disk_controller\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"enclosure\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("monitor1")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"simple\", monitor.type=\"connector\", connector_id=\"TestConnectorWithSimple\"}"
+				)
+				.getValue()
+		);
+
+		// Mock detection criteria result to switch to a failing criterion processing case
+		doReturn(CriterionTestResult.failure(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
+
+		// Call DiscoveryStrategy to discover the monitors
+		simpleStrategy.run();
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
+		assertEquals(
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test ran but failed:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Actual result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on ec-02 FAILED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
 		);
 	}
 }

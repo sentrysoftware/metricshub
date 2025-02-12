@@ -47,9 +47,4 @@ public class ConnectionTypeSetDeserializer extends AbstractCollectionDeserialize
 	protected Collector<ConnectionType, ?, Collection<ConnectionType>> collector() {
 		return Collectors.toCollection(HashSet::new);
 	}
-
-	@Override
-	protected Collection<ConnectionType> fromCollection(Collection<ConnectionType> collection) {
-		return new HashSet<>(collection);
-	}
 }

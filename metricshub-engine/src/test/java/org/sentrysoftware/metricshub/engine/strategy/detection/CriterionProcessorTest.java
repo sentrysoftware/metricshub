@@ -36,7 +36,6 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.SUCCESSFU
 import static org.sentrysoftware.metricshub.engine.constants.Constants.SYSTEM_POWER_UP_MESSAGE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.TEST_BODY;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.TWGIPC;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WBEM_QUERY;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.WEBM_CRITERION_SUCCESS_EXPECTED_RESULT;
 
@@ -286,7 +285,7 @@ class CriterionProcessorTest {
 
 		doReturn(Set.of(ServiceCriterion.class)).when(protocolExtensionMock).getSupportedCriteria();
 
-		final ServiceCriterion serviceCriterion = ServiceCriterion.builder().name(TWGIPC).build();
+		final ServiceCriterion serviceCriterion = ServiceCriterion.builder().name("TWGIPC").build();
 
 		final CriterionTestResult expected = CriterionTestResult.builder().success(true).message("success").build();
 
@@ -615,12 +614,14 @@ class CriterionProcessorTest {
 			.build();
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
 
+		final DeviceTypeCriterion deviceTypeCriterion = DeviceTypeCriterion.builder().build();
 		// Init CriterionTestResult success and failure instances
 		final CriterionTestResult successfulTestResult = CriterionTestResult
 			.builder()
 			.message(SUCCESSFUL_OS_DETECTION)
 			.result(CONFIGURED_OS_NT_MESSAGE)
 			.success(true)
+			.criterion(deviceTypeCriterion)
 			.build();
 
 		final CriterionTestResult failedTestResult = CriterionTestResult
@@ -628,11 +629,11 @@ class CriterionProcessorTest {
 			.message(FAILED_OS_DETECTION)
 			.result(CONFIGURED_OS_NT_MESSAGE)
 			.success(false)
+			.criterion(deviceTypeCriterion)
 			.build();
 
 		// Test configured NETWORK OS
 
-		final DeviceTypeCriterion deviceTypeCriterion = DeviceTypeCriterion.builder().build();
 		assertEquals(successfulTestResult, criterionProcessor.process(deviceTypeCriterion));
 
 		// Include NETWORK OS
@@ -825,6 +826,7 @@ class CriterionProcessorTest {
 				.result(SYSTEM_POWER_UP_MESSAGE)
 				.message(IPMI_CONNECTION_SUCCESS_WITH_IMPI_OVER_LAN_MESSAGE)
 				.success(true)
+				.criterion(ipmiCriterion)
 				.build(),
 			criterionProcessor.process(new IpmiCriterion())
 		);
@@ -857,7 +859,6 @@ class CriterionProcessorTest {
 			MY_CONNECTOR_1_NAME,
 			extensionManager
 		);
-
 		assertEquals(CriterionTestResult.empty(), criterionProcessor.process(new IpmiCriterion()));
 	}
 

@@ -36,6 +36,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 
@@ -60,6 +61,7 @@ public class CriterionProcessorRegistry {
 		registerProcessor(SnmpGetNextCriterion.class, (criterion, processor) -> processor.process((SnmpGetNextCriterion) criterion));
 		registerProcessor(WmiCriterion.class, (criterion, processor) -> processor.process((WmiCriterion) criterion));
 		registerProcessor(WbemCriterion.class, (criterion, processor) -> processor.process((WbemCriterion) criterion));
+		registerProcessor(SqlCriterion.class, (criterion, processor) -> processor.process((SqlCriterion) criterion));
 	}
 
 	// @formatter:on

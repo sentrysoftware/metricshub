@@ -97,20 +97,16 @@ class AutomaticDetectionTest {
 		final Set<String> connectors = new HashSet<>();
 		connectors.add("-" + CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
-		HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			connectors,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null
-		);
-
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId("hostId")
+			.hostType(DeviceKind.WINDOWS)
+			.resolveHostnameToFqdn(false)
+			.connectors(connectors)
+			.configurations(configurations)
+			.retryDelay(0)
+			.build();
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
 		final ConnectorStore connectorStore = new ConnectorStore(storePath);
@@ -147,19 +143,16 @@ class AutomaticDetectionTest {
 		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(TestConfiguration.class, new TestConfiguration());
-		final HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			connectors,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null
-		);
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId("hostId")
+			.hostType(DeviceKind.WINDOWS)
+			.resolveHostnameToFqdn(false)
+			.connectors(connectors)
+			.configurations(configurations)
+			.retryDelay(0)
+			.build();
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -212,19 +205,16 @@ class AutomaticDetectionTest {
 		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(TestConfiguration.class, new TestConfiguration());
-		final HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			connectors,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null
-		);
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId("hostId")
+			.hostType(DeviceKind.WINDOWS)
+			.resolveHostnameToFqdn(false)
+			.connectors(connectors)
+			.configurations(configurations)
+			.retryDelay(0)
+			.build();
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -277,19 +267,16 @@ class AutomaticDetectionTest {
 		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(TestConfiguration.class, new TestConfiguration());
-		final HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			connectors,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null
-		);
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId("hostId")
+			.hostType(DeviceKind.WINDOWS)
+			.resolveHostnameToFqdn(false)
+			.connectors(connectors)
+			.configurations(configurations)
+			.retryDelay(0)
+			.build();
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();
@@ -342,19 +329,16 @@ class AutomaticDetectionTest {
 		connectors.add(CONNECTOR);
 		final Map<Class<? extends IConfiguration>, IConfiguration> configurations = new HashMap<>();
 		configurations.put(TestConfiguration.class, new TestConfiguration());
-		final HostConfiguration hostConfiguration = new HostConfiguration(
-			LOCALHOST,
-			"hostId",
-			DeviceKind.WINDOWS,
-			0,
-			connectors,
-			true,
-			null,
-			0,
-			null,
-			configurations,
-			null
-		);
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.hostname(LOCALHOST)
+			.hostId("hostId")
+			.hostType(DeviceKind.WINDOWS)
+			.resolveHostnameToFqdn(false)
+			.connectors(connectors)
+			.configurations(configurations)
+			.retryDelay(0)
+			.build();
 
 		final File store = new File(DETECTION_FOLDER);
 		final Path storePath = store.toPath();

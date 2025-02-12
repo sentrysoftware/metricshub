@@ -136,13 +136,9 @@ public class PingExtension implements IProtocolExtension {
 		try {
 			return newObjectMapper().treeToValue(jsonNode, PingConfiguration.class);
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading Ping Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading Ping Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading Ping Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading Ping Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
@@ -166,5 +162,13 @@ public class PingExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode query) throws Exception {
+		final PingConfiguration pingConfiguration = (PingConfiguration) configuration;
+		return String.valueOf(
+			pingRequestExecutor.ping(pingConfiguration.getHostname(), (int) pingConfiguration.getTimeout().longValue() * 1000)
+		);
 	}
 }

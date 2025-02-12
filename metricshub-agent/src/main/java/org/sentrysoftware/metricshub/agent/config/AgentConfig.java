@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -95,7 +96,12 @@ public class AgentConfig {
 	private boolean sequential;
 
 	@Default
-	private boolean resolveHostnameToFqdn = true;
+	private boolean enableSelfMonitoring = true;
+
+	private boolean resolveHostnameToFqdn;
+
+	@JsonSetter(nulls = SKIP)
+	private Set<String> monitorFilters;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

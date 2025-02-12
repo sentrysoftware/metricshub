@@ -84,7 +84,7 @@ public class UnixIpmiSourceProcessor {
 			: OsCommandConfiguration.DEFAULT_TIMEOUT;
 
 		// fru command
-		String fruCommand = ipmitoolCommand + "fru";
+		String fruCommand = ipmitoolCommand + " fru";
 		String fruResult;
 		try {
 			if (isLocalHost) {
@@ -112,7 +112,7 @@ public class UnixIpmiSourceProcessor {
 		}
 
 		// "-v sdr elist all"
-		String sdrCommand = ipmitoolCommand + "-v sdr elist all";
+		String sdrCommand = ipmitoolCommand + " -v sdr elist all";
 		String sensorResult;
 		try {
 			if (isLocalHost) {

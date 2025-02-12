@@ -1,6 +1,6 @@
 connector:
   displayName: testConnector
-  platforms: testPlatforms
+  platforms: testPlatform1, testPlatform2, testPlatform3
   reliesOn: testReliesOn
   version:  1.0.0
   projectVersion: 20

@@ -1,0 +1,17 @@
+connector:
+  detection:
+    appliesTo: Windows
+
+beforeAll:
+  commandLine1:
+    type: commandLine
+    commandLine: myCommand
+    timeout: 30
+    executeLocally: true
+    exclude: excludeRegExp
+    keep: keepRegExp
+    beginAtLineNumber: 2
+    endAtLineNumber: 10
+    separators: ",;"
+    selectColumns: "1-6"
+    forceSerialization: true

@@ -44,6 +44,8 @@ public class CriterionTestResult {
 
 	private Throwable exception;
 
+	private Criterion criterion;
+
 	/**
 	 * Creates an empty criterion test result.
 	 *
@@ -68,7 +70,7 @@ public class CriterionTestResult {
 			criterion.toString(),
 			result
 		);
-		return CriterionTestResult.builder().success(false).message(message).result(result).build();
+		return CriterionTestResult.builder().success(false).message(message).result(result).criterion(criterion).build();
 	}
 
 	/**
@@ -93,7 +95,7 @@ public class CriterionTestResult {
 					reason
 				);
 		}
-		return CriterionTestResult.builder().success(false).message(message).exception(t).build();
+		return CriterionTestResult.builder().success(false).message(message).exception(t).criterion(criterion).build();
 	}
 
 	/**
@@ -148,6 +150,32 @@ public class CriterionTestResult {
 			result
 		);
 
-		return CriterionTestResult.builder().success(true).message(message).result(result).build();
+		return CriterionTestResult.builder().success(true).message(message).result(result).criterion(criterion).build();
+	}
+
+	/**
+	 * Formats and displays the criterion message in a structured, readable format.
+	 * The output includes information about the executed criterion, its details,
+	 * the result, and an additional message, each presented in distinct sections.
+	 * @return a formatted string that displays the criterion name, details, result, and message.
+	 */
+	public String displayCriterionMessage() {
+		return String.format(
+			"Executed %s Criterion:\n" +
+			"%s\n" +
+			"\n" +
+			"Result:\n" +
+			"%s\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"%s\n" +
+			"====================================\n" +
+			"\n",
+			criterion.getClass().getSimpleName(),
+			criterion.toString(),
+			result != null ? result : "N/A",
+			message != null ? message : "N/A"
+		);
 	}
 }

@@ -46,6 +46,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.P
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.ServiceCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SnmpGetNextCriterion;
+import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.SqlCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WmiCriterion;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
@@ -126,6 +127,7 @@ public class CriterionProcessor {
 				.message("Failed OS detection operation")
 				.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
 				.success(false)
+				.criterion(deviceTypeCriterion)
 				.build();
 		}
 
@@ -134,6 +136,7 @@ public class CriterionProcessor {
 			.message(SUCCESSFUL_OS_DETECTION_MESSAGE)
 			.result(CONFIGURE_OS_TYPE_MESSAGE + deviceKind.name())
 			.success(true)
+			.criterion(deviceTypeCriterion)
 			.build();
 	}
 
@@ -243,6 +246,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: No test will be performed.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -253,6 +257,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: No test will be performed remotely.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -264,6 +269,7 @@ public class CriterionProcessor {
 				.success(true)
 				.message("Process presence check: OS unknown, no test will be performed.")
 				.result(null)
+				.criterion(processCriterion)
 				.build();
 		}
 
@@ -277,6 +283,7 @@ public class CriterionProcessor {
 		final CriterionTestResult result = localOSVisitor.getCriterionTestResult();
 
 		if (result != null) {
+			result.setCriterion(processCriterion);
 			return result;
 		} else {
 			return CriterionTestResult.error(
@@ -302,7 +309,7 @@ public class CriterionProcessor {
 			productRequirementsCriterion.getEngineVersion() == null ||
 			productRequirementsCriterion.getEngineVersion().isBlank()
 		) {
-			return CriterionTestResult.builder().success(true).build();
+			return CriterionTestResult.builder().success(true).criterion(productRequirementsCriterion).build();
 		}
 
 		return CriterionTestResult
@@ -313,6 +320,7 @@ public class CriterionProcessor {
 					VersionHelper.getClassVersion()
 				)
 			)
+			.criterion(productRequirementsCriterion)
 			.build();
 	}
 
@@ -355,7 +363,13 @@ public class CriterionProcessor {
 			telemetryManager
 		);
 		return maybeExtension
-			.map(extension -> extension.processCriterion(criterion, connectorId, telemetryManager))
+			.map(extension -> {
+				CriterionTestResult result = extension.processCriterion(criterion, connectorId, telemetryManager);
+				if (result != null) {
+					result.setCriterion(criterion);
+				}
+				return result;
+			})
 			.orElseGet(CriterionTestResult::empty);
 	}
 
@@ -390,6 +404,17 @@ public class CriterionProcessor {
 	@WithSpan("Criterion WBEM Exec")
 	public CriterionTestResult process(@SpanAttribute("criterion.definition") WbemCriterion wbemCriterion) {
 		return processCriterionThroughExtension(wbemCriterion);
+	}
+
+	/**
+	 * Process the given {@link SqlCriterion} through Client and return the {@link CriterionTestResult}
+	 *
+	 * @param sqlCriterion The SQL criterion to process.
+	 * @return The result of the criterion test processing.
+	 */
+	@WithSpan("Criterion SQL Exec")
+	public CriterionTestResult process(@SpanAttribute("criterion.definition") SqlCriterion sqlCriterion) {
+		return processCriterionThroughExtension(sqlCriterion);
 	}
 
 	/**

@@ -2,6 +2,8 @@ package org.sentrysoftware.metricshub.cli.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.sentrysoftware.metricshub.cli.service.PrettyPrinterService.ATTRIBUTES_HEADER;
+import static org.sentrysoftware.metricshub.cli.service.PrettyPrinterService.RESOURCE_HEADER;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,6 +18,7 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 class PrettyPrinterServiceTest {
@@ -65,6 +68,9 @@ class PrettyPrinterServiceTest {
 					"is_endpoint",
 					"true"
 				)
+			)
+			.resource(
+				Resource.builder().attributes(Map.of("host.type", "compute", "host.name", "host-1", "os.type", "linux")).build()
 			)
 			.isEndpoint(true)
 			.build();
@@ -253,7 +259,8 @@ class PrettyPrinterServiceTest {
 		printWriter.print(COLON_PREFIX);
 		printWriter.println(Ansi.ansi().fgCyan().a(host.getAttribute(NAME_ATTRIBUTE_KEY)).reset().toString());
 
-		prettyPrinterService.printAttributes(host, 2);
+		prettyPrinterService.printAttributes(host.getAttributes(), 2, ATTRIBUTES_HEADER);
+		prettyPrinterService.printAttributes(host.getResource().getAttributes(), 2, RESOURCE_HEADER);
 		prettyPrinterService.printMetrics(host, 2);
 
 		printWriter.println();
@@ -272,7 +279,7 @@ class PrettyPrinterServiceTest {
 		printWriter.print(COLON_PREFIX);
 		printWriter.println(Ansi.ansi().fgCyan().a(enclosure.getAttribute(NAME_ATTRIBUTE_KEY)).reset().toString());
 
-		prettyPrinterService.printAttributes(enclosure, 6);
+		prettyPrinterService.printAttributes(enclosure.getAttributes(), 6, ATTRIBUTES_HEADER);
 		prettyPrinterService.printMetrics(enclosure, 6);
 
 		printWriter.println();
@@ -291,7 +298,7 @@ class PrettyPrinterServiceTest {
 		printWriter.print(COLON_PREFIX);
 		printWriter.println(Ansi.ansi().fgCyan().a(battery1.getAttribute(NAME_ATTRIBUTE_KEY)).reset().toString());
 
-		prettyPrinterService.printAttributes(battery1, 10);
+		prettyPrinterService.printAttributes(battery1.getAttributes(), 10, ATTRIBUTES_HEADER);
 		prettyPrinterService.printMetrics(battery1, 10);
 
 		printWriter.println();
@@ -304,7 +311,7 @@ class PrettyPrinterServiceTest {
 		printWriter.print(COLON_PREFIX);
 		printWriter.println(Ansi.ansi().fgCyan().a(battery2.getAttribute(NAME_ATTRIBUTE_KEY)).reset().toString());
 
-		prettyPrinterService.printAttributes(battery2, 10);
+		prettyPrinterService.printAttributes(battery2.getAttributes(), 10, ATTRIBUTES_HEADER);
 		prettyPrinterService.printMetrics(battery2, 10);
 
 		printWriter.println();

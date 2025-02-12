@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -141,5 +142,15 @@ public class JsonHelper {
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
 			.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
 			.build();
+	}
+
+	/**
+	 * Checks if a JsonNode is not null and does not represent a JSON null value.
+	 *
+	 * @param jsonNode the JsonNode to check
+	 * @return {@code true} if the JsonNode is not null and not a JSON null; {@code false} otherwise
+	 */
+	public static boolean isNotNull(final JsonNode jsonNode) {
+		return jsonNode != null && !jsonNode.isNull();
 	}
 }

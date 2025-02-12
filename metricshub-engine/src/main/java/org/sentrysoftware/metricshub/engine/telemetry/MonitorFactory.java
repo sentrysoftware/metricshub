@@ -226,7 +226,7 @@ public class MonitorFactory {
 			"host.id",
 			hostConfiguration.getHostId(),
 			HOST_NAME,
-			NetworkHelper.getFqdn(hostname),
+			hostConfiguration.isResolveHostnameToFqdn() ? NetworkHelper.getFqdn(hostname) : hostname,
 			"host.type",
 			hostType,
 			"os.type",

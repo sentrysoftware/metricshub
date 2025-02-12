@@ -44,7 +44,7 @@ class WbemConfigCliTest {
 				.thenReturn(extensionManager);
 
 			// Create a WbemTestConfiguration and call method toProtocol
-			final WbemConfiguration wbemConfiguration = (WbemConfiguration) wbemConfigCli.toProtocol(username, password);
+			final WbemConfiguration wbemConfiguration = (WbemConfiguration) wbemConfigCli.toConfiguration(username, password);
 
 			assertNotNull(wbemConfiguration);
 
@@ -57,7 +57,7 @@ class WbemConfigCliTest {
 				.vCenter(vCenter)
 				.build();
 
-			assertEquals(wbemConfigurationExpected, wbemConfigCli.toProtocol(username, password));
+			assertEquals(wbemConfigurationExpected, wbemConfigCli.toConfiguration(username, password));
 		}
 	}
 

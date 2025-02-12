@@ -1,7 +1,9 @@
 package org.sentrysoftware.metricshub.extension.win;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import java.util.Collections;
 import java.util.Map;
@@ -12,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
+import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
 import org.sentrysoftware.metricshub.engine.strategy.utils.OsCommandResult;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,5 +73,39 @@ class WinCommandServiceTest {
 
 		final OsCommandResult result = winCommandService.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration, Map.of());
 		assertEquals(new OsCommandResult(expectedToBeReturned, COMMAND_LINE), result);
+	}
+
+	@Test
+	void testRunOsCommandWithNullUsername() throws Exception {
+		// Null username case to trigger NoCredentialProvidedException
+		final WmiTestConfiguration wmiConfiguration = WmiTestConfiguration.builder().password(PASSWORD).build();
+
+		assertThrows(
+			NoCredentialProvidedException.class,
+			() -> {
+				winCommandService.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration, Map.of());
+			}
+		);
+	}
+
+	@Test
+	void testRunOsCommandThrowsClientException() throws Exception {
+		final WmiTestConfiguration wmiConfiguration = WmiTestConfiguration
+			.builder()
+			.username(USERNAME)
+			.password(PASSWORD)
+			.build();
+
+		// Mocking ClientException to be thrown by the executor
+		doThrow(new ClientException("Client error"))
+			.when(winRequestExecutorMock)
+			.executeWinRemoteCommand(HOST_NAME, wmiConfiguration, COMMAND_LINE, Collections.emptyList());
+
+		assertThrows(
+			ClientException.class,
+			() -> {
+				winCommandService.runOsCommand(COMMAND_LINE, HOST_NAME, wmiConfiguration, Map.of());
+			}
+		);
 	}
 }

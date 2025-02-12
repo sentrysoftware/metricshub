@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.WbemCriterion;
@@ -208,13 +210,9 @@ public class WbemExtension implements IProtocolExtension {
 
 			return wbemConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading WBEM Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading WBEM Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading WBEM Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading WBEM Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
@@ -238,5 +236,27 @@ public class WbemExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
+		final WbemConfiguration wbemConfiguration = (WbemConfiguration) configuration;
+		final String query = queryNode.get("query").asText();
+		// execute Wbem query
+		final List<List<String>> result = wbemRequestExecutor.executeWbem(
+			configuration.getHostname(),
+			wbemConfiguration,
+			query,
+			wbemConfiguration.getNamespace(),
+			new TelemetryManager()
+		);
+
+		// return a text table containing the WBEM query result.
+		final String[] columns = StringHelper.extractColumns(query);
+		if (columns.length == 1 && columns[0].equals("*")) {
+			return TextTableHelper.generateTextTable(result);
+		} else {
+			return TextTableHelper.generateTextTable(columns, result);
+		}
 	}
 }

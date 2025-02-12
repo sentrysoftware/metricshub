@@ -25,6 +25,8 @@ import static com.fasterxml.jackson.annotation.Nulls.SKIP;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Arrays;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -35,6 +37,7 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
 /**
@@ -68,7 +71,12 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 	@JsonDeserialize(using = TimeDeserializer.class)
 	private final Long timeout = 120L;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
+
+	@JsonSetter(nulls = SKIP)
+	private int[] retryIntervals;
 
 	@Override
 	public String toString() {
@@ -164,6 +172,19 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 					timeout
 				)
 		);
+
+		StringHelper.validateConfigurationAttribute(
+			retryIntervals,
+			attr -> Objects.nonNull(attr) && Arrays.stream(attr).allMatch(value -> value < 1),
+			() ->
+				String.format(
+					"Resource %s - retryIntervals value is invalid for protocol %s." +
+					" retryIntervals value returned: %s. This resource will not be monitored. Please verify the configured retryIntervals value.",
+					resourceKey,
+					displayName,
+					retryIntervals
+				)
+		);
 	}
 
 	@Override
@@ -173,6 +194,14 @@ public class SnmpConfiguration implements ISnmpConfiguration {
 
 	@Override
 	public IConfiguration copy() {
-		return SnmpConfiguration.builder().community(community).port(port).timeout(timeout).version(version).build();
+		return SnmpConfiguration
+			.builder()
+			.community(community)
+			.port(port)
+			.timeout(timeout)
+			.retryIntervals(retryIntervals)
+			.version(version)
+			.hostname(hostname)
+			.build();
 	}
 }

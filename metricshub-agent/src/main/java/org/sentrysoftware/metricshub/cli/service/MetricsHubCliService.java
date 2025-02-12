@@ -45,6 +45,7 @@ import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.cli.service.converter.DeviceKindConverter;
 import org.sentrysoftware.metricshub.cli.service.protocol.HttpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.IpmiConfigCli;
+import org.sentrysoftware.metricshub.cli.service.protocol.JdbcConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SnmpV3ConfigCli;
 import org.sentrysoftware.metricshub.cli.service.protocol.SshConfigCli;
@@ -102,7 +103,8 @@ import picocli.CommandLine.Spec;
 		"@|bold ${ROOT-COMMAND-NAME}|@ " +
 		"@|yellow HOSTNAME|@ " +
 		"@|yellow -t|@=@|italic TYPE|@ " +
-		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
+		"<@|yellow --http|@|@|yellow --https|@|@|yellow --ipmi|@|@|yellow --jdbc|@|@|yellow " +
+		"--snmp|@=@|italic VERSION|@|@|yellow --ssh|@|@|yellow --wbem|@|@|yellow --wmi|@|@|yellow --winrm|@> " +
 		"[@|yellow -u|@=@|italic USER|@ [@|yellow -p|@=@|italic P4SSW0RD|@]] [OPTIONS]..."
 	}
 )
@@ -166,6 +168,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@ArgGroup(exclusive = false, heading = "%n@|bold,underline WinRM Options|@:%n")
 	WinRmConfigCli winRmConfigCli;
 
+	@ArgGroup(exclusive = false, heading = "%n@|bold,underline JDBC Options|@:%n")
+	JdbcConfigCli jdbcConfigCli;
+
 	@Option(names = { "-u", "--username" }, order = 2, paramLabel = "USER", description = "Username for authentication")
 	String username;
 
@@ -178,9 +183,6 @@ public class MetricsHubCliService implements Callable<Integer> {
 		interactive = true
 	)
 	char[] password;
-
-	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
-	String patchDirectory;
 
 	@Option(
 		names = { "-c", "--connectors" },
@@ -197,6 +199,9 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	Set<String> connectors;
 
+	@Option(names = { "-pd", "--patch-directory" }, order = 5, description = "Patch path to the connectors directory")
+	String patchDirectory;
+
 	@Option(
 		names = { "-s", "--sequential" },
 		order = 6,
@@ -212,7 +217,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-l", "--list" },
 		help = true,
-		order = 7,
+		order = 8,
 		description = "Lists all connectors bundled in the engine that can be selected or excluded"
 	)
 	boolean listConnectors;
@@ -220,7 +225,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-i", "--iterations" },
 		help = true,
-		order = 8,
+		order = 9,
 		defaultValue = "1",
 		description = "Executes the collect strategies N times, where N is the number of iterations"
 	)
@@ -229,7 +234,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	@Option(
 		names = { "-si", "--sleep-iteration" },
 		help = true,
-		order = 9,
+		order = 10,
 		defaultValue = "5",
 		description = "Adds a sleep period in seconds between collect iterations"
 	)
@@ -237,12 +242,21 @@ public class MetricsHubCliService implements Callable<Integer> {
 
 	@Option(
 		names = { "-m", "--monitors" },
-		order = 10,
+		order = 11,
 		paramLabel = "MONITOR",
 		split = ",",
 		description = "Comma-separated list of monitor types to filter. %nExamples: +disk,+file_system,!memory"
 	)
 	Set<String> monitorTypes;
+
+	@Option(
+		names = { "-r", "--resolve-fqdn" },
+		order = 12,
+		defaultValue = "false",
+		description = "Resolves the provided HOSTNAME to its Fully Qualified Domain Name (FQDN)",
+		help = true
+	)
+	boolean resolveHostnameToFqdn;
 
 	@Override
 	public Integer call() throws Exception {
@@ -261,7 +275,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 		validate();
 
 		// Setup Log4j
-		setLogLevel();
+		setLogLevel(verbose);
 
 		final HostConfiguration hostConfiguration = HostConfiguration
 			.builder()
@@ -269,6 +283,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostname(hostname)
 			.hostType(deviceType)
 			.sequential(sequential)
+			.resolveHostnameToFqdn(resolveHostnameToFqdn)
 			.build();
 
 		// Connectors
@@ -466,12 +481,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				jdbcConfigCli
 			)
 			.filter(Objects::nonNull)
 			.map(protocolConfig -> {
 				try {
-					return protocolConfig.toProtocol(username, password);
+					final IConfiguration protocol = protocolConfig.toConfiguration(username, password);
+					protocol.validateConfiguration(hostname);
+					return protocol;
 				} catch (InvalidConfigurationException e) {
 					throw new IllegalStateException("Invalid configuration detected.", e);
 				}
@@ -503,22 +521,25 @@ public class MetricsHubCliService implements Callable<Integer> {
 				httpConfigCli,
 				wmiConfigCli,
 				winRmConfigCli,
-				wbemConfigCli
+				wbemConfigCli,
+				jdbcConfigCli
 			)
 			.allMatch(Objects::isNull);
 
 		if (protocolsNotConfigured) {
 			throw new ParameterException(
 				spec.commandLine(),
-				"At least one protocol must be specified: --http[s], --ipmi, --snmp,--snmpv3,--ssh, --wbem, --wmi, --winrm."
+				"At least one protocol must be specified: --http[s], --ipmi, --jdbc, --snmp, --snmpv3, --ssh, --wbem, --winrm, --wmi."
 			);
 		}
 	}
 
 	/**
 	 * Set Log4j logging level according to the verbose flags
+	 *
+	 * @param verbose array of boolean values specifying logger level.
 	 */
-	void setLogLevel() {
+	public static void setLogLevel(final boolean[] verbose) {
 		// Disable ANSI in the logging if we don't have a console
 		ThreadContext.put("disableAnsi", Boolean.toString(!ConsoleService.hasConsole()));
 
@@ -572,6 +593,8 @@ public class MetricsHubCliService implements Callable<Integer> {
 		tryInteractiveWinRmPassword(passwordReader);
 
 		tryInteractiveSnmpV3Password(passwordReader);
+
+		tryInteractiveJdbcPassword(passwordReader);
 	}
 
 	/**
@@ -663,6 +686,17 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	/**
+	 * Try to start the interactive mode to request and set JDBC password
+	 *
+	 * @param passwordReader password reader which displays the prompt text and wait for user's input
+	 */
+	void tryInteractiveJdbcPassword(final CliPasswordReader<char[]> passwordReader) {
+		if (jdbcConfigCli != null && jdbcConfigCli.getUsername() != null && jdbcConfigCli.getPassword() == null) {
+			jdbcConfigCli.setPassword(passwordReader.read("%s password for JDBC connection: ", jdbcConfigCli.getUsername()));
+		}
+	}
+
+	/**
 	 * Prints the list of connectors embedded in the engine.
 	 *
 	 * @param connectorStore Wraps all the connectors
@@ -742,7 +776,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 	}
 
 	@FunctionalInterface
-	interface CliPasswordReader<R> {
+	public interface CliPasswordReader<R> {
 		/**
 		 * Applies this function to the given arguments to read a password
 		 *

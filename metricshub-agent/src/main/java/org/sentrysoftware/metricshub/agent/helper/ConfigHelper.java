@@ -47,6 +47,7 @@ import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.GroupPrincipal;
 import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,6 +66,8 @@ import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
+import org.sentrysoftware.metricshub.agent.connector.AdditionalConnectorsParsingResult;
+import org.sentrysoftware.metricshub.agent.connector.ConnectorVariablesLibraryParser;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
 import org.sentrysoftware.metricshub.agent.security.PasswordEncrypt;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -72,7 +75,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.LocalOsHandler;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.ResourceHelper;
-import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
@@ -496,6 +498,16 @@ public class ConfigHelper {
 			resourceConfig.setSequential(agentConfig.isSequential());
 		}
 
+		// Set global enableSelfMonitoring flag in the resource configuration
+		if (resourceConfig.getEnableSelfMonitoring() == null) {
+			resourceConfig.setEnableSelfMonitoring(agentConfig.isEnableSelfMonitoring());
+		}
+
+		// Set agent configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorFilters() == null) {
+			resourceConfig.setMonitorFilters(agentConfig.getMonitorFilters());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = agentConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -579,6 +591,16 @@ public class ConfigHelper {
 			resourceConfig.setSequential(resourceGroupConfig.getSequential());
 		}
 
+		// Set resource group configuration's enableSelfMonitoring flag in the resource configuration
+		if (resourceConfig.getEnableSelfMonitoring() == null) {
+			resourceConfig.setEnableSelfMonitoring(resourceGroupConfig.getEnableSelfMonitoring());
+		}
+
+		// Set resource group configuration's monitors filter in the resource configuration
+		if (resourceConfig.getMonitorFilters() == null) {
+			resourceConfig.setMonitorFilters(resourceGroupConfig.getMonitorFilters());
+		}
+
 		final AlertingSystemConfig resourceGroupAlertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
 
 		final AlertingSystemConfig alertingSystemConfig = resourceConfig.getAlertingSystemConfig();
@@ -656,6 +678,16 @@ public class ConfigHelper {
 		// Set global sequential flag in the resource group configuration
 		if (resourceGroupConfig.getSequential() == null) {
 			resourceGroupConfig.setSequential(agentConfig.isSequential());
+		}
+
+		// Set global enableSelfMonitoring flag in the resource group configuration
+		if (resourceGroupConfig.getEnableSelfMonitoring() == null) {
+			resourceGroupConfig.setEnableSelfMonitoring(agentConfig.isEnableSelfMonitoring());
+		}
+
+		// Set global configuration's monitors filter in the resource group configuration
+		if (resourceGroupConfig.getMonitorFilters() == null) {
+			resourceGroupConfig.setMonitorFilters(agentConfig.getMonitorFilters());
 		}
 
 		final AlertingSystemConfig alertingSystemConfig = resourceGroupConfig.getAlertingSystemConfig();
@@ -827,14 +859,14 @@ public class ConfigHelper {
 			addConfiguredConnector(resourceConnectorStore, resourceConfig.getConnector());
 
 			// Read connectors with configuration variables safely
-			final Map<String, Connector> connectorsWithConfigVariables = readConnectorsWithConfigurationVariablesSafe(
-				resourceGroupKey,
-				resourceKey,
-				resourceConfig
-			);
+			final AdditionalConnectorsParsingResult additionalConnectorsParsingResult =
+				readConnectorsWithConfigurationVariablesSafe(resourceGroupKey, resourceKey, resourceConfig);
 
 			// Overwrite resourceConnectorStore
-			updateConnectorStore(resourceConnectorStore, connectorsWithConfigVariables);
+			updateConnectorStore(resourceConnectorStore, additionalConnectorsParsingResult.getCustomConnectorsMap());
+
+			// Add custom connectors to the host configuration.
+			hostConfiguration.getConnectors().addAll(additionalConnectorsParsingResult.getHostConnectors());
 
 			resourceGroupTelemetryManagers.putIfAbsent(
 				resourceKey,
@@ -858,23 +890,20 @@ public class ConfigHelper {
 	 * @param resourceGroupKey The resource group key under which the resource is configured for logging purposes.
 	 * @param resourceKey      The resource key for logging purposes.
 	 * @param resourceConfig   The resource configuration.
-	 * @return Map of connectors with configuration variables
+	 * @return an AdditionalConnectorsParserResult which contains a map of connectors to force and a map of custom connectors.
 	 */
-	private static Map<String, Connector> readConnectorsWithConfigurationVariablesSafe(
+	private static AdditionalConnectorsParsingResult readConnectorsWithConfigurationVariablesSafe(
 		final String resourceGroupKey,
 		final String resourceKey,
 		final ResourceConfig resourceConfig
 	) {
-		// Retrieve connectors variables map from the resource configuration
-		final Map<String, ConnectorVariables> connectorVariablesMap = resourceConfig.getVariables();
-
-		// Call ConnectorTemplateLibraryParser and parse the custom connectors
-		final ConnectorTemplateLibraryParser connectorTemplateLibraryParser = new ConnectorTemplateLibraryParser();
+		// Call ConnectorVariablesLibraryParser and parse the additional connectors
+		final ConnectorVariablesLibraryParser connectorVariablesLibraryParser = new ConnectorVariablesLibraryParser();
 
 		try {
-			return connectorTemplateLibraryParser.parse(
+			return connectorVariablesLibraryParser.parse(
 				ConfigHelper.getSubDirectory("connectors", false),
-				connectorVariablesMap
+				resourceConfig.getAdditionalConnectors()
 			);
 		} catch (Exception e) {
 			log.warn(
@@ -885,7 +914,7 @@ public class ConfigHelper {
 				resourceKey,
 				e.getMessage()
 			);
-			return new HashMap<>();
+			return new AdditionalConnectorsParsingResult();
 		}
 	}
 
@@ -974,10 +1003,10 @@ public class ConfigHelper {
 		for (Map.Entry<String, IConfiguration> entry : protocols.entrySet()) {
 			IConfiguration protocolConfig = entry.getValue();
 			if (protocolConfig != null) {
-				protocolConfig.validateConfiguration(resourceKey);
 				if (protocolConfig.getHostname() == null) {
 					protocolConfig.setHostname(hostname);
 				}
+				protocolConfig.validateConfiguration(resourceKey);
 			}
 		}
 	}
@@ -1036,6 +1065,28 @@ public class ConfigHelper {
 			configuredConnectorId = configuredConnector.getCompiledFilename();
 		}
 
+		Set<String> includedMonitors = null;
+		Set<String> excludedMonitors = null;
+		final Set<String> monitorFilters = resourceConfig.getMonitorFilters();
+
+		if (monitorFilters != null && !monitorFilters.isEmpty()) {
+			for (final String monitorFilter : monitorFilters) {
+				if (monitorFilter != null && monitorFilter.length() > 1) {
+					if (monitorFilter.startsWith("+")) {
+						if (includedMonitors == null) {
+							includedMonitors = new HashSet<>();
+						}
+						includedMonitors.add(monitorFilter.substring(1));
+					} else if (monitorFilter.startsWith("!")) {
+						if (excludedMonitors == null) {
+							excludedMonitors = new HashSet<>();
+						}
+						excludedMonitors.add(monitorFilter.substring(1));
+					}
+				}
+			}
+		}
+
 		return HostConfiguration
 			.builder()
 			.strategyTimeout(resourceConfig.getJobTimeout())
@@ -1045,8 +1096,12 @@ public class ConfigHelper {
 			.hostId(hostId)
 			.hostType(hostType)
 			.sequential(Boolean.TRUE.equals(resourceConfig.getSequential()))
+			.enableSelfMonitoring(Boolean.TRUE.equals(resourceConfig.getEnableSelfMonitoring()))
+			.includedMonitors(includedMonitors)
+			.excludedMonitors(excludedMonitors)
 			.configuredConnectorId(configuredConnectorId)
-			.connectorVariables(resourceConfig.getVariables())
+			.connectorVariables(resourceConfig.getConnectorVariables())
+			.resolveHostnameToFqdn(resourceConfig.getResolveHostnameToFqdn())
 			.build();
 	}
 

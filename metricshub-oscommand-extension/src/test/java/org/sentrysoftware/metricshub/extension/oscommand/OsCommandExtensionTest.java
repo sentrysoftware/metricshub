@@ -32,10 +32,10 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientRuntimeException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.exception.NoCredentialProvidedException;
@@ -61,50 +61,11 @@ class OsCommandExtensionTest {
 
 	private static final String SUCCESS_RESPONSE = "success";
 	private static final String HOSTNAME = "hostname";
-	public static final String COMMAND_FILE_ABSOLUTE_PATH =
-		"${file::src\\test\\resources\\test-files\\embedded\\connector2\\command.txt}";
-	public static final String EMPTY = "";
-	public static final String ERROR = "error";
-	public static final String HOST_LINUX = "host-linux";
-	public static final String INVALID_SOLARIS_VERSION = "invalid";
-	public static final String IPMI_RESULT_EXAMPLE =
-		"Device ID                 : 3\r\n" +
-		"Device Revision           : 3\r\n" +
-		"Firmware Revision         : 4.10\r\n" +
-		"IPMI Version              : 2.0\r\n" +
-		"Manufacturer ID           : 10368\r\n" +
-		"Manufacturer Name         : Fujitsu Siemens\r\n" +
-		"Product ID                : 790 (0x0316)\r\n" +
-		"Product Name              : Unknown (0x316)";
-	public static final String IPMI_TOOL_COMMAND = "ipmitoolCommand ";
-	public static final String LINUX_BUILD_IPMI_COMMAND =
-		"PATH=$PATH:/usr/local/bin:/usr/sfw/bin;export PATH;ipmitool -I open bmc info";
-	public static final String LIPMI = "lipmi";
 	public static final String LOCALHOST = "localhost";
 	public static final String MY_CONNECTOR_1_NAME = "myConnector1";
-	public static final String OLD_SOLARIS_VERSION = "4.1.1B";
-	public static final String OLD_SOLARIS_VERSION_MESSAGE = "Solaris version (4.1.1B) is too old";
-	public static final String USERNAME = "testUser";
-	public static final String PASSWORD = "testPassword";
-	public static final String PATH = "PATH";
-	public static final String RESULT = "result";
-	public static final String SOLARIS_VERSION_NOT_IDENTIFIED_MESSAGE_TOKEN = "Could not";
-	public static final String SSH_SUDO_COMMAND = "sudo pwd";
-	public static final Long STRATEGY_TIMEOUT = 100L;
-	public static final String SUDO_KEYWORD = "sudo";
-	public static final String VALID_SOLARIS_VERSION_TEN = "5.10";
-	public static final String VALID_SOLARIS_VERSION_NINE = "5.9";
-	public static final String UNKNOWN_SOLARIS_VERSION = "Unknown Solaris version";
 	public static final String UNIX_IPMI_FAIL_MESSAGE =
 		"Hostname %s - " + "No OS command configuration for this host. Returning an empty result";
-
-	//private static final String CONNECTOR_ID = "connector";
-
-	@Mock
-	private OsCommandRequestExecutor OsCommandRequestExecutorMock;
-
-	@Mock
-	private OsCommandService osCommandHelper;
+	public static final String TEST_COMMAND_LINE = "echo test";
 
 	@InjectMocks
 	private OsCommandExtension osCommandExtension;
@@ -680,7 +641,7 @@ class OsCommandExtensionTest {
 		final CriterionTestResult expected = CriterionTestResult
 			.builder()
 			.success(false)
-			.message("ipmiCommand")
+			.message("ipmiCommand bmc info")
 			.result("")
 			.build();
 
@@ -869,7 +830,7 @@ class OsCommandExtensionTest {
 		// Mock OsCommandHelper.runLocalCommand if local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("PATH= command"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("PATH= command bmc info"), any(), any(), anyLong(), any(), any()))
 				.thenReturn("IPMI Version");
 
 			final CriterionTestResult expected = CriterionTestResult
@@ -923,14 +884,14 @@ class OsCommandExtensionTest {
 		// Mock OsCommandHelper.runLocalCommand if local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("PATH= command"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("PATH= command bmc info"), any(), any(), anyLong(), any(), any()))
 				.thenThrow(ClientRuntimeException.class);
 
 			final CriterionTestResult expected = CriterionTestResult
 				.builder()
 				.success(false)
 				.result(null)
-				.message("Hostname localhost - Cannot execute the IPMI tool command PATH= command. Exception: null.")
+				.message("Hostname localhost - Cannot execute the IPMI tool command PATH= command bmc info. Exception: null.")
 				.build();
 
 			assertEquals(expected, osCommandExtension.processCriterion(ipmiCriterion, MY_CONNECTOR_1_NAME, telemetryManager));
@@ -969,10 +930,10 @@ class OsCommandExtensionTest {
 		// local
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommandfru"), anyLong(), eq(null)))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand fru"), anyLong(), eq(null)))
 				.thenReturn("impiResultFru");
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand-v sdr elist all"), anyLong(), eq(null)))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand -v sdr elist all"), anyLong(), eq(null)))
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = osCommandExtension.processSource(
 				new IpmiSource(),
@@ -989,11 +950,9 @@ class OsCommandExtensionTest {
 		String sensorResult = ResourceHelper.getResourceAsString(sensor, this.getClass());
 
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
+			oscmd.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand fru"), anyLong(), any())).thenReturn(fruResult);
 			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand" + "fru"), anyLong(), any()))
-				.thenReturn(fruResult);
-			oscmd
-				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand" + "-v sdr elist all"), anyLong(), any()))
+				.when(() -> OsCommandService.runLocalCommand(eq("ipmiCommand -v sdr elist all"), anyLong(), any()))
 				.thenReturn(sensorResult);
 			final SourceTable ipmiResult = osCommandExtension.processSource(
 				new IpmiSource(),
@@ -1011,11 +970,11 @@ class OsCommandExtensionTest {
 
 		try (MockedStatic<OsCommandService> oscmd = mockStatic(OsCommandService.class)) {
 			oscmd
-				.when(() -> OsCommandService.runSshCommand(eq("ipmiCommand" + "fru"), any(), any(), anyLong(), any(), any()))
+				.when(() -> OsCommandService.runSshCommand(eq("ipmiCommand fru"), any(), any(), anyLong(), any(), any()))
 				.thenReturn("impiResultFru");
 			oscmd
 				.when(() ->
-					OsCommandService.runSshCommand(eq("ipmiCommand" + "-v sdr elist all"), any(), any(), anyLong(), any(), any())
+					OsCommandService.runSshCommand(eq("ipmiCommand -v sdr elist all"), any(), any(), anyLong(), any(), any())
 				)
 				.thenReturn("impiResultSdr");
 			final SourceTable ipmiResult = osCommandExtension.processSource(
@@ -1381,5 +1340,60 @@ class OsCommandExtensionTest {
 			criterionTestResult.getMessage()
 		);
 		assertEquals(result, criterionTestResult.getResult());
+	}
+
+	@Test
+	void testExecuteQuery() throws Exception {
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder().hostname(HOSTNAME).build();
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("commandLine", new TextNode(TEST_COMMAND_LINE));
+
+		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandService.runSshCommand(
+						anyString(), // commandLine
+						anyString(), // hostname
+						any(SshConfiguration.class), // sshConfiguration
+						anyLong(), // timeout
+						any(), // local files
+						anyString() // no password command
+					)
+				)
+				.thenReturn(SUCCESS_RESPONSE);
+
+			// Start the SSH Health Check strategy
+			final String result = osCommandExtension.executeQuery(sshConfiguration, queryNode);
+
+			// Assert the result
+			assertEquals(SUCCESS_RESPONSE, result);
+		}
+	}
+
+	@Test
+	void testExecuteQueryThrowsException() throws Exception {
+		final SshConfiguration sshConfiguration = SshConfiguration.sshConfigurationBuilder().hostname(HOSTNAME).build();
+
+		final ObjectNode queryNode = JsonNodeFactory.instance.objectNode();
+		queryNode.set("commandLine", new TextNode(TEST_COMMAND_LINE));
+
+		try (MockedStatic<OsCommandService> staticOsCommandHelper = Mockito.mockStatic(OsCommandService.class)) {
+			staticOsCommandHelper
+				.when(() ->
+					OsCommandService.runSshCommand(
+						anyString(), // commandLine
+						anyString(), // hostname
+						any(SshConfiguration.class), // sshConfiguration
+						anyLong(), // timeout
+						any(), // local files
+						anyString() // no password command
+					)
+				)
+				.thenThrow(ClientException.class);
+
+			// Assert the result
+			assertThrows(ClientException.class, () -> osCommandExtension.executeQuery(sshConfiguration, queryNode));
+		}
 	}
 }

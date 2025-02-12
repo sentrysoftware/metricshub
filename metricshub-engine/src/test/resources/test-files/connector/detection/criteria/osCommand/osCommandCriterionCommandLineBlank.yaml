@@ -1,7 +1,0 @@
----
-connector:
-  detection:
-    appliesTo: [ linux ]
-    criteria:
-      - type: osCommand
-        commandLine: " "

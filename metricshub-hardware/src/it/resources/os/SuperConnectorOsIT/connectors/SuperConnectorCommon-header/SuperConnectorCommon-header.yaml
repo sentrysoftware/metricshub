@@ -8,7 +8,7 @@ monitors:
             # AWK it
             # DISCOVERY;EnclosureID;EnclosureDisplayID;EnclosureVendor;EnclosureModel;EnclosureType;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-8}"
+            script: "${file::enclosure.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -35,7 +35,7 @@ monitors:
             # AWK it
             # COLLECT;EnclosureeID;EnclosureStatus;EnclosureConsumption;EnergyUsage;IntrusionStatus
           - type: awk
-            script: "${file::embeddedFile-8}"
+            script: "${file::enclosure.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -58,12 +58,12 @@ monitors:
             # AWK it
             # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
           - type: awk
-            script: "${file::embeddedFile-1}"
+            script: "${file::lun.awk}"
             keep: ^DISCOVERY;
             separators: ;
             # Add some text to each additional information
             # DISCOVERY,lunname;manufacturerID;logicalDeviceID;deviceWWN;state;policy;alivePathCount;LocalDeviceName;RemoteDeviceName
-          - type: leftConcat
+          - type: prepend
             column: 5
             value: WWN=
       mapping:
@@ -92,7 +92,7 @@ monitors:
             # AWK it
             # COLLECT;logicalDeviceID;state;alivePathCount;
           - type: awk
-            script: "${file::embeddedFile-1}"
+            script: "${file::lun.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4"
@@ -129,7 +129,7 @@ monitors:
             # AWK it
             # DISCOVERY;BatteryDeviceID;BatteryModel;BatteryVendor;BatterieDisplayID
           - type: awk
-            script: "${file::embeddedFile-2}"
+            script: "${file::battery.awk}"
             keep: ^DISCOVERY;
             separators: ;
           - type: excludeMatchingLines
@@ -160,7 +160,7 @@ monitors:
             # AWK it
             # COLLECT;BatteryDeviceID
           - type: awk
-            script: "${file::embeddedFile-2}"
+            script: "${file::battery.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -187,16 +187,16 @@ monitors:
             # AWK it
             # DISCOVERY;BaldeID;BladeDisplayID;BladeSerial;AttachedToDeviceID;AttachedToDeviceType
           - type: awk
-            script: "${file::embeddedFile-3}"
+            script: "${file::blade.awk}"
             keep: ^DISCOVERY;
             separators: ;
           - type: keepOnlyMatchingLines
             column: 3
             valueList: "Blade1,Blade2"
-          - type: leftConcat
+          - type: prepend
             column: 4
             value: S*
-          - type: rightConcat
+          - type: append
             column: 4
             value: '*N'
       mapping:
@@ -222,7 +222,7 @@ monitors:
             # AWK it
             # COLLECT;BladeID;BladeStatus
           - type: awk
-            script: "${file::embeddedFile-3}"
+            script: "${file::blade.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -243,7 +243,7 @@ monitors:
             # AWK it
             # DISCOVERY;CPUid;CPUdisplayID;CPUvendor;CPUmodel;CPUconso;CPUmaxSpeed;AttachedToDeviceID;AttachedToDeviceType
           - type: awk
-            script: "${file::embeddedFile-4}"
+            script: "${file::cpu.awk}"
             keep: ^DISCOVERY;
             separators: ;
           - type: replace
@@ -276,7 +276,7 @@ monitors:
             # AWK it
             # COLLECT;CPUid;CPUstatus;CPUcurrSpeed
           - type: awk
-            script: "${file::embeddedFile-4}"
+            script: "${file::cpu.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -299,7 +299,7 @@ monitors:
             # AWK it
             # DISCOVERY;BaldeID;BladeDisplayID;BladeSerial
           - type: awk
-            script: "${file::embeddedFile-6}"
+            script: "${file::disk_controller.awk}"
             keep: ^DISCOVERY;
             separators: ;
           - type: extract
@@ -331,7 +331,7 @@ monitors:
             # AWK it
             # COLLECT;DiskControllerID;DiskControllerStatus;BatteryStatus
           - type: awk
-            script: "${file::embeddedFile-6}"
+            script: "${file::disk_controller.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -351,7 +351,7 @@ monitors:
             # AWK it
             # DISCOVERY;FanID;FanDisplayID;FanType;PercentWarningThreshold;PercentAlarmThreshold;AttachedToDeviceID;AttachedToDeviceTyp;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-9}"
+            script: "${file::fan.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -380,7 +380,7 @@ monitors:
             # AWK it
             # COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
           - type: awk
-            script: "${file::embeddedFile-9}"
+            script: "${file::fan.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -402,7 +402,7 @@ monitors:
             # AWK it
             # DISCOVERY;LedID;LedDisplayId;AttachedToDeviceID;AttachedToDeviceType;Name;OnStatus;OffStatus;BlinkingStatus;AlarmOnColor;WarningOnColor;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-10}"
+            script: "${file::led.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -416,7 +416,7 @@ monitors:
           __on_status: $7
           __off_status: $8
           __blinking_status: $9
-          info: $12
+          info: $10
           hw.parent.type: $5
           hw.parent.id: $4
           name: "${awk::sprintf(\"%s (%s)\", $3, $6)}"
@@ -431,7 +431,7 @@ monitors:
             # AWK it
             # COLLECT;LedID;LedStatus;LedColor
           - type: awk
-            script: "${file::embeddedFile-10}"
+            script: "${file::led.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4"
@@ -451,7 +451,7 @@ monitors:
             # AWK it
             # DISCOVERY;
           - type: awk
-            script: "${file::embeddedFile-11}"
+            script: "${file::logical_disk.awk}"
             keep: ^DISCOVERY;
             separators: ;
           # Multiply byte -> Gigabyt
@@ -484,7 +484,7 @@ monitors:
             # AWK it
             # COLLECT;FanID;FanStatus;FanSpeed;SpeedPercent
           - type: awk
-            script: "${file::embeddedFile-11}"
+            script: "${file::logical_disk.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -511,7 +511,7 @@ monitors:
             # AWK it
             # DISCOVERY;MemoryID;MemoryDisplayID;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;Type;Size
           - type: awk
-            script: "${file::embeddedFile-12}"
+            script: "${file::memory.awk}"
             keep: ^DISCOVERY;
             separators: ;
           # Add
@@ -546,7 +546,7 @@ monitors:
             # AWK it
             # COLLECT;MemoryID;MemStatus;
           - type: awk
-            script: "${file::embeddedFile-12}"
+            script: "${file::memory.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -568,7 +568,7 @@ monitors:
             # AWK it
             # DISCOVERY;NCid;NCdisplatId;AttachedToDeviceID;Vendor;Model;NCtype;PhysicalAddress;LogicalAddress;LogicalAddressType;SN;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-13}"
+            script: "${file::network.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -600,7 +600,7 @@ monitors:
             # AWK it
             # COLLECT;NCid;NCstatus;NSlinkStatus;NClinkSpeed;DuplexMode;ErrorCount;ReceivedBytes;TransmittedBytes;ReceivedPackets;TransmittedPackets;ZeroBufferCreditCount
           - type: awk
-            script: "${file::embeddedFile-13}"
+            script: "${file::network.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12"
@@ -629,7 +629,7 @@ monitors:
             # AWK it
             # DISCOVERY;OdId;OdDisplayId;AttachedToDeviceID;AttachedToDeviceType;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-14}"
+            script: "${file::other_device.awk}"
             keep: ^DISCOVERY;
             separators: ;
           - type: substring
@@ -658,7 +658,7 @@ monitors:
             # AWK it
             # COLLECT;OdId;OdStatus;OdStatusInformation;OdUsageCount;OdPowerConsumption,Value
           - type: awk
-            script: "${file::embeddedFile-14}"
+            script: "${file::other_device.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6,7"
@@ -684,14 +684,14 @@ monitors:
             # AWK it
             # JOIN1;PdID
           - type: awk
-            script: "${file::embeddedFile-21}"
+            script: "${file::physical_disk.awk}"
             keep: ^JOIN1;
             separators: ;
         source(2):
           computes:
           # JOIN2;PdID;PdDisplayId;AttachedToDeviceID;AttachedToDeviceType;ControllerNumber;Vendor;Model;FirmwareVersion;Size;SerialNumber;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-21}"
+            script: "${file::physical_disk.awk}"
             keep: ^JOIN2;
             separators: ;
         source(3):
@@ -731,7 +731,7 @@ monitors:
             # AWK it
             # COLLECT;PdID;PdStatus;StatusInformation;PredictedFailure;ErrorCount;DeviceNotReadyErrorCount;MediaErrorCount;NoDeviceErrorCount;HardErrorCount;IllegalRequestErrorCount;RecoverableErrorCount;TransportErrorCount;EnduranceRemaining
           - type: awk
-            script: "${file::embeddedFile-21}"
+            script: "${file::physical_disk.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8,9,10,11,12,13,14"
@@ -763,7 +763,7 @@ monitors:
             # AWK it
             # DISCOVERY;PsId;PsDeviceId;AttachedToDeviceID;AttachedToDeviceType;PowerSupplyType;PowerSupplyPower
           - type: awk
-            script: "${file::embeddedFile-16}"
+            script: "${file::power_supply.awk}"
             keep: ^DISCOVERY;
             separators: ;
           # Convert PowerSupplyPower form Hex to Dec
@@ -795,7 +795,7 @@ monitors:
             # AWK it
             # COLLECT;PsId;PsStatus;UsedWatts;
           - type: awk
-            script: "${file::embeddedFile-16}"
+            script: "${file::power_supply.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -817,7 +817,7 @@ monitors:
             # AWK it
             # DISCOVERY;RoboId;RoboDisplayID;AttachedToDeviceID;AttachedToDeviceType;RoboticType;Vendor;Model;SerialNumber;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-17}"
+            script: "${file::robotics.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -846,7 +846,7 @@ monitors:
             # AWK it
             # COLLECT
           - type: awk
-            script: "${file::embeddedFile-17}"
+            script: "${file::robotics.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6"
@@ -870,7 +870,7 @@ monitors:
             # AWK it
             # DISCOVERY;TdId;TdDisplayId;AttachedToDeviceID;AttachedToDeviceType;Vendor;Model;SerialNumber;ControllerNumber;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-18}"
+            script: "${file::tape_drive.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -898,7 +898,7 @@ monitors:
             # AWK it
             # COLLECT;TdId;TdStatus;StatusInformation;MountCount;UnmountCount;ErrorCount;NeedsCleaning
           - type: awk
-            script: "${file::embeddedFile-18}"
+            script: "${file::tape_drive.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5,6,7,8"
@@ -924,7 +924,7 @@ monitors:
             # AWK it
             # DISCOVERY;TempId;TempDisplayId;AttachedToDeviceID;AttachedToDeviceType;TemperatureType;WarningThreshold;AlarmThreshold;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-19}"
+            script: "${file::temperature.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -953,7 +953,7 @@ monitors:
             # AWK it
             # COLLECT;TempId;TempStatus;TempStatusInformation;Temperature
           - type: awk
-            script: "${file::embeddedFile-19}"
+            script: "${file::temperature.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -976,7 +976,7 @@ monitors:
             # AWK it
             # DISCOVERY;VoltId;VoltDisplayId;AttachedToDeviceID;AttachedToDeviceType;VoltageType;AdditionalInformation
           - type: awk
-            script: "${file::embeddedFile-20}"
+            script: "${file::voltage.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -1002,7 +1002,7 @@ monitors:
             # AWK it
             # COLLECT;VoltId;VoltStatus;VoltStatusInformation;Voltage
           - type: awk
-            script: "${file::embeddedFile-20}"
+            script: "${file::voltage.awk}"
             keep: ^COLLECT;
             separators: ;
             selectColumns: "2,3,4,5"
@@ -1025,7 +1025,7 @@ monitors:
             # AWK it
             # DISCOVERY;DeviceID;DisplayID;Vendor;Model;DriverVersion;FirmwareVersion;SerialNumber;Size;Location
           - type: awk
-            script: "${file::embeddedFile-22}"
+            script: "${file::gpu.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -1057,7 +1057,7 @@ monitors:
             # AWK it
             # COLLECT;DeviceID;Status;StatusInformation;PredictedFailure;CorrectedErrorCount;ErrorCount;UsedTime;DecoderUsedTime;EncoderUsedTime;MemoryUtilization;ReceivedBytesRate;TransmittedBytesRate;PowerConsumption;GPU.Collect.Source(1).Compute(1).Type="Awk"
           - type: awk
-            script: "${file::embeddedFile-22}"
+            script: "${file::gpu.awk}"
             keep: ^COLLECT;
             separators: ;
       mapping:
@@ -1091,7 +1091,7 @@ monitors:
             # AWK it
             # DISCOVERY;DeviceID;DisplayID;AttachedToDeviceID;AttachedToDeviceType;Hostname;AdditionalInformation1
           - type: awk
-            script: "${file::embeddedFile-23}"
+            script: "${file::vm.awk}"
             keep: ^DISCOVERY;
             separators: ;
       mapping:
@@ -1116,7 +1116,7 @@ monitors:
             # AWK it
             # COLLECT;DeviceID;PowerShare;PowerState
           - type: awk
-            script: "${file::embeddedFile-23}"
+            script: "${file::vm.awk}"
             keep: ^COLLECT;
             separators: ;
       mapping:

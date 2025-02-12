@@ -6,7 +6,7 @@
 
 	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
-	<version>0.9.07-SNAPSHOT</version>
+	<version>1.0.02-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -92,12 +92,12 @@
 	</developers>
 
 	<properties>
-		<community-connectors.version>1.0.06-SNAPSHOT</community-connectors.version>
+		<community-connectors.version>1.0.08</community-connectors.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
 		<hwgraf.version>4</hwgraf.version>
 		<metricshub-jre.version>1.0.01</metricshub-jre.version>
-		<project.build.outputTimestamp>2024-09-12T10:18:18Z</project.build.outputTimestamp>
+		<project.build.outputTimestamp>2025-02-03T13:45:18Z</project.build.outputTimestamp>
 
 	</properties>
 
@@ -116,11 +116,12 @@
 		<module>metricshub-wmi-extension</module>
 		<module>metricshub-winrm-extension</module>
 		<module>metricshub-ping-extension</module>
-		<module>metricshub-sql-source-extension</module>
+		<module>metricshub-internaldb-extension</module>
+		<module>metricshub-jawk-extension</module>
+		<module>metricshub-jdbc-extension</module>
 		<module>metricshub-hardware</module>
 		<module>metricshub-agent</module>
 		<module>metricshub-doc</module>
-		<module>metricshub-jawk-extension</module>
 	</modules>
 
 	<profiles>
@@ -290,7 +291,7 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-junit-jupiter</artifactId>
-				<version>5.7.0</version>
+				<version>5.15.2</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -337,7 +338,7 @@
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
 				<artifactId>ipmi</artifactId>
-				<version>1.1.00</version>
+				<version>1.2.00</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -417,38 +418,38 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-api</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-exporter-otlp</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-testing</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-sdk-common</artifactId>
-				<version>1.35.0</version>
+				<version>1.45.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
 				<artifactId>grpc-netty-shaded</artifactId>
-				<version>1.47.0</version>
+				<version>1.69.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -463,7 +464,7 @@
 			<dependency>
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
-				<version>2.2.224</version>
+				<version>2.3.232</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -474,7 +475,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.13.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -838,7 +839,7 @@
 			<!-- Maven Source Plugin -->
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>3.3.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -858,12 +859,12 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<reportSets>
 					<reportSet>
-					<reports>
-						<report>javadoc</report>
-					</reports>
-				</reportSet>
-			</reportSets>
-		</plugin>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
 		</plugins>
 	</reporting>
 

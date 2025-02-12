@@ -34,6 +34,7 @@ import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
 import org.sentrysoftware.metricshub.engine.common.helpers.StringHelper;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
+import org.sentrysoftware.metricshub.engine.deserialization.MultiValueDeserializer;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 
@@ -49,6 +50,7 @@ import org.sentrysoftware.metricshub.extension.snmp.ISnmpConfiguration;
 @NoArgsConstructor
 public class SnmpV3Configuration implements ISnmpConfiguration {
 
+	private static final String SNMP_V3_DESCRIPTION = "SNMP V3";
 	private static final int V3 = 3;
 	private static final String INVALID_AUTH_TYPE_EXCEPTION_MESSAGE = "Invalid authentication type: ";
 	private static final String INVALID_PRIVACY_VALUE_EXCEPTION_MESSAGE = "Invalid privacy value: ";
@@ -75,11 +77,13 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	private char[] password;
 	private int[] retryIntervals;
 
+	@JsonSetter(nulls = SKIP)
+	@JsonDeserialize(using = MultiValueDeserializer.class)
 	private String hostname;
 
 	@Override
 	public String toString() {
-		String description = "SNMP V3";
+		String description = SNMP_V3_DESCRIPTION;
 		if (username != null) {
 			description = description + " as " + username;
 		}
@@ -96,8 +100,10 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 			attr -> attr == null || attr < 1 || attr > 65535,
 			() ->
 				String.format(
-					"Resource %s - Invalid port configured: %s. Please verify the configured port value.",
+					"Resource %s - Invalid port configured for protocol %s. Port value returned: %s." +
+					" This resource will not be monitored. Please verify the configured port value.",
 					resourceKey,
+					SNMP_V3_DESCRIPTION,
 					port
 				)
 		);
@@ -107,21 +113,23 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 			attr -> attr == null || attr < 0L,
 			() ->
 				String.format(
-					"Resource %s - Timeout value is invalid: %s. Please verify the configured timeout value.",
+					"Resource %s - Timeout value is invalid for protocol %s." +
+					" Timeout value returned: %s. This resource will not be monitored. Please verify the configured timeout value.",
 					resourceKey,
+					SNMP_V3_DESCRIPTION,
 					timeout
 				)
 		);
 
 		StringHelper.validateConfigurationAttribute(
 			username,
-			attr -> attr == null || attr.isEmpty(),
+			attr -> attr == null || attr.isBlank(),
 			() ->
 				String.format(
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured username.",
 					resourceKey,
-					username
+					"SNNP V3"
 				)
 		);
 
@@ -133,7 +141,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 					"Resource %s - No username configured for protocol %s." +
 					" This resource will not be monitored. Please verify the configured authtype.",
 					resourceKey,
-					authType
+					"SNNP V3"
 				)
 		);
 	}
@@ -217,6 +225,7 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 			.retryIntervals(retryIntervals)
 			.timeout(timeout)
 			.username(username)
+			.hostname(hostname)
 			.build();
 	}
 }

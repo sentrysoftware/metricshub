@@ -45,9 +45,4 @@ public class SupersedesDeserializer extends AbstractNonBlankNonNullInCollectionD
 	protected Collector<String, ?, Collection<String>> collector() {
 		return Collectors.toCollection(HashSet::new);
 	}
-
-	@Override
-	protected Collection<String> fromCollection(Collection<String> collection) {
-		return new HashSet<>(collection);
-	}
 }

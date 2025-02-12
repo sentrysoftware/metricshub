@@ -33,44 +33,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.NonBlankDeserializer;
-import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.SqlTableDeserializer;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ExecuteForEachEntryOf;
-import org.sentrysoftware.metricshub.engine.connector.model.common.SqlTable;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
 
-/**
- * Represents a source that performs a SQL operation.
- */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
+/**
+ * Represents a source that retrieves data using an SQL query.
+ */
 public class SqlSource extends Source {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The list of tables to be used in the SQL query.
+	 * The SQL query to retrieve data.
 	 */
 	@NonNull
-	@JsonSetter(nulls = FAIL)
-	@JsonDeserialize(using = SqlTableDeserializer.class)
-	private List<SqlTable> tables = new ArrayList<>();
-
-	/**
-	 * The query to execute.
-	 */
 	@JsonSetter(nulls = FAIL)
 	@JsonDeserialize(using = NonBlankDeserializer.class)
 	private String query;
@@ -78,27 +65,24 @@ public class SqlSource extends Source {
 	/**
 	 * Builder for creating instances of {@code SqlSource}.
 	 *
-	 * @param type                  The type of the source.
-	 * @param computes              List of computations to be applied to the source.
-	 * @param forceSerialization    Flag indicating whether to force serialization.
-	 * @param key                   The key associated with the source.
+	 * @param type                 The type of the source (should be "sql").
+	 * @param computes             List of computations to be applied to the source.
+	 * @param forceSerialization   Flag indicating whether to force serialization.
+	 * @param query                The SQL query to execute.
+	 * @param key                  The key associated with the source.
 	 * @param executeForEachEntryOf The execution context for each entry of the source.
-	 * @param tables                The list of tables to be used in the SQL query.
-	 * @param query                 The query to execute.
 	 */
 	@Builder
 	@JsonCreator
 	public SqlSource(
-		@JsonProperty(value = "type") String type,
-		@JsonProperty(value = "computes") List<Compute> computes,
-		@JsonProperty(value = "forceSerialization") boolean forceSerialization,
-		@JsonProperty(value = "key") String key,
-		@JsonProperty(value = "executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf,
-		@JsonProperty(value = "tables", required = true) @NonNull List<SqlTable> tables,
-		@JsonProperty(value = "query", required = true) @NonNull String query
+		@JsonProperty("type") String type,
+		@JsonProperty("computes") List<Compute> computes,
+		@JsonProperty("forceSerialization") boolean forceSerialization,
+		@JsonProperty(value = "query", required = true) @NonNull String query,
+		@JsonProperty("key") String key,
+		@JsonProperty("executeForEachEntryOf") ExecuteForEachEntryOf executeForEachEntryOf
 	) {
 		super(type, computes, forceSerialization, key, executeForEachEntryOf);
-		this.tables = tables;
 		this.query = query;
 	}
 
@@ -111,16 +95,13 @@ public class SqlSource extends Source {
 			.forceSerialization(forceSerialization)
 			.computes(getComputes() != null ? new ArrayList<>(getComputes()) : null)
 			.executeForEachEntryOf(executeForEachEntryOf != null ? executeForEachEntryOf.copy() : null)
-			.tables(
-				tables != null ? tables.stream().map(SqlTable::copy).collect(Collectors.toCollection(ArrayList::new)) : null
-			)
 			.query(query)
 			.build();
 	}
 
 	@Override
 	public void update(UnaryOperator<String> updater) {
-		// For now, there is nothing to update
+		query = updater.apply(query);
 	}
 
 	@Override
@@ -129,18 +110,13 @@ public class SqlSource extends Source {
 
 		stringJoiner.add(super.toString());
 
-		if (tables != null && !tables.isEmpty()) {
-			final String tablesString = tables.stream().map(SqlTable::toString).collect(Collectors.joining(NEW_LINE));
-			addNonNull(stringJoiner, "- tables=", tablesString);
-		}
-
 		addNonNull(stringJoiner, "- query=", query);
 
 		return stringJoiner.toString();
 	}
 
 	@Override
-	public SourceTable accept(final ISourceProcessor sourceProcessor) {
+	public SourceTable accept(ISourceProcessor sourceProcessor) {
 		return sourceProcessor.process(this);
 	}
 }

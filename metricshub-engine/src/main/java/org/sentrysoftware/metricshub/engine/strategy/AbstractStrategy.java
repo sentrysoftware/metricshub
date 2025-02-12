@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,12 +43,16 @@ import org.sentrysoftware.metricshub.engine.common.JobInfo;
 import org.sentrysoftware.metricshub.engine.common.exception.RetryableException;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.TextTableHelper;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.SimpleMonitorJob;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.StandardMonitorJob;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.Source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.compute.Compute;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorSelection;
 import org.sentrysoftware.metricshub.engine.strategy.detection.ConnectorTestResult;
+import org.sentrysoftware.metricshub.engine.strategy.detection.CriterionTestResult;
 import org.sentrysoftware.metricshub.engine.strategy.source.ISourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceProcessor;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceTable;
@@ -397,16 +403,58 @@ public abstract class AbstractStrategy implements IStrategy {
 	}
 
 	/**
+	 * Determines if the given strategy job name matches any monitor job in the connector.
+	 * Matching is case-insensitive and based on the job type and its components.
+	 * Supported strategy job names:
+	 * - "discovery": Matches a {@link StandardMonitorJob} with a non-null discovery component.
+	 * - "collect": Matches a {@link StandardMonitorJob} with a non-null collect component.
+	 * - "simple": Matches a {@link SimpleMonitorJob} with a non-null simple component.
+	 *
+	 * @param currentConnector the connector containing monitor jobs
+	 * @param strategyJobName  the strategy job name to check (case-insensitive)
+	 * @return {@code true} if a monitor job matches the strategy, {@code false} otherwise
+	 */
+	protected boolean hasExpectedJobTypes(final Connector currentConnector, final String strategyJobName) {
+		if (currentConnector == null || currentConnector.getMonitors() == null) {
+			return false;
+		}
+
+		return currentConnector
+			.getMonitors()
+			.values()
+			.stream()
+			.anyMatch(monitorJob -> {
+				switch (strategyJobName.toLowerCase()) {
+					case "discovery":
+						return monitorJob instanceof StandardMonitorJob standardJob && standardJob.getDiscovery() != null;
+					case "collect":
+						return monitorJob instanceof StandardMonitorJob standardJob && standardJob.getCollect() != null;
+					case "simple":
+						return monitorJob instanceof SimpleMonitorJob simpleJob && simpleJob.getSimple() != null;
+					default:
+						throw new IllegalArgumentException("Unknown strategy job name: " + strategyJobName);
+				}
+			});
+	}
+
+	/**
 	 * Validates the connector's detection criteria
 	 *
 	 * @param currentConnector	Connector instance
 	 * @param hostname			Hostname
+	 * @param jobName 			The strategy job name
 	 * @return					boolean representing the success of the tests
 	 */
-	protected boolean validateConnectorDetectionCriteria(final Connector currentConnector, final String hostname) {
+	protected boolean validateConnectorDetectionCriteria(
+		final Connector currentConnector,
+		final String hostname,
+		final String jobName
+	) {
 		if (currentConnector.getConnectorIdentity().getDetection() == null) {
 			return true;
 		}
+		// Track the connector detection criteria execution start time
+		final long jobStartTime = System.currentTimeMillis();
 
 		final ConnectorTestResult connectorTestResult = new ConnectorSelection(
 			telemetryManager,
@@ -415,15 +463,55 @@ public abstract class AbstractStrategy implements IStrategy {
 			extensionManager
 		)
 			.runConnectorDetectionCriteria(currentConnector, hostname);
+
+		// Track the connector detection criteria execution end time
+		final long jobEndTime = System.currentTimeMillis();
+
+		// Set the job duration metric of the connector monitor in the host monitor
+		setJobDurationMetric(
+			jobName,
+			KnownMonitorType.CONNECTOR.getKey(),
+			currentConnector.getCompiledFilename(),
+			jobStartTime,
+			jobEndTime
+		);
+
 		final String connectorId = currentConnector.getCompiledFilename();
 		final Monitor monitor = telemetryManager.findMonitorByTypeAndId(
 			KnownMonitorType.CONNECTOR.getKey(),
 			String.format(CONNECTOR_ID_FORMAT, KnownMonitorType.CONNECTOR.getKey(), connectorId)
 		);
 
-		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
+		// Add statusInformation to legacyTextParameters attribute of the connector monitor
+		final String statusInformation = buildStatusInformation(hostname, connectorTestResult);
+		final Map<String, String> legacyTextParameters = monitor.getLegacyTextParameters();
+		legacyTextParameters.put("StatusInformation", statusInformation);
 
+		collectConnectorStatus(connectorTestResult.isSuccess(), connectorId, monitor);
 		return connectorTestResult.isSuccess();
+	}
+
+	/**
+	 * Builds the status information for the connector
+	 * @param hostname   Hostname of the resource being monitored
+	 * @param testResult Test result of the connector
+	 * @return String representing the status information
+	 */
+	protected String buildStatusInformation(final String hostname, final ConnectorTestResult testResult) {
+		final StringBuilder value = new StringBuilder();
+		final String builtTestResult = testResult
+			.getCriterionTestResults()
+			.stream()
+			.filter(criterionTestResult ->
+				!(criterionTestResult.getResult() == null && criterionTestResult.getMessage() == null)
+			)
+			.map(CriterionTestResult::displayCriterionMessage)
+			.collect(Collectors.joining("\n"));
+		value
+			.append(builtTestResult)
+			.append("Conclusion:\n")
+			.append(String.format("Test on %s %s", hostname, testResult.isSuccess() ? "SUCCEEDED" : "FAILED"));
+		return value.toString();
 	}
 
 	/**
@@ -457,5 +545,142 @@ public abstract class AbstractStrategy implements IStrategy {
 
 		// Set isStatusOk to true in ConnectorNamespace
 		connectorNamespace.setStatusOk(isSuccessCriteria);
+	}
+
+	/**
+	 * Return true if the monitor type is to be filtered and not processed.
+	 * @param monitorType The monitor type to check.
+	 * @return boolean value.
+	 */
+	public boolean isMonitorFiltered(final String monitorType) {
+		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
+		final Set<String> includedMonitors = hostConfiguration.getIncludedMonitors();
+		final Set<String> excludedMonitors = hostConfiguration.getExcludedMonitors();
+		// CHECKSTYLE:OFF
+		return (
+			(includedMonitors != null && !includedMonitors.contains(monitorType)) ||
+			(excludedMonitors != null && excludedMonitors.contains(monitorType))
+		);
+		// CHECKSTYLE:ON
+	}
+
+	/**
+	 * Sets the job duration metric in the host monitor with a monitor type.
+	 *
+	 * @param jobName      the name of the job
+	 * @param monitorType  the monitor type in the job
+	 * @param connectorId  the ID of the connector
+	 * @param jobStartTime the start time of the job in milliseconds
+	 * @param jobEndTime   the end time of the job in milliseconds
+	 */
+	protected void setJobDurationMetric(
+		final String jobName,
+		final String monitorType,
+		final String connectorId,
+		final long jobStartTime,
+		final long jobEndTime
+	) {
+		setJobDurationMetric(
+			() -> generateJobDurationMetricKey(jobName, monitorType, connectorId),
+			jobStartTime,
+			jobEndTime
+		);
+	}
+
+	/**
+	 * Sets the job duration metric in the host monitor without a monitor type.
+	 *
+	 * @param jobName      the name of the job
+	 * @param connectorId  the ID of the connector
+	 * @param jobStartTime the start time of the job in milliseconds
+	 * @param jobEndTime   the end time of the job in milliseconds
+	 */
+	protected void setJobDurationMetric(
+		final String jobName,
+		final String connectorId,
+		final long jobStartTime,
+		final long jobEndTime
+	) {
+		setJobDurationMetric(() -> generateJobDurationMetricKey(jobName, connectorId), jobStartTime, jobEndTime);
+	}
+
+	/**
+	 * Sets the job duration metric in the host monitor with a monitor type.
+	 *
+	 * @param metricKeySupplier the supplier of the metric key
+	 * @param startTime the start time of the job in milliseconds
+	 * @param endTime   the end time of the job in milliseconds
+	 */
+	private void setJobDurationMetric(
+		final Supplier<String> metricKeySupplier,
+		final long startTime,
+		final long endTime
+	) {
+		// If the enableSelfMonitoring flag is set to true, or it's not configured at all,
+		// set the job duration metric on the monitor. Otherwise, don't set it.
+		// By default, self monitoring is enabled
+		if (telemetryManager.getHostConfiguration().isEnableSelfMonitoring()) {
+			// Build the job duration metric key
+			final String jobDurationMetricKey = metricKeySupplier.get();
+			// Collect the job duration metric
+			collectJobDurationMetric(jobDurationMetricKey, startTime, endTime);
+		}
+	}
+
+	/**
+	 * Generates the job duration metric key.
+	 * @param jobName     the name of the job
+	 * @param monitorType the monitor type
+	 * @param connectorId the ID of the connector
+	 * @return the job duration metric key.
+	 */
+	private String generateJobDurationMetricKey(
+		final String jobName,
+		final String monitorType,
+		final String connectorId
+	) {
+		return new StringBuilder()
+			.append("metricshub.job.duration{job.type=\"")
+			.append(jobName)
+			.append("\", monitor.type=\"")
+			.append(monitorType)
+			.append("\", connector_id=\"")
+			.append(connectorId)
+			.append("\"}")
+			.toString();
+	}
+
+	/**
+	 * Generate the job duration metric key.
+	 * @param jobName      the name of the job
+	 * @param connectorId  the ID of the
+	 * @return the job duration metric key.
+	 */
+	private String generateJobDurationMetricKey(final String jobName, final String connectorId) {
+		return new StringBuilder()
+			.append("metricshub.job.duration{job.type=\"")
+			.append(jobName)
+			.append("\", connector_id=\"")
+			.append(connectorId)
+			.append("\"}")
+			.toString();
+	}
+
+	/**
+	 * Collects and records the job duration metric.
+	 *
+	 * @param jobDurationMetricKey the key identifying the job duration metric
+	 * @param startTime the start time of the job in milliseconds
+	 * @param endTime the end time of the job in milliseconds
+	 */
+	private void collectJobDurationMetric(final String jobDurationMetricKey, final long startTime, final long endTime) {
+		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+		final MetricFactory metricFactory = new MetricFactory();
+		metricFactory.collectNumberMetric(
+			endpointHostMonitor,
+			jobDurationMetricKey,
+			(endTime - startTime) / 1000.0, // Job duration in seconds
+			strategyTime
+		);
 	}
 }

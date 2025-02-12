@@ -20,6 +20,7 @@ package org.sentrysoftware.metricshub.engine.configuration;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
+
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
 
 import java.util.HashMap;
@@ -52,14 +53,22 @@ public class HostConfiguration {
 	private String hostname;
 	private String hostId;
 	private DeviceKind hostType;
+	private boolean resolveHostnameToFqdn;
 
 	@Default
 	private long strategyTimeout = DEFAULT_JOB_TIMEOUT;
 
 	private Set<String> connectors;
 	private boolean sequential;
+
+	@Default
+	private boolean enableSelfMonitoring = true;
+
 	private Consumer<AlertInfo> alertTrigger;
 	private long retryDelay;
+
+	private Set<String> includedMonitors;
+	private Set<String> excludedMonitors;
 
 	// The map of connector variables. The key is the connector ID.
 	private Map<String, ConnectorVariables> connectorVariables;

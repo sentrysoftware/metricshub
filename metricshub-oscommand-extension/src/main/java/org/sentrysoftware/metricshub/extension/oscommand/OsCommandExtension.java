@@ -130,7 +130,7 @@ public class OsCommandExtension implements IProtocolExtension {
 			sshResult = remoteSshTest(hostname, sshResult, sshConfiguration);
 		}
 
-		return Optional.of(sshResult == UP);
+		return Optional.of(UP.equals(sshResult));
 	}
 
 	@Override
@@ -192,13 +192,9 @@ public class OsCommandExtension implements IProtocolExtension {
 
 				return sshConfiguration;
 			} catch (Exception e) {
-				final String errorMessage = String.format(
-					"Error while reading SSH Configuration: %s. Error: %s",
-					jsonNode,
-					e.getMessage()
-				);
+				final String errorMessage = String.format("Error while reading SSH Configuration. Error: %s", e.getMessage());
 				log.error(errorMessage);
-				log.debug("Error while reading SSH Configuration: {}. Stack trace:", jsonNode, e);
+				log.debug("Error while reading SSH Configuration. Stack trace:", e);
 				throw new InvalidConfigurationException(errorMessage, e);
 			}
 		} else if (configurationType.equalsIgnoreCase("oscommand")) {
@@ -206,12 +202,11 @@ public class OsCommandExtension implements IProtocolExtension {
 				return newObjectMapper().treeToValue(jsonNode, OsCommandConfiguration.class);
 			} catch (Exception e) {
 				final String errorMessage = String.format(
-					"Error while reading OsCommand Configuration: %s. Error: %s",
-					jsonNode,
+					"Error while reading OsCommand Configuration. Error: %s",
 					e.getMessage()
 				);
 				log.error(errorMessage);
-				log.debug("Error while reading OsCommand Configuration: {}. Stack trace:", jsonNode, e);
+				log.debug("Error while reading OsCommand Configuration. Stack trace:", e);
 				throw new InvalidConfigurationException(errorMessage, e);
 			}
 		}
@@ -310,5 +305,20 @@ public class OsCommandExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return "ssh";
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode queryNode) throws Exception {
+		final String commandLine = queryNode.get("commandLine").asText();
+		final SshConfiguration sshConfiguration = (SshConfiguration) configuration;
+		final String hostname = configuration.getHostname();
+		return OsCommandService.runSshCommand(
+			commandLine,
+			hostname,
+			sshConfiguration,
+			sshConfiguration.getTimeout(),
+			null,
+			commandLine
+		);
 	}
 }

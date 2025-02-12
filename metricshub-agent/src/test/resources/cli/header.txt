@@ -1,0 +1,5 @@
+Content-Type: application/xml
+User-Agent: Mozilla/5.0
+Accept: text/html
+Accept-Language: en-US
+Cache-Control: no-cache

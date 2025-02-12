@@ -1,6 +1,7 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,7 +79,7 @@ class CollectStrategyTest {
 	@Test
 	void testRun() throws Exception {
 		// Create host and connector monitors and set them in the telemetry manager
-		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).build();
+		final Monitor hostMonitor = Monitor.builder().type(KnownMonitorType.HOST.getKey()).isEndpoint(true).build();
 		final Monitor connectorMonitor = Monitor.builder().type(KnownMonitorType.CONNECTOR.getKey()).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(
 			Map.of(
@@ -208,5 +209,88 @@ class CollectStrategyTest {
 		assertEquals(HEALTHY, diskController.getLegacyTextParameters().get(STATUS_INFORMATION));
 		assertEquals(1.0, enclosure.getMetric("hw.status{hw.type=\"enclosure\"}", NumberMetric.class).getValue());
 		assertEquals(HEALTHY, enclosure.getLegacyTextParameters().get(STATUS_INFORMATION));
+
+		// Check that StatusInformation is collected on the connector monitor
+		assertEquals(
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test succeeded:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result: 1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on host.name SUCCEEDED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
+
+		// Check job duration metrics values
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"disk_controller\", connector_id=\"TestConnector\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"enclosure\", connector_id=\"TestConnector\"}"
+				)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getMonitors()
+				.get("host")
+				.get("anyMonitorId")
+				.getMetric(
+					"metricshub.job.duration{job.type=\"collect\", monitor.type=\"connector\", connector_id=\"TestConnector\"}"
+				)
+				.getValue()
+		);
+
+		// Mock detection criteria result to switch to a failing criterion processing case
+		doReturn(CriterionTestResult.failure(snmpGetNextCriterion, "1.3.6.1.4.1.795.10.1.1.3.1.1.0	ASN_OCTET_STR	Test"))
+			.when(protocolExtensionMock)
+			.processCriterion(eq(snmpGetNextCriterion), anyString(), any(TelemetryManager.class));
+
+		// Call CollectStrategy to collect the monitors
+		collectStrategy.run();
+
+		// Check that StatusInformation is collected on the connector monitor (criterion processing failure case)
+		assertEquals(
+			"Executed SnmpGetNextCriterion Criterion:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"\n" +
+			"Message:\n" +
+			"====================================\n" +
+			"SnmpGetNextCriterion test ran but failed:\n" +
+			"- OID: 1.3.6.1.4.1.795.10.1.1.3.1.1\n" +
+			"\n" +
+			"Actual result:\n" +
+			"1.3.6.1.4.1.795.10.1.1.3.1.1.0\tASN_OCTET_STR\tTest\n" +
+			"====================================\n" +
+			"\n" +
+			"Conclusion:\n" +
+			"Test on host.name FAILED",
+			connectorMonitor.getLegacyTextParameters().get(STATUS_INFORMATION)
+		);
 	}
 }

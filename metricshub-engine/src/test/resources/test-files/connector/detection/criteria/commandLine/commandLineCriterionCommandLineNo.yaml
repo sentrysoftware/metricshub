@@ -1,0 +1,6 @@
+---
+connector:
+  detection:
+    appliesTo: [ linux ]
+    criteria:
+      - type: commandLine

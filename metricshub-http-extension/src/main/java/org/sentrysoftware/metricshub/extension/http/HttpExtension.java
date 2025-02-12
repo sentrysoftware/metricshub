@@ -21,6 +21,8 @@ package org.sentrysoftware.metricshub.extension.http;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import static org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper.isNotNull;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -34,6 +36,7 @@ import java.util.Set;
 import java.util.function.UnaryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
+import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
 import org.sentrysoftware.metricshub.engine.configuration.IConfiguration;
 import org.sentrysoftware.metricshub.engine.connector.model.common.ResultContent;
 import org.sentrysoftware.metricshub.engine.connector.model.identity.criterion.Criterion;
@@ -186,13 +189,9 @@ public class HttpExtension implements IProtocolExtension {
 
 			return httpConfiguration;
 		} catch (Exception e) {
-			final String errorMessage = String.format(
-				"Error while reading HTTP Configuration: %s. Error: %s",
-				jsonNode,
-				e.getMessage()
-			);
+			final String errorMessage = String.format("Error while reading HTTP Configuration. Error: %s", e.getMessage());
 			log.error(errorMessage);
-			log.debug("Error while reading HTTP Configuration: {}. Stack trace:", jsonNode, e);
+			log.debug("Error while reading HTTP Configuration. Stack trace:", e);
 			throw new InvalidConfigurationException(errorMessage, e);
 		}
 	}
@@ -216,5 +215,36 @@ public class HttpExtension implements IProtocolExtension {
 	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	@Override
+	public String executeQuery(final IConfiguration configuration, final JsonNode query) {
+		final String hostname = configuration.getHostname();
+		final String method = query.get("method").asText();
+		final JsonNode url = query.get("url");
+		final JsonNode header = query.get("header");
+		final JsonNode body = query.get("body");
+		final JsonNode resultContent = query.get("resultContent");
+
+		final HostConfiguration hostConfiguration = HostConfiguration
+			.builder()
+			.configurations(Map.of(HttpConfiguration.class, configuration))
+			.build();
+		final TelemetryManager telemetryManager = TelemetryManager.builder().hostConfiguration(hostConfiguration).build();
+
+		final HttpRequest httpRequest = HttpRequest
+			.builder()
+			.hostname(hostname)
+			.httpConfiguration((HttpConfiguration) configuration)
+			.method(method)
+			.url(isNotNull(url) ? url.asText() : null)
+			.header(isNotNull(header) ? header.asText() : null, Map.of(), "", hostname)
+			.body(isNotNull(body) ? body.asText() : null, Map.of(), "", hostname)
+			.resultContent(
+				isNotNull(resultContent) ? ResultContent.detect(resultContent.asText()) : ResultContent.ALL_WITH_STATUS
+			)
+			.build();
+
+		return httpRequestExecutor.executeHttp(httpRequest, false, telemetryManager);
 	}
 }

@@ -23,6 +23,7 @@ package org.sentrysoftware.metricshub.engine.common.helpers;
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.COMMA;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.EMPTY;
+import static org.springframework.util.Assert.isTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,6 +33,8 @@ import java.util.StringJoiner;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
@@ -46,6 +49,11 @@ import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfiguratio
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class StringHelper {
+
+	/**
+	 * The regular expression pattern used to extract the column names from a SELECT
+	 */
+	private static final Pattern SQL_PATTERN = Pattern.compile("(?i)select\\s+(.*?)\\s+from", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Execute the given callable to get the resulting Object as String value.
@@ -190,19 +198,34 @@ public class StringHelper {
 	 * @return The string representation of the value, or a CSV string if the value is a collection or an array.
 	 */
 	public static String stringify(final Object value) {
+		return stringify(value, COMMA);
+	}
+
+	/**
+	 * Convert the given value to a string representation. If the value is a collection or an array, it is transformed into a string
+	 * using the specified separator.
+	 *
+	 * @param value     The value to be converted to a string.
+	 * @param separator The separator to be used when converting a collection or an array to a string.
+	 * @return The string representation of the value, or a string using the specified separator if the value is a collection
+	 */
+	public static String stringify(final Object value, final String separator) {
 		if (value == null) {
 			// Handle null input
 			return EMPTY;
 		} else if (value instanceof Collection<?> collection) {
 			// If the input is a List, convert it to a CSV string
-			return collection.stream().map(item -> item != null ? item.toString() : EMPTY).collect(Collectors.joining(COMMA));
+			return collection
+				.stream()
+				.map(item -> item != null ? item.toString() : EMPTY)
+				.collect(Collectors.joining(separator));
 		} else if (value.getClass().isArray()) {
 			// If the input is an array, convert it to a CSV string
 			Object[] array = (Object[]) value;
 			return Arrays
 				.stream(array)
 				.map(item -> item != null ? item.toString() : EMPTY)
-				.collect(Collectors.joining(COMMA));
+				.collect(Collectors.joining(separator));
 		} else {
 			// For any other type of value, simply convert it to a string
 			return value.toString();
@@ -236,5 +259,32 @@ public class StringHelper {
 			log.error(messageSupplier.get());
 			throw new InvalidConfigurationException(messageSupplier.get());
 		}
+	}
+
+	/**
+	 * Convert a string to be searched in a case-insensitive regex.
+	 *
+	 * @param value The string to search. (mandatory)
+	 * @return The case-insensitive regex for the given string.
+	 */
+	public static String protectCaseInsensitiveRegex(final String value) {
+		isTrue(value != null && !value.isEmpty(), "Input string must not be null or empty.");
+		return value.isBlank() ? value : "(?i)" + Pattern.quote(value);
+	}
+
+	/**
+	 * Extracts column names from a SELECT query.
+	 *
+	 * @param query the SQL query string
+	 * @return an array of column names, or an empty array if none are found
+	 */
+	public static String[] extractColumns(String query) {
+		// Normalize the query by ignoring case for SELECT and FROM
+		final Matcher matcher = SQL_PATTERN.matcher(query.trim());
+
+		if (matcher.find()) {
+			return Stream.of(matcher.group(1).trim().split(",")).map(String::trim).toArray(String[]::new);
+		}
+		return new String[] {}; // Return empty if no match is found
 	}
 }

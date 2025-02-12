@@ -24,6 +24,7 @@ package org.sentrysoftware.metricshub.engine.strategy.source;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
@@ -129,12 +130,12 @@ public interface ISourceProcessor {
 	SourceTable process(WmiSource wmiSource);
 
 	/**
-	 * Process the {@link SqlSource} and return a SourceTable.
+	 * Process the {@link InternalDbQuerySource} and return a SourceTable.
 	 *
-	 * @param sqlSource The {@link SqlSource} to process.
+	 * @param internalDbQuery The {@link InternalDbQuerySource} to process.
 	 * @return The SourceTable result.
 	 */
-	SourceTable process(SqlSource sqlSource);
+	SourceTable process(InternalDbQuerySource internalDbQuery);
 
 	/**
 	 * Process the {@link JawkSource} and return a SourceTable.
@@ -143,4 +144,11 @@ public interface ISourceProcessor {
 	 * @return The SourceTable result.
 	 */
 	SourceTable process(JawkSource jawkSource);
+
+	/**
+	 * This method processes {@link SqlSource} source
+	 * @param sqlSource {@link SqlSource} source instance
+	 * @return {@link SourceTable} instance
+	 */
+	SourceTable process(SqlSource sqlSource);
 }

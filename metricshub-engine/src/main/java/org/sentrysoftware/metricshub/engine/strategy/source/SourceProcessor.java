@@ -43,6 +43,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CommandLineSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.CopySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.HttpSource;
+import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.InternalDbQuerySource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.IpmiSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.JawkSource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.SnmpGetSource;
@@ -553,15 +554,26 @@ public class SourceProcessor implements ISourceProcessor {
 		);
 	}
 
-	@WithSpan("Source SqlSource Exec")
+	@WithSpan("Source InternalDbQuerySource Exec")
 	@Override
-	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
-		return processSourceComputationThroughExtension(sqlSource);
+	public SourceTable process(@SpanAttribute("source.definition") final InternalDbQuerySource internalDbQuery) {
+		return processSourceComputationThroughExtension(internalDbQuery);
 	}
 
 	@WithSpan("Source JawkSource Exec")
 	@Override
 	public SourceTable process(@SpanAttribute("source.definition") final JawkSource jawkSource) {
 		return processCompositeSourceScriptThroughExtension(jawkSource);
+	}
+
+	/**
+	 * This method processes {@link SqlSource} source
+	 * @param sqlSource {@link SqlSource} source instance
+	 * @return {@link SourceTable} instance
+	 */
+	@WithSpan("Source SQL Exec")
+	@Override
+	public SourceTable process(@SpanAttribute("source.definition") final SqlSource sqlSource) {
+		return processSourceThroughExtension(sqlSource);
 	}
 }
