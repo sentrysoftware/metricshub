@@ -8,7 +8,7 @@ description: How to configure the MetricsHub Agent to collect metrics from a var
 **MetricsHub** extracts metrics from the resources configured in the `config/metricshub.yaml` file.
 These **resources** can be hosts, applications, or other components running in your IT infrastructure.
 Each **resource** is typically associated with a physical location, such as a data center or server room, or a logical location, like a business unit.
-In **MetricsHub**, these locations are referred to as **sites**. 
+In **MetricsHub**, these locations are referred to as **sites**.
 In highly distributed infrastructures, multiple resources can be organized into **resource groups** to simplify management and monitoring.
 
 To reflect this organization, you are asked to define your **resource group** first, followed by your **site** and its corresponding **resources** in the `config/metricshub.yaml` file stored in:
@@ -16,16 +16,16 @@ To reflect this organization, you are asked to define your **resource group** fi
 > * `C:\ProgramData\MetricsHub\config` on Windows systems
 > * `./metricshub/lib/config` on Linux systems
 
-> **Important**: We recommend using an editor supporting the 
+> **Important**: We recommend using an editor supporting the
 [Schemastore](https://www.schemastore.org/json#editors) to edit **MetricsHub**'s configuration YAML
- files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and 
- [vscode.dev](https://vscode.dev), 
+ files (Example: [Visual Studio Code](https://code.visualstudio.com/download) and
+ [vscode.dev](https://vscode.dev),
  with [RedHat's YAML extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)).
 
 ## Step 1: Configure resource groups
 
 > Note: For centralized infrastructures, `resourceGroups` are not required.
- Simply configure resources as explained in [Step 2](./configure-monitoring.html#step-2-configure-resources). 
+ Simply configure resources as explained in [Step 2](./configure-monitoring.html#step-2-configure-resources).
 
 Create a resource group for each site to be monitored under the `resourceGroups:` section:
 
@@ -35,6 +35,7 @@ resourceGroups:
     attributes:
       site: <site-name> # Specify where resources are hosted
 ```
+
 Replace:
 
 * `<resource-group-name>` with the actual name of your resource group
@@ -68,6 +69,7 @@ At this stage, you can configure sustainability metrics reporting. For more deta
           host.type: <type>
         <protocol-configuration>
     ```
+
 * or under the resource group you previously specified *(recommended for highly distributed infrastructures)*
 
   ```yaml
@@ -83,7 +85,7 @@ At this stage, you can configure sustainability metrics reporting. For more deta
           <protocol-configuration>
   ```
 
-The syntax to adopt for configuring your resources will differ whether your resources have unique 
+The syntax to adopt for configuring your resources will differ whether your resources have unique
 or similar characteristics (such as device type, protocols, and credentials).
 
 ### Syntax for unique resources
@@ -108,7 +110,9 @@ resources:
       host.extra.attribute: [ <extra-attribute-for-hostname1>, <extra-attribute-for-hostname2>, etc. ]
     <protocol-configuration>
 ```
+
 Whatever the syntax adopted, replace:
+
 * `<hostname>` with the actual hostname or IP address of the resource
 * `<type>` with the type of resource to be monitored. Possible values are:
   * [`win`](https://metricshub.com/docs/latest/connectors/tags/windows.html) for Microsoft Windows systems
@@ -162,8 +166,6 @@ resourceGroups:
         <protocol-configuration>
 ```
 
-
-
 ### Protocols and credentials
 
 #### HTTP
@@ -200,7 +202,7 @@ resourceGroups:
             timeout: 60
 ```
 
-#### ICMP Ping 
+#### ICMP Ping
 
 Use the parameters below to configure the ICMP ping protocol:
 
@@ -566,6 +568,7 @@ resourceGroups:
 ### Customize resource hostname
 
 By default, the `host.name` attribute specified for a resource determines both:
+
 * the hostname used to execute requests against the resource for collecting metrics
 * the hostname associated with each OpenTelemetry metric collected for the resource.
 
@@ -592,7 +595,7 @@ resources:
 
 #### Example for resources sharing similar characteristics
 
-For resources with shared characteristics, you can define multiple hostnames in the configuration: 
+For resources with shared characteristics, you can define multiple hostnames in the configuration:
 
 ```yaml
 resources:
@@ -649,16 +652,15 @@ Follow the structure below to declare your monitor:
 
 Refer to:
 - [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
-- [Monitoring the health of a service](../usecases/service-health.md) for a practical example that demonstrates how to use this feature effectively.
-
+- [Monitoring the health of a Web service](https://metricshub.com/usecases/monitoring-the-health-of-a-web-service/) for a practical example that demonstrates how to use this feature effectively.
 
 ### Basic Authentication settings
 
 #### Enterprise Edition authentication
 
-In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authenticates itself with the _OpenTelemetry Collector_'s [OTLP gRPC Receiver](send-telemetry.md#otlp-grpc) by including the HTTP `Authorization` request header with the credentials. 
+In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authenticates itself with the *OpenTelemetry Collector*'s [OTLP gRPC Receiver](send-telemetry.md#otlp-grpc) by including the HTTP `Authorization` request header with the credentials.
 
-These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the _OpenTelemetry Collector_'s `OTLP Receiver`.
+These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the *OpenTelemetry Collector*'s `OTLP Receiver`.
 
 To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
 
@@ -835,7 +837,7 @@ To know which connectors are available, refer to [Connectors Directory](../metri
 Otherwise, you can list the available connectors using the below command:
 
 ```shell-session
-$ metricshub -l
+metricshub -l
 ```
 
 For more information about the `metricshub` command, refer to [MetricsHub CLI (metricshub)](../guides/cli.md).
@@ -853,9 +855,9 @@ patchDirectory: /opt/patch/connectors # Replace with the path to your patch conn
 loggerLevel: ...
 ```
 
-#### Customize data collection 
+#### Customize data collection
 
-**MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables: 
+**MetricsHub** allows you to customize data collection on your Windows or Linux servers, specifying exactly which processes or services to monitor. This customization is achieved by configuring the following connector variables:
 
 | Connector Variable | Available for                                                                                                                                                    | Usage                                                                      |
 |--------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
@@ -868,7 +870,7 @@ Refer to the [Connectors directory](../metricshub-connectors-directory.html#) an
 
 ##### Procedure
 
-In the `config/metricshub.yaml` file, locate the resource for which you wish to customize data collection and specify the `variables` attribute available under the `additionalConnectors` section: 
+In the `config/metricshub.yaml` file, locate the resource for which you wish to customize data collection and specify the `variables` attribute available under the `additionalConnectors` section:
 
 ```yaml
 resources:
@@ -886,17 +888,16 @@ resources:
 
 | Property                 | Description                                                                                                                    |
 |--------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| ` <connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
-| `uses`                   | _(Optional)_ Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
-| `force`                  | _(Optional)_ Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `<connector-custom-id>`  | Custom ID for this additional connector.                                                                                       |
+| `uses`                   | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                  | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
 | `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
 
 > Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
 
 For practical examples demonstrating effective use of this feature, refer to the following pages:
-- [Monitoring a process command line](../usecases/process-command-line.md)
-- [Monitoring a service running on Linux](../usecases/service-linux.md).
-
+* [Monitoring a process command line](https://metricshub.com/usecases/monitoring-a-process-on-windows/)
+* [Monitoring a service running on Linux](https://metricshub.com/usecases/monitoring-a-service-running-on-linux/).
 
 #### Filter monitors
 
@@ -907,10 +908,10 @@ To manage the volume of telemetry data sent to your observability platform and t
 You can apply monitor inclusion or exclusion in data collection for the following scopes:
 
 * All resources
-* All the resources within a specific resource group. A resource group is a container that holds resources to be monitored and generally refers to a site or a specific location. 
+* All the resources within a specific resource group. A resource group is a container that holds resources to be monitored and generally refers to a site or a specific location.
 * A specific resource
 
-This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below: 
+This is done by  adding the `monitorFilters` parameter in the relevant section of the `config/metricshub.yaml` file as described below:
 
 | Filter monitors                                    | Add monitorFilters                                      |
 |----------------------------------------------------|---------------------------------------------------------|
@@ -929,21 +930,22 @@ To obtain the monitor name:
 2. Click the connector of your choice (e.g.: [WindowsOS Metrics](../connectors/windows.html))
 3. Scroll-down to the **Metrics** section and note down the relevant monitor **Type**.
 
-> **Warning**: Excluding monitors may lead to missed outage detection or inconsistencies in collected data, such as inaccurate power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid overlooking important information. 
-The monitoring of critical devices such as batteries, power supplies, CPUs, fans, and memories should not be disabled. 
+> **Warning**: Excluding monitors may lead to missed outage detection or inconsistencies in collected data, such as inaccurate power consumption estimates or other metrics calculated by the engine. Use exclusions carefully to avoid overlooking important information.
+The monitoring of critical devices such as batteries, power supplies, CPUs, fans, and memories should not be disabled.
 
 ##### Example 1: Including monitors for all resources
-
 
    ```yaml
    monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors globally
    resourceGroups: ...
    ```
 
-##### Example 2: Excluding monitors for all resources 
+##### Example 2: Excluding monitors for all resources
+
    ```yaml
    monitorFilters: [ "!volume" ] # Exclude specific monitors globally
    ```
+
 ##### Example 3: Including monitors for all resources within a specific resource group
 
    ```yaml
@@ -952,6 +954,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
        monitorFilters: [ +enclosure, +fan, +power_supply ] # Include specific monitors for this group
        resources: ...
    ```
+
 ##### Example 4: Excluding monitors for all resources within a specific resource group
 
    ```yaml
@@ -960,6 +963,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
        monitorFilters: [ "!volume" ] # Exclude specific monitors for this group
        resources: ...
    ```
+
 ##### Example 5: Including monitors for a specific resource
 
    ```yaml
@@ -978,7 +982,7 @@ The monitoring of critical devices such as batteries, power supplies, CPUs, fans
        resources:
          <resource-id>:
            monitorFilters: [ "!volume" ] # Exclude specific monitors for this resource
-   ``` 
+   ```
 
 #### Discovery cycle
 
@@ -1145,9 +1149,9 @@ By default, **MetricsHub** compresses StateSet metrics to reduce unnecessary rep
 
 This configuration controls how StateSet metrics are reported, specifically whether zero values should be suppressed or not.
 
-- **Supported values:**
-  - `none`: No compression is applied. All StateSet metrics, including zero values, are reported on every collection cycle.
-  - `suppressZeros` (default): **MetricsHub** compresses StateSet metrics by reporting the zero value only the first time a state transitions to zero. Subsequent reports will include only the non-zero state values.
+* **Supported values:**
+  * `none`: No compression is applied. All StateSet metrics, including zero values, are reported on every collection cycle.
+  * `suppressZeros` (default): **MetricsHub** compresses StateSet metrics by reporting the zero value only the first time a state transitions to zero. Subsequent reports will include only the non-zero state values.
 
 To configure the StateSet compression level, you can apply the `stateSetCompression` setting in the following scopes:
 
@@ -1209,33 +1213,26 @@ hw.status{state="degraded"} 1
 
 In this case, only the `degraded` state is reported, and the zero values for `ok` and `failed` are suppressed after the initial state transition.
 
-## Self-Monitoring
+#### Self-Monitoring
 
-**MetricsHub** includes **self-monitoring capabilities** to track its own performance. This feature can monitor key aspects such **job duration metrics**.
+The self-monitoring feature helps you track **MetricsHub**'s performance by providing metrics like job duration. These metrics offer detailed insights into task execution times, helping identify bottlenecks or inefficiencies and optimizing performance.
 
-### Configuration: `enableSelfMonitoring`
+To enable this feature, set the `enableSelfMonitoring` parameter to `true` in the relevant section of the `config/metricshub.yaml` file as described below:
 
-This configuration controls whether **MetricsHub** reports internal signals such as job duration metrics.
+| Self-Monitoring                                    | Set enableSelfMonitoring to true                        |
+|----------------------------------------------------|---------------------------------------------------------|
+| For all resources                                  | In the global section (top of the file)                 |
+| For all the resources of a specific resource group | Under the corresponding `<resource-group-name>` section |
+| For a specific resource                            | Under the corresponding `<resource-id>` section         |
 
-#### Supported Values
-
-- `true` (default): Enables self-monitoring capabilities.
-- `false`: Disables self-monitoring capabilities.
-
-#### Configuration Scopes
-
-You can configure `enableSelfMonitoring` at the following levels:
-
-1. **Global Configuration**
-   Applies to all monitored resources.
+##### Example 1: Enabling self-monitoring for all resources
 
    ```yaml
    enableSelfMonitoring: true # Set to "false" to disable
    resourceGroups: ...
    ```
 
-2. **Per Resource Group**
-   Applies to all resources within a specific group.
+##### Example 2: Enabling self-monitoring for all resources of a specific resource group
 
    ```yaml
    resourceGroups:
@@ -1244,8 +1241,7 @@ You can configure `enableSelfMonitoring` at the following levels:
        resources: ...
    ```
 
-3. **Per Resource**
-   Applies to an individual resource.
+##### Example 3: Enabling self-monitoring for a specific resource
 
    ```yaml
    resourceGroups:
@@ -1254,35 +1250,6 @@ You can configure `enableSelfMonitoring` at the following levels:
          <resource-id>:
            enableSelfMonitoring: true # Set to "false" to disable
    ```
-
-### Examples of Self-Monitoring Metrics
-
-When enabled, **MetricsHub** reports the `metricshub.job.duration` metrics, for example:
-
-```
-metricshub.job.duration{job.type="discovery", monitor.type="enclosure", connector_id="HPEGen10IloREST"} 0.020
-metricshub.job.duration{job.type="discovery", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.030
-metricshub.job.duration{job.type="discovery", monitor.type="temperature", connector_id="HPEGen10IloREST"} 0.025
-metricshub.job.duration{job.type="discovery", monitor.type="connector", connector_id="HPEGen10IloREST"} 0.015
-metricshub.job.duration{job.type="collect", monitor.type="cpu", connector_id="HPEGen10IloREST"} 0.015
-```
-
-Where:
-- **`job.type`**: Specifies the type of operation performed by MetricsHub.
-    - Possible values:
-        - `discovery`: Identifies and registers components.
-        - `collect`: Gathers telemetry data from the monitored components.
-        - `simple`: Executes a single straightforward task.
-        - `beforeAll` or `afterAll`: Runs preparatory or cleanup operations.
-- **`monitor.type`**: Indicates the specific category of component being monitored.
-    - Examples:
-        - Hardware components like `cpu`, `memory`, `physical_disk`, or `disk_controller`.
-        - Environmental metrics like `temperature` or `battery`.
-        - Logical entities like `connector`.
-- **`connector_id`**: The unique identifier of the connector defining the method and protocol to collect metrics for the specified component.
-    - Example: `"HPEGen10IloREST"` denotes the HPE Gen10 iLO REST connector.
-
-These metrics provide granular insights into task execution times, enabling the identification of bottlenecks or inefficiencies and helping optimize monitoring performance.
 
 #### Timeout, duration and period format
 

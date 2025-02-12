@@ -49,7 +49,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing WMI queries with validation and support for various operations.
  */
 @Data
-@Command(name = "wmi", description = "\nList of valid options: \n", footer = WmiCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "wmicli", description = "\nList of valid options: \n", footer = WmiCli.FOOTER, usageHelpWidth = 180)
 public class WmiCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -70,9 +70,9 @@ public class WmiCli implements IQuery, Callable<Integer> {
 
 		Example:
 
-		wmi <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
+		wmicli <HOSTNAME> --username <USERNAME> --password <PASSWORD> --namespace <NAMESPACE> --query <QUERY> --timeout <TIMEOUT>
 
-		wmi dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" --timeout 30s
+		wmicli dev-01 --username username --password password --namespace="root/cimv2 --query ="SELECT * FROM Win32_OperatingSystem" --timeout 30s
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -242,7 +242,9 @@ public class WmiCli implements IQuery, Callable<Integer> {
 					final ObjectNode configurationNode = JsonNodeFactory.instance.objectNode();
 
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("namespace", new TextNode(namespace));
 

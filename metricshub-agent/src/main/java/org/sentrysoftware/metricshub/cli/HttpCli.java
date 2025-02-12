@@ -60,7 +60,7 @@ import picocli.CommandLine.Spec;
  * CLI for executing HTTP requests with validation and support for various operations.
  */
 @Data
-@Command(name = "http", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
+@Command(name = "httpcli", description = "\nList of valid options: \n", footer = HttpCli.FOOTER, usageHelpWidth = 180)
 public class HttpCli implements IQuery, Callable<Integer> {
 
 	/**
@@ -88,15 +88,15 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 		Examples:
 
-		http --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
+		httpcli --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
 		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --timeout <TIMEOUT>
 
 		@|green # HTTP GET request with a body and two headers.|@
-		http --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
+		httpcli --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
 		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --timeout 2m
 
 		@|green # HTTP POST request with a header file and a body file.|@
-		http --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
+		httpcli --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
 		--body-file="/opt/metricshub/body.txt" --timeout 2m
 
 		Note: If --password is not provided, you will be prompted interactively.
@@ -105,7 +105,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
+	@Option(names = "--url", required = true, order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
 	@Option(
@@ -415,7 +415,9 @@ public class HttpCli implements IQuery, Callable<Integer> {
 					configurationNode.set("port", new IntNode(resolvePortFromUrl()));
 					configurationNode.set("timeout", new TextNode(timeout));
 					configurationNode.set("username", new TextNode(username));
-					configurationNode.set("password", new TextNode(String.valueOf(password)));
+					if (password != null) {
+						configurationNode.set("password", new TextNode(String.valueOf(password)));
+					}
 
 					// Build an IConfiguration from the configuration ObjectNode
 					final IConfiguration configuration = extension.buildConfiguration(HTTP, configurationNode, null);

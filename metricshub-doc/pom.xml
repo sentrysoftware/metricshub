@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sentrysoftware</groupId>
 		<artifactId>metricshub-parent</artifactId>
-		<version>0.9.09-SNAPSHOT</version>
+		<version>1.0.02-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>metricshub-doc</artifactId>
@@ -16,8 +16,8 @@
 
 	<properties>
 		<communityVersion>${project.version}</communityVersion>
-		<enterpriseVersion>1.0.02</enterpriseVersion>
-		<otelVersion>0.102.0</otelVersion>
+		<enterpriseVersion>1.1.00</enterpriseVersion>
+		<otelVersion>0.116.0</otelVersion>
 	</properties>
 
 	<dependencies>
@@ -119,9 +119,10 @@
 			<plugin>
 				<groupId>org.sentrysoftware.maven</groupId>
 				<artifactId>metricshub-connector-maven-plugin</artifactId>
-				<version>1.0.07</version>
+				<version>1.0.08</version>
 				<configuration>
 					<sourceDirectory>${project.basedir}/../metricshub-agent/target/connectors</sourceDirectory>
+					<defaultPlatformIconFilename>default.png</defaultPlatformIconFilename>
 				</configuration>
 			</plugin>
 		</plugins>

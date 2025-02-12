@@ -4,7 +4,7 @@
 	<skin>
 		<groupId>org.sentrysoftware.maven</groupId>
 		<artifactId>sentry-maven-skin</artifactId>
-		<version>6.4.00</version>
+		<version>6.4.01</version>
 	</skin>
 
 	<bannerLeft>
@@ -82,6 +82,7 @@
 			<item name="Overview" href="index.html" />
 			<item name="Release Notes" href="release-notes.html" />
 			<item name="Connectors Directory" href="metricshub-connectors-directory.html" />
+			<item name="Connectors Full Listing" href="metricshub-connectors-full-listing.html" />
 		</menu>
 
 		<menu name="Installation">
@@ -99,9 +100,10 @@
 		</menu>
 
 		<menu name="Integration">
-			<item name="Prometheus" href="prometheus/prometheus.html" />
+			<item name="Prometheus" href="prometheus/prometheus.html">
 				<item name="Prometheus AlertManager" href="prometheus/alertmanager.html" />
 				<item name="Grafana Dashboards" href="prometheus/grafana.html" />
+			</item>
 		</menu>
 
 		<menu name="Guides">
@@ -112,19 +114,23 @@
 
 		<menu name="Troubleshooting">
 			<item name="Overview" href="troubleshooting/index.html"/>
+			<item name="Degraded Performance" href="troubleshooting/degraded-performance.html"/>
 			<item name="No Data for a Specific Resource" href="troubleshooting/no-data-resources.html"/>
 			<item name="No Data in Observability Platforms" href="troubleshooting/no-data-observability-platforms.html"/>
 			<item name="MetricsHub Logs" href="troubleshooting/metricshub-logs.html"/>
 			<item name="OTel Logs" href="troubleshooting/otel-logs.html"/>
-		</menu>
-
-		<menu name="Use Cases">
-			<item name="Monitoring Network Interfaces (SNMP)" href="usecases/network-interfaces.html" />
-			<item name="Monitoring a Process on Windows" href="usecases/process-windows.html" />
-			<item name="Monitoring a Remote Linux Machine" href="usecases/remote-linux.html" />
-			<item name="Monitoring a Service Running on Linux" href="usecases/service-linux.html" />
-			<item name="Monitoring a Service Health" href="usecases/service-health.html" />
-			<item name="Pinging Resources" href="usecases/ping.html" />
+			<item name="Protocol CLIs" href="troubleshooting/cli/index.html">
+				<item name="HTTP CLI" href="troubleshooting/cli/http.html"/>
+				<item name="IPMI CLI" href="troubleshooting/cli/ipmi.html"/>
+				<item name="JDBC CLI" href="troubleshooting/cli/jdbc.html"/>
+				<item name="Ping CLI" href="troubleshooting/cli/ping.html"/>
+				<item name="SNMP CLI" href="troubleshooting/cli/snmp.html"/>
+				<item name="SNMPv3 CLI" href="troubleshooting/cli/snmpv3.html"/>
+				<item name="SSH CLI" href="troubleshooting/cli/ssh.html"/>
+				<item name="WBEM CLI" href="troubleshooting/cli/wbem.html"/>
+				<item name="WinRm CLI" href="troubleshooting/cli/winrm.html"/>
+				<item name="WMI CLI" href="troubleshooting/cli/wmi.html"/>
+			</item>
 		</menu>
 
 		<menu name="Appendix">

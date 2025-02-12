@@ -54,7 +54,12 @@ import picocli.CommandLine.Spec;
  * CLI for executing SNMPv3 queries with validation and support for various operations.
  */
 @Data
-@Command(name = "snmpv3", description = "\nList of valid options: \n", footer = SnmpV3Cli.FOOTER, usageHelpWidth = 180)
+@Command(
+	name = "snmpv3cli",
+	description = "\nList of valid options: \n",
+	footer = SnmpV3Cli.FOOTER,
+	usageHelpWidth = 180
+)
 public class SnmpV3Cli implements IQuery, Callable<Integer> {
 
 	/**
@@ -71,33 +76,33 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		Example:
 
 		@|green # SNMPv3 Get request:|@
-		snmpv3 <HOSTNAME> --get <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
+		snmpv3cli <HOSTNAME> --get <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
 		--username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> \
 		--retry <INTERVAL1>,<INTERVAL2>,...
 
-		snmpv3 dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
+		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Get Next request:|@
-		snmpv3 <HOSTNAME> --getNext <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
+		snmpv3cli <HOSTNAME> --getNext <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
 		--auth <SHA|MD5> --username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> \
 		--retry <INTERVAL1>,<INTERVAL2>,...
 
-		snmpv3 dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
+		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Walk request:|@
-		snmpv3 <HOSTNAME> --walk <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
+		snmpv3cli <HOSTNAME> --walk <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
 		--username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
 
-		snmpv3 dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth MD5 --username username \
+		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth MD5 --username username \
 		--password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Table request:|@
-		snmpv3 <HOSTNAME> --table <OID> --columns <COLUMN1>,<COLUMN2>,... --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
+		snmpv3cli <HOSTNAME> --table <OID> --columns <COLUMN1>,<COLUMN2>,... --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
 		--auth <SHA|MD5> --username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
 
-		snmpv3 dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
+		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		Note: If --password is not provided, you will be prompted interactively.
@@ -176,7 +181,7 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	private int port;
 
 	@Option(
-		names = "--retryIntervals",
+		names = { "--retry-intervals", "--retry" },
 		order = 9,
 		paramLabel = "RETRY INTERVALS",
 		split = ",",

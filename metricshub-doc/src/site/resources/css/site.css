@@ -80,6 +80,20 @@ body.dark {
 	--main-fgcolor: #e9ecef;
 }
 
+body.metricshub.dark .platform-tile {
+    background: #333;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+body.metricshub.dark .platform-tile:hover {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+body.metricshub.dark .platform-tile .platform-title {
+    color: #fff;
+}
+
 /* Special PrismJS colors for <code> element containing JSON */
 body.metricshub code[class*=language-js] {
 	color: #606060;
@@ -120,4 +134,100 @@ body.metricshub.dark code[class*=language-js] .token.punctuation {
 	color: white;
 	text-decoration: none;
 	font-size: small;
+}
+
+.metricshub .platform-tile-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 10px;
+    width: 100%;
+}
+
+.metricshub .platform-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: rgb(230 230 230);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.metricshub .platform-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.metricshub .platform-tile .platform-title {
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.metricshub .platform-tile .platform-title .connectors-badge {
+    margin-top: 0px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
+.metricshub .platform-tile .platform-icon {
+    width: 140px;
+    height: 140px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 15px;
+}
+
+.metricshub .platform-tile .platform-labels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.metricshub .platform-tile .badge,
+.metricshub .platform-tile .label {
+    font-size: 10px;
+    padding: 5px 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.metricshub .platform-tile div:last-child {
+    margin-top: auto;
+}
+
+@media (max-width: 1200px) and (min-width: 993px) {
+    .metricshub .platform-tile-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) and (min-width: 769px) {
+    .metricshub .platform-tile-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .metricshub .platform-tile-container {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .metricshub .platform-tile {
+        padding: 40px;
+    }
 }
