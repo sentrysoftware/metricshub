@@ -148,6 +148,14 @@ groups:
     expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="high.critical"}
     labels:
       severity: 'critical'
+  - alert: Voltage-Low-warn
+    expr:  hw_voltage_volts <= ignoring(limit_type) hw_voltage_limit_volts{limit_type="low.degraded"}
+    labels:
+      severity: 'warn'
+  - alert: Voltage-High-warn
+    expr:  hw_voltage_volts >= ignoring(limit_type) hw_voltage_limit_volts{limit_type="high.degraded"}
+    labels:
+      severity: 'warn'
 
 - name: Protocol-Status
   rules:
