@@ -48,12 +48,22 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 	/**
 	 * Protocol up status value '1.0'
 	 */
-	public static final Double UP = 1.0;
+	static final Double UP = 1.0;
 
 	/**
 	 * Protocol down status value '0.0'
 	 */
-	public static final Double DOWN = 0.0;
+	static final Double DOWN = 0.0;
+
+	/**
+	 * Protocol up metric format
+	 */
+	static final String UP_METRIC_FORMAT = "metricshub.host.up{protocol=\"%s\"}";
+
+	/**
+	 * Protocol response time metric format
+	 */
+	static final String RESPONSE_TIME_METRIC_FORMAT = "metricshub.host.response_time{protocol=\"%s\"}";
 
 	/**
 	 * Constructs a new {@code HealthCheckStrategy} using the provided telemetry
@@ -96,14 +106,14 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					// Collect protocol check metric
 					metricFactory.collectNumberMetric(
 						endpointHostMonitor,
-						"metricshub.host.up{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+						UP_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
 						Boolean.TRUE.equals(isUp) ? UP : DOWN,
 						strategyTime
 					);
 					// Collect protocol check response time metric
 					metricFactory.collectNumberMetric(
 						endpointHostMonitor,
-						"metricshub.host.up.response_time{protocol=\"" + protocolExtension.getIdentifier() + "\"}",
+						RESPONSE_TIME_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
 						responseTime,
 						strategyTime
 					);
