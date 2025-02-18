@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,6 +55,8 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 
 /**
@@ -79,6 +82,24 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 * The default port for HTTPS connections.
 	 */
 	public static final int DEFAULT_HTTPS_PORT = 443;
+	/**
+	 * HTTP GET method
+	 */
+	private static final String HTTP_GET = "GET";
+
+	/**
+	 * A set of valid HTTP methods.
+	 */
+	public static final Set<String> VALID_HTTP_METHODS = Set.of(
+		"GET",
+		"POST",
+		"PUT",
+		"DELETE",
+		"HEAD",
+		"OPTIONS",
+		"TRACE",
+		"PATCH"
+	);
 
 	/**
 	 * Footer regrouping HTTP CLI examples
@@ -88,15 +109,15 @@ public class HttpCli implements IQuery, Callable<Integer> {
 
 		Examples:
 
-		httpcli --method <GET|POST|PUT|DELETE> --url <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
+		httpcli <GET|POST|PUT|DELETE> <URL> --username <USERNAME> --password <PASSWORD> [--body <BODY> or --body-file <BODY FILE PATH>] \
 		[--header <HEADER> --header <HEADER> or --header-file <HEADER FILE PATH>] --timeout <TIMEOUT>
 
 		@|green # HTTP GET request with a body and two headers.|@
-		httpcli --method get --url https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
+		httpcli get https://dev-01:443/users --username username --password password --header="Content-Type: application/xml" \
 		--header="Accept:application/json" --body="<aaaLogin inName="username" inPassword="password" />" --timeout 2m
 
 		@|green # HTTP POST request with a header file and a body file.|@
-		httpcli --method post --url https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
+		httpcli post https://dev-01:443/users --username admin --password pass --header-file="/opt/metricshub/header.txt" \
 		--body-file="/opt/metricshub/body.txt" --timeout 2m
 
 		Note: If --password is not provided, you will be prompted interactively.
@@ -105,16 +126,16 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Option(names = "--url", required = true, order = 1, paramLabel = "URL", description = "Url for HTTP request.")
+	@Parameters(index = "0", paramLabel = "POSITIONALMETHOD", description = "HTTP request Method.", arity = "0..1")
+	private String positionalMethod;
+
+	@Parameters(index = "1", paramLabel = "URL", description = "Url for HTTP request.", arity = "0..1")
+	private String positionalUrl;
+
+	@Option(names = "--url", order = 1, paramLabel = "URL", description = "Url for HTTP request.")
 	private String url;
 
-	@Option(
-		names = "--method",
-		defaultValue = "GET",
-		order = 2,
-		paramLabel = "METHOD",
-		description = "HTTP method (GET|POST|PUT|DELETE)"
-	)
+	@Option(names = "--method", order = 2, paramLabel = "METHOD", description = "HTTP method (GET|POST|PUT|DELETE)")
 	private String method;
 
 	@Option(
@@ -246,6 +267,37 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	}
 
 	/**
+	 * Resolves the URL by assigning {@code positionalUrl} to {@code url}
+	 * if {@code url} is not explicitly set. Throws an exception if neither is set.
+	 *
+	 * @throws CommandLine.ParameterException if both {@code url} and {@code positionalUrl} are null.
+	 */
+	public void resolveUrl() {
+		if (url == null) {
+			if (positionalUrl != null) {
+				url = positionalUrl;
+			} else {
+				throw new CommandLine.ParameterException(spec.commandLine(), "Missing required URL parameter.");
+			}
+		}
+	}
+
+	/**
+	 * Resolves the HTTP method by assigning {@code positionalMethod} to {@code method}
+	 * if {@code method} is not explicitly set. Defaults to {@code "GET"} if neither is set.
+	 */
+	public void resolveMethod() {
+		if (method == null) {
+			method =
+				(positionalMethod != null && VALID_HTTP_METHODS.contains(positionalMethod.toUpperCase()))
+					? positionalMethod
+					: HTTP_GET;
+		} else if (!VALID_HTTP_METHODS.contains(method.toUpperCase())) {
+			method = HTTP_GET;
+		}
+	}
+
+	/**
 	 * Try to start the interactive mode to request and set HTTP password
 	 *
 	 * @param passwordReader password reader which displays the prompt text and wait for user's input
@@ -253,6 +305,28 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	void tryInteractivePassword(final CliPasswordReader<char[]> passwordReader) {
 		if (username != null && password == null) {
 			password = passwordReader.read("%s password for HTTP: ", username);
+		}
+	}
+
+	void resolvePositionalParameters() {
+		ParseResult parseResults = spec.commandLine().getParseResult();
+
+		// Only one positional parameter have been specified
+		if (
+			parseResults != null && parseResults.matchedPositionals() != null && parseResults.matchedPositionals().size() == 1
+		) {
+			if (VALID_HTTP_METHODS.contains(positionalMethod.toUpperCase())) {
+				// if the positional method value is an HTPP method
+				if (method == null) {
+					method = positionalMethod;
+				}
+			} else {
+				// if the positional method value is a URL
+				if (url == null) {
+					url = positionalMethod;
+				}
+				positionalMethod = null;
+			}
 		}
 	}
 
@@ -270,6 +344,12 @@ public class HttpCli implements IQuery, Callable<Integer> {
 		if (interactive) {
 			tryInteractivePassword(System.console()::readPassword);
 		}
+
+		resolvePositionalParameters();
+
+		resolveUrl();
+
+		resolveMethod();
 
 		// Validating HTTP Url
 		validateUrl();
@@ -315,6 +395,11 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 * @throws ParameterException if the URL is invalid
 	 */
 	void validateUrl() {
+		// if the protocol isn't included in the URL, we add https://
+		if (url != null && !url.startsWith(HTTP)) {
+			url = "https://" + url;
+		}
+
 		try {
 			// Performing a basic validation of the URL format
 			parsedUrl = new URL(url);
@@ -446,7 +531,12 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 */
 	void displayRequest() {
 		printWriter.println(
-			String.format("Hostname %s - Executing %s %s request:", parsedUrl.getHost(), parsedUrl.getProtocol(), method)
+			String.format(
+				"Hostname %s - Executing %s %s request:",
+				parsedUrl.getHost(),
+				parsedUrl.getProtocol(),
+				method.toUpperCase()
+			)
 		);
 
 		printWriter.println(Ansi.ansi().a("Url: ").fgBrightBlack().a(url).reset().toString());

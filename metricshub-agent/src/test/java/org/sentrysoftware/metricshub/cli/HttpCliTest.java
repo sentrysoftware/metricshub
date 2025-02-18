@@ -27,7 +27,7 @@ class HttpCliTest {
 
 	private static final String HTTP_GET = "GET";
 	private static final String URL = "https://hostname:443/www.test.com";
-	private static final String WRONG_URL = "WrongUrl";
+	private static final String MALFORMED_URL = "http://example.com:%999999";
 	private static final String WRONG_HEADER_FILE_PATH = "wrong/path/header.txt";
 	private static final String HEADER_FILE_PATH = "src/test/resources/cli/header.txt";
 	private static final Map<String, String> HEADERS = Map.of("Content-Type", "application/xml");
@@ -107,9 +107,11 @@ class HttpCliTest {
 			assertDoesNotThrow(() -> httpCli.validateUrl());
 		}
 		{
-			httpCli.setUrl("://hostname:443/www.test.com/path1/");
+			httpCli.setUrl(MALFORMED_URL);
 			ParameterException exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validateUrl());
 			assertTrue(exceptionMessage.getMessage().contains("Malformed URL:"));
+			httpCli.setUrl("www.example.com");
+			assertDoesNotThrow(() -> httpCli.validateUrl());
 			httpCli.setUrl(URL);
 			assertDoesNotThrow(() -> httpCli.validateUrl());
 		}
@@ -131,16 +133,79 @@ class HttpCliTest {
 	}
 
 	@Test
-	void testValidate() {
-		// URL must be valid (contains the protocol at the beginning).
-		httpCli.setUrl(WRONG_URL);
-		ParameterException exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
-		assertTrue(exceptionMessage.getMessage().contains("Malformed URL:"));
-		httpCli.setUrl(URL);
+	void testResolveUrl() {
+		// both url and positional url are specified
+		// httpcli patch www.metricshub.com --url sentrysoftware.com ...
+		httpCli.setUrl("www.sentrysoftware.com");
+		httpCli.setPositionalUrl("www.metricshub.com");
+		httpCli.resolveUrl();
+		// Url will be taken
+		assertEquals("www.sentrysoftware.com", httpCli.getUrl());
 
+		// Only positional url is specified
+		httpCli.setUrl(null);
+		httpCli.setPositionalUrl("www.metricshub.com");
+		httpCli.resolveUrl();
+		assertEquals("www.metricshub.com", httpCli.getUrl());
+
+		// Only url is specified using --url
+		httpCli.setUrl("www.sentrysoftware.com");
+		httpCli.setPositionalUrl(null);
+		httpCli.resolveUrl();
+		assertEquals("www.sentrysoftware.com", httpCli.getUrl());
+
+		httpCli.setUrl(null);
+		httpCli.setPositionalUrl(null);
+		ParameterException exception = assertThrows(ParameterException.class, () -> httpCli.resolveUrl());
+		assertTrue(exception.getMessage().contains("Missing required URL"));
+	}
+
+	@Test
+	void testResolveMethod() {
+		// both method and positional method are specified
+		// httpcli patch www.metricshub.com --method get ...
+		httpCli.setMethod("GET");
+		httpCli.setPositionalMethod("PATCH");
+		httpCli.resolveMethod();
+		// Method will be taken
+		assertEquals("GET", httpCli.getMethod());
+
+		// Only positional method is specified
+		httpCli.setMethod(null);
+		httpCli.setPositionalMethod("POST");
+		httpCli.resolveMethod();
+		assertEquals("POST", httpCli.getMethod());
+
+		// Only method is specified using --method
+		httpCli.setMethod("POST");
+		httpCli.setPositionalMethod(null);
+		httpCli.resolveMethod();
+		assertEquals("POST", httpCli.getMethod());
+
+		// both positionalMethod & method aren't specified
+		httpCli.setMethod(null);
+		httpCli.setPositionalMethod(null);
+		httpCli.resolveMethod();
+		assertEquals("GET", httpCli.getMethod());
+
+		// A wrong positionalMethod is specified
+		httpCli.setPositionalMethod("POS");
+		httpCli.resolveMethod();
+		assertEquals("GET", httpCli.getMethod());
+
+		// A wrong method is specified
+		httpCli.setMethod("POS");
+		httpCli.setPositionalMethod(null);
+		httpCli.resolveMethod();
+		assertEquals("GET", httpCli.getMethod());
+	}
+
+	@Test
+	void testValidate() {
+		httpCli.setUrl(URL);
 		// Wrong headerFile path
 		httpCli.setHeaderFile(WRONG_HEADER_FILE_PATH);
-		exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
+		ParameterException exceptionMessage = assertThrows(ParameterException.class, () -> httpCli.validate());
 		assertTrue(exceptionMessage.getMessage().contains("Error while reading header file"));
 
 		// Only one header (headers or headerFile) must be specified.
@@ -166,5 +231,32 @@ class HttpCliTest {
 		httpCli.setBody(null);
 
 		assertDoesNotThrow(() -> httpCli.validate());
+	}
+
+	@Test
+	void testResolvePositionalParameters() {
+		// Two positional parameters
+		httpCli = new HttpCli();
+		String[] command = { "post", "www.sentrysoftware.com" };
+		commandLine = new CommandLine(httpCli);
+		commandLine.parseArgs(command);
+		httpCli.resolvePositionalParameters();
+		assertEquals("post", httpCli.getPositionalMethod());
+		assertEquals("www.sentrysoftware.com", httpCli.getPositionalUrl());
+
+		// The only positional parameter is a URL
+		command = new String[] { URL };
+		CommandLine commandLine = new CommandLine(httpCli);
+		commandLine.parseArgs(command);
+		httpCli.resolvePositionalParameters();
+		assertEquals(URL, httpCli.getUrl());
+
+		// The only positional parameter is an HTTP Method
+		httpCli = new HttpCli();
+		command = new String[] { "put" };
+		commandLine = new CommandLine(httpCli);
+		commandLine.parseArgs(command);
+		httpCli.resolvePositionalParameters();
+		assertEquals("put", httpCli.getMethod());
 	}
 }
