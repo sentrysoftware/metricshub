@@ -63,6 +63,7 @@ public class ConnectorIdentity implements Serializable {
 	 */
 	@JsonDeserialize(using = PlatformsDeserializer.class)
 	@JsonSetter(nulls = SKIP)
+	@Default
 	private Set<String> platforms = new HashSet<>();
 
 	/**
