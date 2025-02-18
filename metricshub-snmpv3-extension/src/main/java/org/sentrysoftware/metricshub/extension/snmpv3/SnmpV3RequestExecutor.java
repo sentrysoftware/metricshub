@@ -47,10 +47,14 @@ public class SnmpV3RequestExecutor extends AbstractSnmpRequestExecutor {
 			snmpConfig.getIntVersion(),
 			snmpConfig.getRetryIntervals(),
 			null,
-			snmpConfig.getAuthType().toString(),
+			SnmpV3Configuration.AuthType.NO_AUTH.equals(snmpConfig.getAuthType())
+				? null
+				: snmpConfig.getAuthType().toString(),
 			snmpConfig.getUsername(),
 			password,
-			snmpConfig.getPrivacy().toString(),
+			SnmpV3Configuration.Privacy.NO_ENCRYPTION.equals(snmpConfig.getPrivacy())
+				? null
+				: snmpConfig.getPrivacy().toString(),
 			privacyPassword,
 			snmpConfig.getContextName(),
 			null

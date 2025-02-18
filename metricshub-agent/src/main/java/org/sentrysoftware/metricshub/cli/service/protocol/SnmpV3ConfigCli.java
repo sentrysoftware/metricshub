@@ -68,7 +68,7 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	@Option(
 		names = "--snmpv3-auth",
 		order = 4,
-		paramLabel = "SHA|MD5",
+		paramLabel = "SHA|SHA256|SHA512|SHA384|SHA224|MD5",
 		description = "Authentication type for SNMP version 3 (SHA, MD5 or NO_AUTH)"
 	)
 	private String authType;

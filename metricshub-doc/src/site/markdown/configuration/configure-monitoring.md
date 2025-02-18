@@ -421,19 +421,19 @@ resourceGroups:
 
 Use the parameters below to configure the SNMP version 3 protocol:
 
-| Parameter       | Description                                                                                          |
-|-----------------|------------------------------------------------------------------------------------------------------|
-| snmpv3          | Protocol used to access the host using SNMP version 3.                                               |
-| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.    |
-| timeout         | How long until the SNMP request times out (Default: 120s).                                           |
-| port            | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                          |
-| contextName     | The name of the SNMP version 3 context, used to identify the collection of management information.   |
-| authType        | The SNMP version 3 authentication protocol (MD5, SHA or NoAuth) to ensure message authenticity.      |
-| privacy         | The SNMP version 3 privacy protocol (DES, AES or NONE) used to encrypt messages for confidentiality. |
-| username        | The username used for SNMP version 3 authentication.                                                 |
-| privacyPassword | The password used to encrypt SNMP version 3 messages for confidentiality.                            |
-| password        | The password used for SNMP version 3 authentication.                                                 |
-| retryIntervals  | The intervals (in milliseconds) between SNMP request retries.                                        |
+| Parameter       | Description                                                                                                                     |
+|-----------------|---------------------------------------------------------------------------------------------------------------------------------|
+| snmpv3          | Protocol used to access the host using SNMP version 3.                                                                          |
+| hostname        | The name or IP address of the resource. If not specified, the `host.name` attribute will be used.                               |
+| timeout         | How long until the SNMP request times out (Default: 120s).                                                                      |
+| port            | The SNMP port number used to perform SNMP version 3 queries (Default: 161).                                                     |
+| contextName     | The name of the SNMP version 3 context, used to identify the collection of management information.                              |
+| authType        | The SNMP version 3 authentication protocol (MD5, SHA, SHA224, SHA256, SHA512, SHA384 or NoAuth) to ensure message authenticity. |
+| privacy         | The SNMP version 3 privacy protocol (DES, AES or NONE) used to encrypt messages for confidentiality.                            |
+| username        | The username used for SNMP version 3 authentication.                                                                            |
+| privacyPassword | The password used to encrypt SNMP version 3 messages for confidentiality.                                                       |
+| password        | The password used for SNMP version 3 authentication.                                                                            |
+| retryIntervals  | The intervals (in milliseconds) between SNMP request retries.                                                                   |
 
 **Example**
 

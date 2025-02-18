@@ -153,7 +153,11 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 	public enum AuthType {
 		NO_AUTH,
 		MD5,
-		SHA;
+		SHA,
+		SHA256,
+		SHA512,
+		SHA224,
+		SHA384;
 
 		/**
 		 * Interpret the specified label and returns corresponding value.
@@ -168,6 +172,14 @@ public class SnmpV3Configuration implements ISnmpConfiguration {
 				return NO_AUTH;
 			} else if (lowerCaseAuthType.contains("md5")) {
 				return MD5;
+			} else if (lowerCaseAuthType.contains("sha256")) {
+				return SHA256;
+			} else if (lowerCaseAuthType.contains("sha512")) {
+				return SHA512;
+			} else if (lowerCaseAuthType.contains("sha224")) {
+				return SHA224;
+			} else if (lowerCaseAuthType.contains("sha384")) {
+				return SHA384;
 			} else if (lowerCaseAuthType.contains("sha")) {
 				return SHA;
 			}
