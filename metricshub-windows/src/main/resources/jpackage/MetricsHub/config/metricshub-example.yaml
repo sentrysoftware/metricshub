@@ -426,7 +426,7 @@ resourceGroups:
 
       # group-1:
       #   attributes:
-      #     host.name: [server-15, server-16, server-17]
+      #     host.name: [server-21, server-22, server-23]
       #     host.type: linux
       #   protocols:
       #     snmp:

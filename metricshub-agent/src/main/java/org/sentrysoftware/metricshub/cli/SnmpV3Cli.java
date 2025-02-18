@@ -83,17 +83,8 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
-		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA512 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA224 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA384 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
+		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Get Next request:|@
 		snmpv3cli <HOSTNAME> --getNext <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
@@ -103,17 +94,8 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
-		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA512 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA224 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \\
-			--auth SHA384 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
+		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Walk request:|@
 		snmpv3cli <HOSTNAME> --walk <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
@@ -122,17 +104,8 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth MD5 --username username \
 		--password password --context-name context --timeout 2m --retry 500,1000
 
-		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA256 \\
-			--username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA512 \\
-			--username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA224 \\
-			--username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA384 \\
-			--username username --password password --context-name context --timeout 2m --retry 500,1000
+		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA256 \
+		--username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		@|green # SNMPv3 Table request:|@
 		snmpv3cli <HOSTNAME> --table <OID> --columns <COLUMN1>,<COLUMN2>,... --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
@@ -141,17 +114,8 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
 		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
-		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \\
+		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
 		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy DES --privacy-password privacyPassword \\
-		--auth SHA512 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \\
-		--auth SHA224 --username username --password password --context-name context --timeout 2m --retry 500,1000
-
-		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy DES --privacy-password privacyPassword \\
-		--auth SHA384 --username username --password password --context-name context --timeout 2m --retry 500,1000
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
