@@ -126,7 +126,7 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	@Spec
 	CommandSpec spec;
 
-	@Parameters(index = "0", paramLabel = "POSITIONALMETHOD", description = "HTTP request Method.", arity = "0..1")
+	@Parameters(index = "0", paramLabel = "METHOD", description = "HTTP request Method.", arity = "0..1")
 	private String positionalMethod;
 
 	@Parameters(index = "1", paramLabel = "URL", description = "Url for HTTP request.", arity = "0..1")
@@ -288,11 +288,10 @@ public class HttpCli implements IQuery, Callable<Integer> {
 	 */
 	public void resolveMethod() {
 		if (method == null) {
-			method =
-				(positionalMethod != null && VALID_HTTP_METHODS.contains(positionalMethod.toUpperCase()))
-					? positionalMethod
-					: HTTP_GET;
-		} else if (!VALID_HTTP_METHODS.contains(method.toUpperCase())) {
+			method = positionalMethod != null ? positionalMethod : HTTP_GET;
+		}
+
+		if (!VALID_HTTP_METHODS.contains(method.toUpperCase())) {
 			method = HTTP_GET;
 		}
 	}
