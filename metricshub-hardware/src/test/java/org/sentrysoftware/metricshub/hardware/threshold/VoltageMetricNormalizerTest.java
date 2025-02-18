@@ -17,6 +17,10 @@ class VoltageMetricNormalizerTest {
 		HW_VOLTAGE_LIMIT + "{limit_type=\"high.critical\"}";
 	public static final String HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_CRITICAL =
 		HW_VOLTAGE_LIMIT + "{limit_type=\"low.critical\"}";
+	public static final String HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_DEGRADED =
+		HW_VOLTAGE_LIMIT + "{limit_type=\"high.degraded\"}";
+	public static final String HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_DEGRADED =
+		HW_VOLTAGE_LIMIT + "{limit_type=\"low.degraded\"}";
 
 	@Test
 	void testNormalize() {
@@ -159,15 +163,15 @@ class VoltageMetricNormalizerTest {
 
 			new VoltageMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwVoltageLimitMetric);
 			assertEquals(
-				11.0,
+				10.0,
 				monitorWithHwVoltageLimitMetric
 					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_CRITICAL, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
-				10.0,
+				9.0,
 				monitorWithHwVoltageLimitMetric
-					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
+					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -211,7 +215,7 @@ class VoltageMetricNormalizerTest {
 			assertEquals(
 				-11.0,
 				monitorWithHwVoltageLimitMetric
-					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
+					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 		}
@@ -247,13 +251,13 @@ class VoltageMetricNormalizerTest {
 
 			new VoltageMetricNormalizer(STRATEGY_TIME, HOSTNAME).normalize(monitorWithHwVoltageLimitMetric);
 			assertEquals(
-				10.0,
+				11.0,
 				monitorWithHwVoltageLimitMetric
-					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_CRITICAL, NumberMetric.class)
+					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
-				9.0,
+				10.0,
 				monitorWithHwVoltageLimitMetric
 					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_CRITICAL, NumberMetric.class)
 					.getValue()
@@ -293,7 +297,7 @@ class VoltageMetricNormalizerTest {
 			assertEquals(
 				-9.0,
 				monitorWithHwVoltageLimitMetric
-					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_HIGH_CRITICAL, NumberMetric.class)
+					.getMetric(HW_VOLTAGE_LIMIT_LIMIT_TYPE_LOW_DEGRADED, NumberMetric.class)
 					.getValue()
 			);
 			assertEquals(
