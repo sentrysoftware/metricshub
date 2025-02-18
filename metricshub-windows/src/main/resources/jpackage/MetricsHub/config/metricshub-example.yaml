@@ -290,11 +290,125 @@ resourceGroups:
       #       password: <auth-password>
 
       #═══════════════════════════════════════════════════
-      # JDBC Configuration
+      # SNMP v3 SHA256 protocol configuration
       #═══════════════════════════════════════════════════
+
       # server-14:
       #   attributes:
       #     host.name: server-14
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA256
+      #       privacy: AES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 SHA512 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # server-15:
+      #   attributes:
+      #     host.name: server-15
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA512
+      #       privacy: DES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 SHA224 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # server-16:
+      #   attributes:
+      #     host.name: server-16
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA224
+      #       privacy: DES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 SHA224 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # server-17:
+      #   attributes:
+      #     host.name: server-17
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA224
+      #       privacy: DES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 SHA384 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # server-18:
+      #   attributes:
+      #     host.name: server-18
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: SHA384
+      #       privacy: DES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # SNMP v3 MD5 protocol configuration
+      #═══════════════════════════════════════════════════
+
+      # server-19:
+      #   attributes:
+      #     host.name: server-19
+      #     host.type: linux
+      #   protocols:
+      #     snmpv3:
+      #       port: 161
+      #       timeout: 120s
+      #       contextName: <snmp-v3-context>
+      #       authType: MD5
+      #       privacy: DES
+      #       username: <username>
+      #       privacyPassword: <privacy-password>
+      #       password: <auth-password>
+
+      #═══════════════════════════════════════════════════
+      # JDBC Configuration
+      #═══════════════════════════════════════════════════
+      # server-20:
+      #   attributes:
+      #     host.name: server-20
       #     host.type: win
       #   protocols:
       #     jdbc:
