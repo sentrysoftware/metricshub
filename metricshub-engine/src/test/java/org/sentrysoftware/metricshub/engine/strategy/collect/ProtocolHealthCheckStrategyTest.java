@@ -1,6 +1,9 @@
 package org.sentrysoftware.metricshub.engine.strategy.collect;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
@@ -8,6 +11,7 @@ import static org.sentrysoftware.metricshub.engine.constants.Constants.HOSTNAME;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +24,7 @@ import org.sentrysoftware.metricshub.engine.extension.IProtocolExtension;
 import org.sentrysoftware.metricshub.engine.extension.TestConfiguration;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 @ExtendWith(MockitoExtension.class)
 class ProtocolHealthCheckStrategyTest {
@@ -62,11 +67,12 @@ class ProtocolHealthCheckStrategyTest {
 					.configurations(Map.of(TestConfiguration.class, TestConfiguration.builder().build()))
 					.build()
 			)
+			.strategyTime(System.currentTimeMillis())
 			.build();
 	}
 
 	@Test
-	void testCheckHealth() throws Exception {
+	void testCheckHealth() {
 		// Create a telemetry manager using a test configuration.
 		final TelemetryManager telemetryManager = createTelemetryManagerWithTestConfig();
 
@@ -80,6 +86,12 @@ class ProtocolHealthCheckStrategyTest {
 			.when(protocolExtensionMock)
 			.isValidConfiguration(telemetryManager.getHostConfiguration().getConfigurations().get(TestConfiguration.class));
 
+		final String protocol = "snmp";
+
+		doReturn(protocol).when(protocolExtensionMock).getIdentifier();
+
+		doReturn(Optional.of(true)).when(protocolExtensionMock).checkProtocol(any(TelemetryManager.class));
+
 		// Create a new protocol health check strategy
 		final ProtocolHealthCheckStrategy healthCheckStrategy = new ProtocolHealthCheckStrategy(
 			telemetryManager,
@@ -88,5 +100,18 @@ class ProtocolHealthCheckStrategyTest {
 			extensionManager
 		);
 		assertDoesNotThrow(() -> healthCheckStrategy.run());
+
+		assertEquals(
+			ProtocolHealthCheckStrategy.UP,
+			telemetryManager
+				.getEndpointHostMonitor()
+				.getMetric(ProtocolHealthCheckStrategy.UP_METRIC_FORMAT.formatted(protocol), NumberMetric.class)
+				.getValue()
+		);
+		assertNotNull(
+			telemetryManager
+				.getEndpointHostMonitor()
+				.getMetric(ProtocolHealthCheckStrategy.RESPONSE_TIME_METRIC_FORMAT.formatted(protocol), NumberMetric.class)
+		);
 	}
 }

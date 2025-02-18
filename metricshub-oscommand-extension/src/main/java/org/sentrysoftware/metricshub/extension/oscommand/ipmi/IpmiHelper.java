@@ -628,7 +628,7 @@ public class IpmiHelper {
 					// Retrieve the vendor/model/serial from the corresponding FRU
 					String elt = fruList.stream().filter(fru -> fru.startsWith(fruId + TABLE_SEP)).findFirst().orElse("");
 					if (!elt.isEmpty()) {
-						String[] fruSplit = elt.split(TABLE_SEP);
+						String[] fruSplit = elt.split(TABLE_SEP, -1);
 						vendor = fruSplit[1];
 						model = fruSplit[2];
 						serialNumber = fruSplit[3];

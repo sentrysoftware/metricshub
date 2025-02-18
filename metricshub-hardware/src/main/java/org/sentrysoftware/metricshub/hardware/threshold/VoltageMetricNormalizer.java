@@ -79,43 +79,32 @@ public class VoltageMetricNormalizer extends AbstractMetricNormalizer {
 			// Adjust values if both metrics are present
 			swapIfFirstLessThanSecond(maybeHighCriticaldMetric.get(), maybeLowCriticalMetric.get());
 		} else if (maybeHighCriticaldMetric.isPresent()) {
-			// Create low critical metric if only high critical is present
+			// Create high degraded metric if only high critical is present
 			final NumberMetric highCriticalMetric = maybeHighCriticaldMetric.get();
-			final Double maybeLowCriticalMetricValue = highCriticalMetric.getValue();
-			final String lowCriticalMetricName = replaceLimitType(
+
+			final String highDegradedMetricName = replaceLimitType(
 				highCriticalMetric.getName(),
-				"limit_type=\"low.critical\""
+				"limit_type=\"high.degraded\""
 			);
-			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;
-			final Double maybeHighCriticalMetricValue = maybeLowCriticalMetricValue * 1.1;
-			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
 
-			if (lowCriticalMetricValue <= 0) {
-				highCriticalMetricValue = maybeLowCriticalMetricValue;
-				lowCriticalMetricValue = maybeHighCriticalMetricValue;
-			}
-
-			highCriticalMetric.setValue(highCriticalMetricValue);
-			collectMetric(monitor, lowCriticalMetricName, lowCriticalMetricValue);
+			final Double highCriticalValue = highCriticalMetric.getValue();
+			collectMetric(
+				monitor,
+				highDegradedMetricName,
+				highCriticalValue > 0 ? highCriticalValue * 0.9 : highCriticalValue * 1.1
+			);
 		} else if (maybeLowCriticalMetric.isPresent()) {
-			// Create high critical metric if only low critical is present
+			// Create low degraded metric if only low critical is present
 			final NumberMetric lowCriticalMetric = maybeLowCriticalMetric.get();
-			final Double maybeHighCriticalMetricValue = lowCriticalMetric.getValue();
-			final String highCriticalMetricName = replaceLimitType(
-				lowCriticalMetric.getName(),
-				"limit_type=\"high.critical\""
+
+			final String lowDegradedMetricName = replaceLimitType(lowCriticalMetric.getName(), "limit_type=\"low.degraded\"");
+
+			final Double lowCriticalValue = lowCriticalMetric.getValue();
+			collectMetric(
+				monitor,
+				lowDegradedMetricName,
+				lowCriticalValue > 0 ? lowCriticalValue * 1.1 : lowCriticalValue * 0.9
 			);
-			Double highCriticalMetricValue = maybeHighCriticalMetricValue;
-			final Double maybeLowCriticalMetricValue = maybeHighCriticalMetricValue * 0.9;
-			Double lowCriticalMetricValue = maybeLowCriticalMetricValue;
-
-			if (highCriticalMetricValue <= 0) {
-				highCriticalMetricValue = maybeLowCriticalMetricValue;
-				lowCriticalMetricValue = maybeHighCriticalMetricValue;
-			}
-
-			lowCriticalMetric.setValue(lowCriticalMetricValue);
-			collectMetric(monitor, highCriticalMetricName, highCriticalMetricValue);
 		}
 	}
 }
