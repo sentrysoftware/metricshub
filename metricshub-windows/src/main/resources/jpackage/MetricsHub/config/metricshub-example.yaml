@@ -347,31 +347,12 @@ resourceGroups:
       #       password: <auth-password>
 
       #═══════════════════════════════════════════════════
-      # SNMP v3 SHA224 protocol configuration
+      # SNMP v3 SHA384 protocol configuration
       #═══════════════════════════════════════════════════
 
       # server-17:
       #   attributes:
       #     host.name: server-17
-      #     host.type: linux
-      #   protocols:
-      #     snmpv3:
-      #       port: 161
-      #       timeout: 120s
-      #       contextName: <snmp-v3-context>
-      #       authType: SHA224
-      #       privacy: DES
-      #       username: <username>
-      #       privacyPassword: <privacy-password>
-      #       password: <auth-password>
-
-      #═══════════════════════════════════════════════════
-      # SNMP v3 SHA384 protocol configuration
-      #═══════════════════════════════════════════════════
-
-      # server-18:
-      #   attributes:
-      #     host.name: server-18
       #     host.type: linux
       #   protocols:
       #     snmpv3:
@@ -388,9 +369,9 @@ resourceGroups:
       # SNMP v3 MD5 protocol configuration
       #═══════════════════════════════════════════════════
 
-      # server-19:
+      # server-18:
       #   attributes:
-      #     host.name: server-19
+      #     host.name: server-18
       #     host.type: linux
       #   protocols:
       #     snmpv3:
@@ -406,9 +387,9 @@ resourceGroups:
       #═══════════════════════════════════════════════════
       # JDBC Configuration
       #═══════════════════════════════════════════════════
-      # server-20:
+      # server-19:
       #   attributes:
-      #     host.name: server-20
+      #     host.name: server-19
       #     host.type: win
       #   protocols:
       #     jdbc:
@@ -426,7 +407,7 @@ resourceGroups:
 
       # group-1:
       #   attributes:
-      #     host.name: [server-21, server-22, server-23]
+      #     host.name: [server-20, server-21, server-22]
       #     host.type: linux
       #   protocols:
       #     snmp:
