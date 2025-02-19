@@ -196,8 +196,10 @@ class SnmpV3ConfigurationTest {
 
 	@Test
 	void testInterpretValueOfInvalidAuthType() {
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-				() -> AuthType.interpretValueOf("invalidauth"));
+		IllegalArgumentException exception = assertThrows(
+			IllegalArgumentException.class,
+			() -> AuthType.interpretValueOf("invalidauth")
+		);
 
 		assertTrue(exception.getMessage().contains("Invalid authentication type"));
 	}
