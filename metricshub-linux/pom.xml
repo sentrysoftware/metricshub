@@ -146,67 +146,67 @@
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-snmp-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-snmp-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-snmpv3-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-snmpv3-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-http-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-http-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-ipmi-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-ipmi-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-oscommand-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-oscommand-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-wmi-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-wmi-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-wbem-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-wbem-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-winrm-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-winrm-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-ping-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-ping-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-classloader-agent</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-classloader-agent.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-internaldb-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-internaldb-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-jdbc-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-jdbc-extension.jar</destFileName>
 								</artifactItem>
 								<artifactItem>
 									<groupId>${project.groupId}</groupId>
 									<artifactId>metricshub-jawk-extension</artifactId>
-									<version>${project.version}</version>
+									<destFileName>metricshub-jawk-extension.jar</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
