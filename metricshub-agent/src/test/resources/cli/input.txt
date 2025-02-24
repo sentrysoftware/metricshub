@@ -1,7 +1,3 @@
-Hostname dev-nvidia-01 - Executing command line through SSH.
-Command line: nvidia-smi -q
-Result:
-
 ==============NVSMI LOG==============
 
 Timestamp                                 : Wed Feb 19 13:01:49 2025

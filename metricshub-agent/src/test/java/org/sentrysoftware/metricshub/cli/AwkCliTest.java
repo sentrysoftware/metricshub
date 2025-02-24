@@ -8,8 +8,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import picocli.CommandLine;
@@ -60,7 +63,11 @@ class AwkCliTest {
 		awkCli.setScript(null);
 		awkCli.setScriptFile(SCRIPT_FILE_PATH);
 		assertDoesNotThrow(() -> awkCli.validateScript());
-		assertEquals(awkCli.getScriptContent().concat("\n"), Files.readString(Path.of(SCRIPT_FILE_PATH)));
+		final String result;
+		try (Stream<String> stream = Files.lines(Path.of(SCRIPT_FILE_PATH), StandardCharsets.UTF_8)) {
+			result = stream.collect(Collectors.joining("\n"));
+		}
+		assertEquals(awkCli.getScriptContent(), result);
 		// Wrong Script File path specified
 		awkCli.setScript(null);
 		awkCli.setScriptFile(WRONG_FILE_PATH);
@@ -89,7 +96,11 @@ class AwkCliTest {
 		awkCli.setInput(null);
 		awkCli.setInputFile(INPUT_FILE_PATH);
 		assertDoesNotThrow(() -> awkCli.validateInput());
-		assertEquals(awkCli.getInputContent().concat("\n"), Files.readString(Path.of(INPUT_FILE_PATH)));
+		final String result;
+		try (Stream<String> stream = Files.lines(Path.of(INPUT_FILE_PATH), StandardCharsets.UTF_8)) {
+			result = stream.collect(Collectors.joining("\n"));
+		}
+		assertEquals(awkCli.getInputContent(), result);
 		// Wrong Input File path specified
 		awkCli.setInput(null);
 		awkCli.setInputFile(WRONG_FILE_PATH);

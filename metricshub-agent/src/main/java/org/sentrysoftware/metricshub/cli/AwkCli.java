@@ -268,9 +268,11 @@ public class AwkCli implements Callable<Integer> {
 	void displayRequest() {
 		printWriter.println("Executing AWK:");
 
-		printWriter.println(Ansi.ansi().fgBlue().a("Script: \n").fgBrightBlack().a(scriptContent).reset().toString());
+		printWriter.println(
+			Ansi.ansi().fgBlue().bold().a("Script: \n").fgBrightBlack().a(scriptContent).reset().toString()
+		);
 
-		printWriter.println(Ansi.ansi().fgBlue().a("Input:\n").fgBrightBlack().a(inputContent).reset().toString());
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Input:\n").fgBrightBlack().a(inputContent).reset().toString());
 
 		printWriter.flush();
 	}
@@ -281,8 +283,8 @@ public class AwkCli implements Callable<Integer> {
 	 * @param result the query result
 	 */
 	void displayResult(final String result, final long executionTime) {
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:").reset().a(result).toString());
-		printWriter.println(Ansi.ansi().fgBlue().bold().a("Execution Time:").reset().a(executionTime).a("ms").toString());
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Result:\n").reset().a(result).toString());
+		printWriter.println(Ansi.ansi().fgBlue().bold().a("Execution Time: ").reset().a(executionTime).a("ms").toString());
 		printWriter.flush();
 	}
 }
