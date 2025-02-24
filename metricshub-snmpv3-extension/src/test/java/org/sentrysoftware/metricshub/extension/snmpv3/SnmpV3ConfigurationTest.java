@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.extension.snmpv3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -137,15 +138,77 @@ class SnmpV3ConfigurationTest {
 	}
 
 	@Test
-	void testPrivacyInterpretValueOf_ValidValues() {
+	void testPrivacyInterpretValueOfValidValues() {
 		assertEquals(Privacy.NO_ENCRYPTION, Privacy.interpretValueOf("no"));
 		assertEquals(Privacy.AES, Privacy.interpretValueOf("AES"));
 		assertEquals(Privacy.DES, Privacy.interpretValueOf("DES"));
 	}
 
 	@Test
-	void testPrivacyInterpretValueOf_InvalidValue() {
+	void testPrivacyInterpretValueOfInvalidValue() {
 		assertThrows(IllegalArgumentException.class, () -> Privacy.interpretValueOf("INVALID_PRIVACY"));
+	}
+
+	@Test
+	void testInterpretValueOfNoAuth() {
+		assertEquals(AuthType.NO_AUTH, AuthType.interpretValueOf("no authentication"));
+		assertEquals(AuthType.NO_AUTH, AuthType.interpretValueOf("NoAuth"));
+		assertEquals(AuthType.NO_AUTH, AuthType.interpretValueOf("NOAUTH"));
+	}
+
+	@Test
+	void testInterpretValueOfMD5() {
+		assertEquals(AuthType.MD5, AuthType.interpretValueOf("MD5"));
+		assertEquals(AuthType.MD5, AuthType.interpretValueOf("md5"));
+		assertEquals(AuthType.MD5, AuthType.interpretValueOf("Md5Hash"));
+	}
+
+	@Test
+	void testInterpretValueOfSHA256() {
+		assertEquals(AuthType.SHA256, AuthType.interpretValueOf("SHA256"));
+		assertEquals(AuthType.SHA256, AuthType.interpretValueOf("SecureSha256"));
+	}
+
+	@Test
+	void testInterpretValueOfSHA512() {
+		assertEquals(AuthType.SHA512, AuthType.interpretValueOf("SHA512"));
+		assertEquals(AuthType.SHA512, AuthType.interpretValueOf("MySha512Auth"));
+	}
+
+	@Test
+	void testInterpretValueOfSHA224() {
+		assertEquals(AuthType.SHA224, AuthType.interpretValueOf("SHA224"));
+		assertEquals(AuthType.SHA224, AuthType.interpretValueOf("sha224Auth"));
+	}
+
+	@Test
+	void testInterpretValueOfSHA384() {
+		assertEquals(AuthType.SHA384, AuthType.interpretValueOf("SHA384"));
+		assertEquals(AuthType.SHA384, AuthType.interpretValueOf("CustomSha384"));
+	}
+
+	@Test
+	void testInterpretValueOfSHA() {
+		assertEquals(AuthType.SHA, AuthType.interpretValueOf("SHA"));
+		assertEquals(AuthType.SHA, AuthType.interpretValueOf("sha"));
+		assertEquals(AuthType.SHA, AuthType.interpretValueOf("ShaAuthentication"));
+	}
+
+	@Test
+	void testInterpretValueOfInvalidAuthType() {
+		IllegalArgumentException exception = assertThrows(
+			IllegalArgumentException.class,
+			() -> AuthType.interpretValueOf("invalidauth")
+		);
+
+		assertTrue(exception.getMessage().contains("Invalid authentication type"));
+	}
+
+	@Test
+	void testInterpretValueOfCaseInsensitive() {
+		assertEquals(AuthType.SHA256, AuthType.interpretValueOf("sHa256"));
+		assertEquals(AuthType.SHA384, AuthType.interpretValueOf("SHA384"));
+		assertEquals(AuthType.NO_AUTH, AuthType.interpretValueOf("NO auth"));
 	}
 
 	@Test
