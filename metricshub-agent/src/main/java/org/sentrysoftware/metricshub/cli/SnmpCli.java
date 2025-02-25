@@ -72,19 +72,19 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 
 		@|green # SNMP Get request|@
 		snmpcli <HOSTNAME> --get <OID> --community <COMMUNITY> --version <VERSION> --port <PORT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
-		snmpcli <HOSTNAME> --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --community public --version v2c --port 161 --timeout 1m --retry 500,1000
+		snmpcli <HOSTNAME> --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --community public --version v2c --port 161 --timeout 1m --retry 5000,10000
 
 		@|green # SNMP Get Next request|@
 		snmpcli <HOSTNAME> --getNext <OID> --community <COMMUNITY> --version <VERSION> --port <PORT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
-		snmpcli <HOSTNAME> --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --community public --version v2c --port 161 --timeout 1m --retry 500,1000
+		snmpcli <HOSTNAME> --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --community public --version v2c --port 161 --timeout 1m
 
 		@|green # SNMP Walk request|@
 		snmpcli <HOSTNAME> --walk <OID> --community <COMMUNITY> --version <VERSION> --port <PORT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
-		snmpcli <HOSTNAME> --walk 1.3.6.1 --community public --version v1 --port 161 --timeout 1m --retry 500,1000
+		snmpcli <HOSTNAME> --walk 1.3.6.1 --community public --version v1 --port 161 --timeout 1m
 
 		@|green # SNMP Table request|@
 		snmpcli <HOSTNAME> --table <OID> --columns <COLUMN, COLUMN, ...> --community <COMMUNITY> --version <VERSION> --port <PORT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
-		snmpcli <HOSTNAME> --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --community public --version v1 --port 161 --timeout 1m --retry 500,1000
+		snmpcli <HOSTNAME> --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --community public --version v1 --port 161 --timeout 1m
 		""";
 
 	@Parameters(index = "0", paramLabel = "HOSTNAME", description = "Hostname or IP address of the host to monitor")
@@ -134,7 +134,7 @@ public class SnmpCli implements IQuery, Callable<Integer> {
 		order = 5,
 		paramLabel = "RETRYINTERVALS",
 		split = ",",
-		description = "Timeout in milliseconds after which the elementary operations will be retried"
+		description = "Comma-separated retry intervals in milliseconds for SNMP operations."
 	)
 	int[] retryIntervals;
 

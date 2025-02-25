@@ -81,10 +81,10 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		--retry <INTERVAL1>,<INTERVAL2>,...
 
 		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
-		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 5000,10000
 
 		snmpv3cli dev-01 --get 1.3.6.1.4.1.674.10892.5.5.1.20.130.4.1.1.1 --privacy AES --privacy-password privacyPassword \
-		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth SHA256 --username username --password password --context-name context --timeout 2m
 
 		@|green # SNMPv3 Get Next request:|@
 		snmpv3cli <HOSTNAME> --getNext <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
@@ -92,30 +92,30 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		--retry <INTERVAL1>,<INTERVAL2>,...
 
 		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
-		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth MD5 --username username --password password --context-name context --timeout 2m
 
 		snmpv3cli dev-01 --getNext 1.3.6.1.4.1.674.10892.5.5.1.20.130.4 --privacy AES --privacy-password privacyPassword \
-		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth SHA256 --username username --password password --context-name context --timeout 2m
 
 		@|green # SNMPv3 Walk request:|@
 		snmpv3cli <HOSTNAME> --walk <OID> --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> --auth <SHA|MD5> \
 		--username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
 
 		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth MD5 --username username \
-		--password password --context-name context --timeout 2m --retry 500,1000
+		--password password --context-name context --timeout 2m
 
 		snmpv3cli dev-01 --walk 1.3.6.1 --privacy AES --privacy-password privacyPassword --auth SHA256 \
-		--username username --password password --context-name context --timeout 2m --retry 500,1000
+		--username username --password password --context-name context --timeout 2m
 
 		@|green # SNMPv3 Table request:|@
 		snmpv3cli <HOSTNAME> --table <OID> --columns <COLUMN1>,<COLUMN2>,... --privacy <DES|AES> --privacy-password <PRIVACY-PASSWORD> \
 		--auth <SHA|MD5> --username username --password password --context-name <CONTEXT> --timeout <TIMEOUT> --retry <INTERVAL1>,<INTERVAL2>,...
 
 		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
-		--auth MD5 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth MD5 --username username --password password --context-name context --timeout 2m
 
 		snmpv3cli dev-01 --table 1.3.6.1.4.1.674.10892.5.4.300.10.1 --columns 1,3,8,9,11 --privacy AES --privacy-password privacyPassword \
-		--auth SHA256 --username username --password password --context-name context --timeout 2m --retry 500,1000
+		--auth SHA256 --username username --password password --context-name context --timeout 2m
 
 		Note: If --password is not provided, you will be prompted interactively.
 		""";
@@ -195,9 +195,9 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 	@Option(
 		names = { "--retry-intervals", "--retry" },
 		order = 9,
-		paramLabel = "RETRY INTERVALS",
+		paramLabel = "RETRYINTERVALS",
 		split = ",",
-		description = "Comma-separated retry intervals in milliseconds for SNMP version 3 operations"
+		description = "Comma-separated retry intervals in milliseconds for SNMPv3 operations."
 	)
 	private int[] retryIntervals;
 

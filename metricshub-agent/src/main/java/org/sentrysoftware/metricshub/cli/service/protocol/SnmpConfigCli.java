@@ -82,10 +82,11 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 	String timeout;
 
 	@Option(
-		names = { "--snmp-retry-intervals", "--retry" },
+		names = { "--snmp-retry-intervals", "--snmp-retry" },
 		order = 5,
 		paramLabel = "RETRYINTERVALS",
-		description = "Timeout in milliseconds after which the elementary operations will be retried"
+		split = ",",
+		description = "Comma-separated retry intervals in milliseconds for SNMP operations."
 	)
 	int[] retryIntervals;
 
