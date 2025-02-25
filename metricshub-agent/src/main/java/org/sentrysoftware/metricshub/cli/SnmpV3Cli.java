@@ -197,7 +197,7 @@ public class SnmpV3Cli implements IQuery, Callable<Integer> {
 		order = 9,
 		paramLabel = "RETRYINTERVALS",
 		split = ",",
-		description = "Comma-separated retry intervals in milliseconds for SNMPv3 operations."
+		description = "Comma-separated retry intervals in milliseconds for SNMPv3 operations"
 	)
 	private int[] retryIntervals;
 

@@ -86,7 +86,7 @@ public class SnmpConfigCli implements IProtocolConfigCli {
 		order = 5,
 		paramLabel = "RETRYINTERVALS",
 		split = ",",
-		description = "Comma-separated retry intervals in milliseconds for SNMP operations."
+		description = "Comma-separated retry intervals in milliseconds for SNMP operations"
 	)
 	int[] retryIntervals;
 
