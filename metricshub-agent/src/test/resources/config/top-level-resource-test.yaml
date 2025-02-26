@@ -40,6 +40,10 @@ metrics:
   hw.site.electricity_cost: 0.15 # in $/kWh
   hw.site.pue: 1.5 # Power Usage Effectiveness. The ideal ratio is 1
 
+# Disables gRPC protocol in unit tests
+otel:
+  otel.exporter.otlp.metrics.protocol: noop
+
 resources:
   # Resource configuration
   server-2:

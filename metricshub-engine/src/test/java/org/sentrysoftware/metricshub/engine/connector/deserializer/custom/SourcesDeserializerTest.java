@@ -25,7 +25,7 @@ import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.source.
 class SourcesDeserializerTest {
 
 	private static final SourcesDeserializer SOURCES_DESERIALIZER = new SourcesDeserializer();
-	private final JsonReadContext readContext = new JsonReadContext(null, null, 0, 0, 0);
+	private final JsonReadContext readContext = new JsonReadContext(null, 0, null, 0, 0, 0);
 
 	@Mock
 	private YAMLParser yamlParser;

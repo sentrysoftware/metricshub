@@ -134,11 +134,6 @@ public class AgentConstants {
 	public static final String AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY = "agent.host.name";
 
 	/**
-	 * Agent Resource host identifier attribute key
-	 */
-	public static final String AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY = "host.id";
-
-	/**
 	 * Agent Resource host name attribute key
 	 */
 	public static final String AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY = "host.name";

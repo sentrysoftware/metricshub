@@ -33,6 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
+import org.sentrysoftware.metricshub.agent.opentelemetry.OtelConfigConstants;
 
 /**
  * Helper class providing methods related to OpenTelemetry (OTEL) configuration.
@@ -90,39 +91,29 @@ public class OtelConfigHelper {
 	 * Build OpenTelemetry configuration properties from the given agent configuration
 	 *
 	 * @param agentConfig The agent's configuration where the exporter's configuration can be overridden
-	 * @return Map of key-value pair used to configure the OpenTelemetry Java SDK exporter
+	 * @return Map of key-value pair used to configure the OpenTelemetry Java exporter
 	 */
-	public static Map<String, String> buildOtelSdkConfiguration(final AgentConfig agentConfig) {
+	public static Map<String, String> buildOtelConfiguration(final AgentConfig agentConfig) {
 		final Map<String, String> properties = new HashMap<>();
 
-		properties.putAll(agentConfig.getOtelSdkConfig());
+		properties.putAll(agentConfig.getOtelConfig());
+
+		// Set the exporter pool size to the job pool size to prevent delays caused by
+		// network latency and waiting for responses.
+		// By doing this we ensure that if the user has increased a job pool size, the exporter
+		// will automatically increase its pool size to handle the increased simultaneous jobs.
+		if (properties.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_POOL_SIZE) == null) {
+			properties.put(
+				OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_POOL_SIZE,
+				String.valueOf(agentConfig.getJobPoolSize())
+			);
+		}
 
 		// Certificate file path for metrics
 		populateCertificate(
 			properties,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE
-		);
-
-		// Certificate file path for logs
-		populateCertificate(
-			properties,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_LOGS_ENDPOINT,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_LOGS_CERTIFICATE
-		);
-
-		// Certificate file path for logs, traces and metrics
-		populateCertificate(
-			properties,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_ENDPOINT,
-			OtelSdkConfigConstants.OTEL_EXPORTER_OTLP_CERTIFICATE
-		);
-
-		// Force the exporter's interval to the default value (10 years)
-		// This means that the agent will push metrics and logs after each collect cycle.
-		properties.put(
-			OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
-			OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
+			OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT,
+			OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE
 		);
 
 		return properties;

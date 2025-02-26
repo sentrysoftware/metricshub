@@ -21,13 +21,8 @@ package org.sentrysoftware.metricshub.agent.helper;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.resources.Resource;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -37,33 +32,6 @@ import lombok.NonNull;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OtelHelper {
-
-	/**
-	 * Create an OTEL Resource
-	 *
-	 * @param attributeMap key-value pairs of attributes that describe the resource.
-	 * @return Resource capturing identifying information about service, host, etc.
-	 */
-	public static Resource createOpenTelemetryResource(@NonNull final Map<String, String> attributeMap) {
-		return Resource.create(buildOtelAttributesFromMap(attributeMap));
-	}
-
-	/**
-	 * Build OpenTelemetry attributes from the given map
-	 *
-	 * @param attributeMap key-value pairs of attributes
-	 * @return OTEL {@link Attributes} instance
-	 */
-	public static Attributes buildOtelAttributesFromMap(@NonNull final Map<String, String> attributeMap) {
-		return attributeMap
-			.entrySet()
-			.stream()
-			.filter(entry -> Objects.nonNull(entry.getValue()))
-			.filter(entry -> isAcceptedKey(entry.getKey()))
-			.map(entry -> Attributes.of(AttributeKey.stringKey(entry.getKey()), entry.getValue()))
-			.reduce((attributes1, attributes2) -> Attributes.builder().putAll(attributes1).putAll(attributes2).build())
-			.orElseGet(() -> Attributes.builder().build());
-	}
 
 	/**
 	 * Whether this key should be accepted or not.<br>
@@ -77,36 +45,14 @@ public class OtelHelper {
 	}
 
 	/**
-	 * Initializes an OpenTelemetry SDK with a Resource and an instance of
-	 * IntervalMetricReader.
-	 *
-	 * @param resource             the resource used for the SdkMeterProvider
-	 * @param otelSdkConfiguration configuration for the OpenTelemetry SDK.
-	 * @return a ready-to-use {@link AutoConfiguredOpenTelemetrySdk} instance
-	 */
-	public static AutoConfiguredOpenTelemetrySdk initOpenTelemetrySdk(
-		@NonNull final Resource resource,
-		@NonNull final Map<String, String> otelSdkConfiguration
-	) {
-		return AutoConfiguredOpenTelemetrySdk
-			.builder()
-			.addPropertiesSupplier(() -> otelSdkConfiguration)
-			.addResourceCustomizer((r, c) -> resource)
-			// Control the registration of a shutdown hook to shut down the SDK when
-			// appropriate. By default, the shutdown hook is registered.
-			.disableShutdownHook()
-			.build();
-	}
-
-	/**
-	 * Create the host resource based on the given attributes.
+	 * Create the host attributes based on the given attributes.
 	 *
 	 * @param computedHostResourceAttributes Host Resource attributes: host.id, host.name, os.type, host.type, etc
 	 *                                       collected by the engine.
 	 * @param userAttributes                 User configured attributes.
-	 * @return OTEL {@link Resource} instance representing the host.
+	 * @return Map instance containing the host attributes.
 	 */
-	public static Resource createHostResource(
+	public static Map<String, String> buildHostAttributes(
 		@NonNull final Map<String, String> computedHostResourceAttributes,
 		@NonNull final Map<String, String> userAttributes
 	) {
@@ -126,19 +72,6 @@ public class OtelHelper {
 			})
 			.forEach(entry -> attributes.put(entry.getKey(), entry.getValue()));
 
-		return createOpenTelemetryResource(attributes);
-	}
-
-	/**
-	 * Merge the given OTEL SDK attributes
-	 *
-	 *
-	 * @param firstAttributes  First {@link Attributes} instance to merge
-	 * @param secondAttributes Second  {@link Attributes} instance to merge
-	 *
-	 * @return new {@link Attributes} instance
-	 */
-	public static Attributes mergeOtelAttributes(final Attributes firstAttributes, final Attributes secondAttributes) {
-		return Attributes.builder().putAll(firstAttributes).putAll(secondAttributes).build();
+		return attributes;
 	}
 }

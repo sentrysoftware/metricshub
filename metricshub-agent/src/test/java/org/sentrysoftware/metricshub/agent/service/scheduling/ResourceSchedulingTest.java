@@ -18,6 +18,8 @@ import java.util.concurrent.ScheduledFuture;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
+import org.sentrysoftware.metricshub.agent.service.TestHelper;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTask;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
@@ -29,6 +31,7 @@ class ResourceSchedulingTest {
 
 	@Test
 	void testSchedule() throws IOException {
+		TestHelper.configureGlobalLogger();
 		final ResourceConfig resourceConfig = ResourceConfig
 			.builder()
 			.loggerLevel("OFF")
@@ -41,10 +44,14 @@ class ResourceSchedulingTest {
 		final ScheduledFuture<?> scheduledFutureMock = spy(ScheduledFuture.class);
 
 		doReturn(scheduledFutureMock).when(taskSchedulerMock).schedule(any(Runnable.class), any(Trigger.class));
+		final TestHelper.TestOtelClient otelClient = new TestHelper.TestOtelClient();
+
+		final MetricsExporter metricsExporter = MetricsExporter.builder().withClient(otelClient).build();
+
 		final ResourceScheduling resourceScheduling = ResourceScheduling
 			.builder()
 			.withHostMetricDefinitions(ConfigHelper.readHostMetricDefinitions())
-			.withOtelSdkConfiguration(new HashMap<>())
+			.withMetricsExporter(metricsExporter)
 			.withResourceConfig(resourceConfig)
 			.withTelemetryManager(new TelemetryManager())
 			.withTaskScheduler(taskSchedulerMock)

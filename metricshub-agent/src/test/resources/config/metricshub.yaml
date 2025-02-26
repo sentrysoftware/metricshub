@@ -31,6 +31,10 @@ enableSelfMonitoring: true
 # Displays the configured host.name attribute in the Host Resource `host.name` attribute instead of the resolved FQDN (Default: false).
 resolveHostnameToFqdn: false
 
+# Disable gRPC client in unit tests
+otel:
+  otel.exporter.otlp.metrics.protocol: noop
+
 # Resource Groups configuration
 resourceGroups:
     # Resource Group identifier

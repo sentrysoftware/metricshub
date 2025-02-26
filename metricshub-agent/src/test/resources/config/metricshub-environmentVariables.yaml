@@ -12,3 +12,7 @@ collectPeriod: 1m
 
 # Sets the cycle that MetricsHub uses to perform discoveries and detect new components in your monitored environment. By default, MetricsHub runs a discovery after 30 collects.
 discoveryCycle: 30
+
+# Disables gRPC protocol in unit tests
+otel:
+  otel.exporter.otlp.metrics.protocol: noop

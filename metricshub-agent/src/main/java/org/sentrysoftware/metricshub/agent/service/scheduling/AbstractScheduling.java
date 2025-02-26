@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
 import org.springframework.scheduling.TaskScheduler;
 
 /**
@@ -41,7 +42,7 @@ public abstract class AbstractScheduling {
 	protected Map<String, ScheduledFuture<?>> schedules;
 
 	@NonNull
-	protected Map<String, String> otelSdkConfiguration;
+	protected MetricsExporter metricsExporter;
 
 	/**
 	 * Schedules a task

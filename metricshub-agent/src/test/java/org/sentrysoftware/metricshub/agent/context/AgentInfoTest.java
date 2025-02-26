@@ -10,21 +10,17 @@ class AgentInfoTest {
 	@Test
 	void testConstructor() {
 		final AgentInfo agentInfo = new AgentInfo();
-		final Map<String, String> metricAttributes = agentInfo.getMetricAttributes();
+		final Map<String, String> metricAttributes = agentInfo.getAttributes();
 		assertNotNull(metricAttributes);
 		assertNotNull(metricAttributes.get("name"));
 		assertNotNull(metricAttributes.get("version"));
 		assertNotNull(metricAttributes.get("build_number"));
 		assertNotNull(metricAttributes.get("build_date"));
 		assertNotNull(metricAttributes.get("cc_version"));
-
-		final Map<String, String> resourceAttributes = agentInfo.getResourceAttributes();
-		assertNotNull(resourceAttributes);
-		assertNotNull(resourceAttributes.get("service.name"));
-		assertNotNull(resourceAttributes.get("host.id"));
-		assertNotNull(resourceAttributes.get("host.name"));
-		assertNotNull(resourceAttributes.get("agent.host.name"));
-		assertNotNull(resourceAttributes.get("host.type"));
-		assertNotNull(resourceAttributes.get("os.type"));
+		assertNotNull(metricAttributes.get("service.name"));
+		assertNotNull(metricAttributes.get("host.name"));
+		assertNotNull(metricAttributes.get("agent.host.name"));
+		assertNotNull(metricAttributes.get("host.type"));
+		assertNotNull(metricAttributes.get("os.type"));
 	}
 }

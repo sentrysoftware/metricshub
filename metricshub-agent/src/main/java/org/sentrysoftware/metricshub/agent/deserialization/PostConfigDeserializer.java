@@ -21,7 +21,6 @@ package org.sentrysoftware.metricshub.agent.deserialization;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MULTI_VALUE_SEPARATOR;
 
@@ -199,10 +198,7 @@ public class PostConfigDeserializer extends DelegatingDeserializer {
 			final String hostname = newAttributes.get(AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY);
 			if (hostname != null) {
 				additionalIdentification = hostname;
-			} else {
-				additionalIdentification = newAttributes.get(AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY);
 			}
-
 			// Make sure the key is unique in case the host.name or host.id attribute is not available
 			String uniqueKey = String.format("%s-%d", multiResourceConfigKey, i + 1);
 			if (additionalIdentification != null) {
