@@ -116,11 +116,11 @@ public class SnmpV3ConfigCli implements IProtocolConfigCli {
 	private int port;
 
 	@Option(
-		names = "--snmpv3-retryIntervals",
+		names = { "--snmpv3-retry-intervals", "--snmpv3-retry" },
 		order = 10,
-		paramLabel = "RETRY INTERVALS",
+		paramLabel = "RETRYINTERVALS",
 		split = ",",
-		description = "Comma-separated retry intervals in milliseconds for SNMP version 3 operations"
+		description = "Comma-separated retry intervals in milliseconds for SNMPv3 operations"
 	)
 	private int[] retryIntervals;
 
