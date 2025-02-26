@@ -56,7 +56,7 @@ class PortDeserializerTest {
 	 * @throws IOException
 	 */
 	private void testUnexpectedValue() throws IOException {
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");
@@ -78,7 +78,7 @@ class PortDeserializerTest {
 	@Test
 	void testStringValue() throws Exception {
 		doReturn("value").when(yamlParser).getValueAsString();
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");

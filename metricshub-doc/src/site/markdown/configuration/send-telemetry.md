@@ -163,12 +163,11 @@ service:
 By default, the **MetricsHub Agent** pushes the collected metrics to the [`OTLP Receiver`](https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver/otlpreceiver) through gRPC on port **TCP/4317**. To push data to the OTLP receiver of your choice:
 
 * locate the `otel` section in your configuration file
-* configure the `otel.exporter.otlp.metrics.endpoint` and `otel.exporter.otlp.logs.endpoint` parameters as follows:
+* configure the `otel.exporter.otlp.metrics.endpoint` parameter as follows:
 
 ```yaml
 otel:
   otel.exporter.otlp.metrics.endpoint: https://<my-host>:4317
-  otel.exporter.otlp.logs.endpoint: https://<my-host>:4317
 
 resourceGroups: #...
 ```
@@ -179,7 +178,6 @@ Use the below syntax if you wish to push metrics to the Prometheus OTLP Receiver
 
 ```yaml
 otel:
-  otel.metrics.exporter: otlp
   otel.exporter.otlp.metrics.endpoint: http://<prom-server-host>:9090/api/v1/otlp/v1/metrics
   otel.exporter.otlp.metrics.protocol: http/protobuf
 ```
@@ -191,12 +189,11 @@ where `<prom-server-host>` should be replaced with the hostname or IP address of
 
 #### Trusted certificates file
 
-If an `OTLP Receiver` certificate is required, configure the `otel.exporter.otlp.metrics.certificate` and `otel.exporter.otlp.logs.certificate` parameters under the `otel` section:
+If an `OTLP Receiver` certificate is required, configure the `otel.exporter.otlp.metrics.certificate` parameter under the `otel` section:
 
 ```yaml
 otel:
   otel.exporter.otlp.metrics.certificate: /opt/metricshub/security/new-server-cert.crt
-  otel.exporter.otlp.logs.certificate: /opt/metricshub/security/new-server-cert.crt
 
 resourceGroups: # ...
 ```

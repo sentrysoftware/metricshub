@@ -75,6 +75,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 @Slf4j
 public abstract class AbstractStrategy implements IStrategy {
 
+	public static final String HOST_CONFIGURED_METRIC_NAME = "metricshub.host.configured";
+
 	@NonNull
 	protected TelemetryManager telemetryManager;
 
@@ -682,5 +684,16 @@ public abstract class AbstractStrategy implements IStrategy {
 			(endTime - startTime) / 1000.0, // Job duration in seconds
 			strategyTime
 		);
+	}
+
+	/**
+	 * Collects the host configured metric.
+	 *
+	 * @param hostname The resource hostname.
+	 */
+	protected void collectHostConfigured(final String hostname) {
+		final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
+		final MetricFactory metricFactory = new MetricFactory();
+		metricFactory.collectNumberMetric(endpointHostMonitor, HOST_CONFIGURED_METRIC_NAME, 1.0, strategyTime);
 	}
 }

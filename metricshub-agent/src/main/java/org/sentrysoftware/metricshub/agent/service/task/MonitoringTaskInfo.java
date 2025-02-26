@@ -21,18 +21,18 @@ package org.sentrysoftware.metricshub.agent.service.task;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Information required for the monitoring task, including telemetry manager, resource configuration, keys, OpenTelemetry SDK configuration, and host metric definitions.
+ * Information required for the monitoring task, including telemetry manager, resource configuration, keys, OpenTelemetry configuration, and host metric definitions.
  */
 @Data
 @AllArgsConstructor
@@ -52,11 +52,13 @@ public class MonitoringTaskInfo {
 	private String resourceGroupKey;
 
 	@NonNull
-	private Map<String, String> otelSdkConfiguration;
+	private MetricsExporter metricsExporter;
 
 	@NonNull
 	private MetricDefinitions hostMetricDefinitions;
 
 	@NonNull
 	private ExtensionManager extensionManager;
+
+	private boolean isSuppressZerosCompression;
 }

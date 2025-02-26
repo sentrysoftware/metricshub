@@ -3,7 +3,6 @@ package org.sentrysoftware.metricshub.cli.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.sentrysoftware.metricshub.cli.service.PrettyPrinterService.ATTRIBUTES_HEADER;
-import static org.sentrysoftware.metricshub.cli.service.PrettyPrinterService.RESOURCE_HEADER;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -18,7 +17,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 class PrettyPrinterServiceTest {
@@ -68,9 +66,6 @@ class PrettyPrinterServiceTest {
 					"is_endpoint",
 					"true"
 				)
-			)
-			.resource(
-				Resource.builder().attributes(Map.of("host.type", "compute", "host.name", "host-1", "os.type", "linux")).build()
 			)
 			.isEndpoint(true)
 			.build();
@@ -260,7 +255,6 @@ class PrettyPrinterServiceTest {
 		printWriter.println(Ansi.ansi().fgCyan().a(host.getAttribute(NAME_ATTRIBUTE_KEY)).reset().toString());
 
 		prettyPrinterService.printAttributes(host.getAttributes(), 2, ATTRIBUTES_HEADER);
-		prettyPrinterService.printAttributes(host.getResource().getAttributes(), 2, RESOURCE_HEADER);
 		prettyPrinterService.printMetrics(host, 2);
 
 		printWriter.println();

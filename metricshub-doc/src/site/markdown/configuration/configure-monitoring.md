@@ -654,6 +654,39 @@ Refer to:
 - [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 - [Monitoring the health of a Web service](https://metricshub.com/usecases/monitoring-the-health-of-a-web-service/) for a practical example that demonstrates how to use this feature effectively.
 
+### OTLP Exporter Settings
+
+**MetricsHub**'s internal `OTLP exporter` sends collected metrics to the `OTLP receiver` using **gRPC** or **HTTP/Protobuf**. 
+
+By default, the **Enterprise Edition** is set up to push telemetry to its embedded *OpenTelemetry Collector*, but it can also send metrics directly to observability
+platforms that support native OTLP ingestion. A working example is included in **`metricshub-example.yaml`**, which provides the default configuration for **MetricsHub Enterprise**.
+
+If you are using the **Community Edition**, you need to manually configure these properties to send metrics to your observability backend. 
+
+To define where and how the metrics should be sent, update the **OTLP exporter properties** under the `otel` section in **`metricshub.yaml`**.
+
+Here are the available properties you can configure:
+
+| Property                                 | Description                                                                                                   | Default Value                                                                       |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `otel.exporter.otlp.metrics.endpoint`    | OTLP metrics endpoint URL. Must be an `http` or `https` URL, depending on whether TLS is used.                | `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf) |
+| `otel.exporter.otlp.metrics.protocol`    | Transport protocol used for OTLP metric requests. Options: `grpc` and `http/protobuf`.                        | `grpc`                                                                              |
+| `otel.exporter.otlp.metrics.certificate` | Path to a file containing trusted certificates in PEM format for verifying the OTLP server’s TLS credentials. | Uses the host platform’s trusted root certificates                                  |
+| `otel.exporter.otlp.metrics.headers`     | Custom headers to be sent with OTLP metric requests, typically for authentication.                            | Not set                                                                             |
+| `otel.exporter.otlp.metrics.timeout`     | Timeout for OTLP metric requests (in seconds).                                                                | `10`                                                                                |
+| `otel.exporter.otlp.metrics.pool.size`   | Exporter pool size, which determines the number of parallel metric export operations.                         | `20`                                                                                |
+
+#### Example
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.endpoint: https://localhost:4317
+  otel.exporter.otlp.metrics.protocol: grpc
+  otel.exporter.otlp.metrics.headers: Authorization=<value>
+```
+
+This configuration ensures that **MetricsHub** sends metrics through **gRPC** to an `OTLP receiver` at `https://localhost:4317`, including an *Authorization* header for secure communication.
+
 ### Basic Authentication settings
 
 #### Enterprise Edition authentication
@@ -662,19 +695,15 @@ In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authent
 
 These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the *OpenTelemetry Collector*'s `OTLP Receiver`.
 
-To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` parameter under the `otel` section:
 
 ```yaml
-# Internal OpenTelemetry SDK configuration
+# Internal OpenTelemetry configuration
 otel:
-  # OpenTelemetry SDK Autoconfigure properties
-  # https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure
-  # MetricsHub Default configuration
-  otel.metrics.exporter: otlp
   otel.exporter.otlp.metrics.endpoint: https://localhost:4317
   otel.exporter.otlp.metrics.protocol: grpc
   otel.exporter.otlp.metrics.headers: Authorization=Basic <base64-username-password>
-  otel.exporter.otlp.logs.headers: Authorization=Basic <base64-username-password>
+
 resourceGroups: # ...
 ```
 
@@ -684,12 +713,11 @@ where `<base64-username-password>` credentials are built by first joining your u
 
 #### Community Edition authentication
 
-If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` parameter under the `otel` section:
 
 ```yaml
 otel:
   otel.exporter.otlp.metrics.headers: <custom-header1>
-  otel.exporter.otlp.logs.headers: <custom-header2>
 
 resourceGroups: # ...
 ```

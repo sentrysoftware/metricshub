@@ -35,17 +35,17 @@ import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentInfo;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
 import org.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupScheduling;
 import org.sentrysoftware.metricshub.agent.service.scheduling.ResourceScheduling;
-import org.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverScheduling;
-import org.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserver;
+import org.sentrysoftware.metricshub.agent.service.scheduling.SelfScheduling;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 /**
  * Service for managing task scheduling related to MetricsHub agent.
- * It handles scheduling of self-observers, resource group observers, and resource observers.
+ * It handles scheduling of self-recorders, resource group recorders, and resource recorders.
  */
 @Data
 @Builder(setterPrefix = "with")
@@ -59,34 +59,34 @@ public class TaskSchedulingService {
 	private Map<String, ScheduledFuture<?>> schedules;
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
-	private Map<String, String> otelSdkConfiguration;
 	private MetricDefinitions hostMetricDefinitions;
 	private ExtensionManager extensionManager;
+	private MetricsExporter metricsExporter;
 
 	/**
 	 * Start scheduling
 	 */
 	public void start() {
-		// Self observer scheduling
-		scheduleSelfObserver();
+		// Self recorder scheduling
+		scheduleSelfRecorder();
 
-		// Top level resources observers scheduling
-		scheduleTopLevelResourcesObservers();
+		// Top level resources recorders scheduling
+		scheduleTopLevelResourcesRecorders();
 
-		// Resource Group observers scheduling
-		scheduleResourceGroupObservers();
+		// Resource Group recorders scheduling
+		scheduleResourceGroupRecorders();
 	}
 
 	/**
-	 * Initialize the {@link SelfObserverScheduling} to schedule SelfObserver
+	 * Initialize the {@link SelfScheduling} to schedule SelfRecorder
 	 * which triggers a periodic task to flush metrics
 	 */
-	void scheduleSelfObserver() {
-		SelfObserverScheduling
+	void scheduleSelfRecorder() {
+		SelfScheduling
 			.builder()
 			.withAgentConfig(agentConfig)
 			.withAgentInfo(agentInfo)
-			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withMetricsExporter(metricsExporter)
 			.withSchedules(schedules)
 			.withTaskScheduler(taskScheduler)
 			.build()
@@ -94,10 +94,10 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link SimpleGaugeMetricObserver} for each resource group and
+	 * Initialize the {@link SimpleGaugeMetricRecorder} for each resource group and
 	 * trigger a periodic task to flush metrics
 	 */
-	void scheduleResourceGroupObservers() {
+	void scheduleResourceGroupRecorders() {
 		agentConfig
 			.getResourceGroups()
 			.entrySet()
@@ -110,14 +110,14 @@ public class TaskSchedulingService {
 				scheduleResourcesInResourceGroups(resourceGroupKey, resourceGroupConfig);
 			});
 
-		log.info("Resource Group Observers scheduled.");
+		log.info("Resource Group Recorders scheduled.");
 	}
 
 	/**
-	 * Initialize the {@link SimpleGaugeMetricObserver} for each resource and
+	 * Initialize the {@link SimpleGaugeMetricRecorder} for each resource and
 	 * trigger a periodic task to flush metrics
 	 */
-	void scheduleTopLevelResourcesObservers() {
+	void scheduleTopLevelResourcesRecorders() {
 		agentConfig
 			.getResources()
 			.entrySet()
@@ -125,11 +125,11 @@ public class TaskSchedulingService {
 			.filter(entry -> Objects.nonNull(entry.getValue()))
 			.forEach(entry -> scheduleResource(TOP_LEVEL_VIRTUAL_RESOURCE_GROUP_KEY, entry.getKey(), entry.getValue()));
 
-		log.info("Top level resources Observers scheduled.");
+		log.info("Top level resources Recorders scheduled.");
 	}
 
 	/**
-	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link SimpleGaugeMetricObserver}
+	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link SimpleGaugeMetricRecorder}
 	 * for the given resource group configuration
 	 *
 	 * @param resourceGroupKey    unique key of the resource group configuration.
@@ -139,7 +139,7 @@ public class TaskSchedulingService {
 		ResourceGroupScheduling
 			.builder()
 			.withAgentConfig(agentConfig)
-			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withMetricsExporter(metricsExporter)
 			.withSchedules(schedules)
 			.withTaskScheduler(taskScheduler)
 			.withResourceGroupKey(resourceGroupKey)
@@ -190,7 +190,7 @@ public class TaskSchedulingService {
 		// Schedule monitoring of the current resource configuration
 		ResourceScheduling
 			.builder()
-			.withOtelSdkConfiguration(otelSdkConfiguration)
+			.withMetricsExporter(metricsExporter)
 			.withSchedules(schedules)
 			.withTaskScheduler(taskScheduler)
 			.withResourceGroupKey(resourceGroupKey)
@@ -230,6 +230,7 @@ public class TaskSchedulingService {
 	 */
 	public void stop() {
 		schedules.values().forEach(action -> action.cancel(true));
+		metricsExporter.shutdown();
 		taskScheduler.destroy();
 	}
 }

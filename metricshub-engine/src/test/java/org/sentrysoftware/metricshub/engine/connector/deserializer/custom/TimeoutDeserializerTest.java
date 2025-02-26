@@ -56,7 +56,7 @@ class TimeoutDeserializerTest {
 	 * @throws IOException
 	 */
 	private void testUnexpectedValue() throws IOException {
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");
@@ -78,7 +78,7 @@ class TimeoutDeserializerTest {
 	@Test
 	void testNotNumberIntTokenValue() throws Exception {
 		doReturn("str").when(yamlParser).getValueAsString();
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");

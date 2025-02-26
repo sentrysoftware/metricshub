@@ -38,7 +38,7 @@ public class NonBlankDeserializer extends JsonDeserializer<String> {
 			return null;
 		}
 
-		final String key = parser.getCurrentName();
+		final String key = parser.currentName();
 		final String value = parser.getValueAsString();
 
 		if (value == null || !value.isBlank()) {

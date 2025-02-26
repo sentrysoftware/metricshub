@@ -11,6 +11,10 @@ resources:
         hostname: [ snmp-agent-1-card, snmp-agent-2-card ]
         version: 2c
 
+# Disables gRPC protocol in unit tests
+otel:
+  otel.exporter.otlp.metrics.protocol: noop
+
 # Resource Groups configuration
 resourceGroups:
     # Resource Group identifier

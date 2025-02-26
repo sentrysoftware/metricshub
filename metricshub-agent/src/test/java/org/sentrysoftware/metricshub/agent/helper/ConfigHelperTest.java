@@ -35,6 +35,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
+import org.sentrysoftware.metricshub.agent.config.StateSetMetricCompression;
 import org.sentrysoftware.metricshub.agent.context.AgentContext;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
@@ -450,5 +451,21 @@ class ConfigHelperTest {
 		assertNotNull(md5CheckSumFirstFileResult);
 		assertNotNull(md5CheckSumSecondFileResult);
 		assertNotEquals(md5CheckSumFirstFileResult, md5CheckSumSecondFileResult);
+	}
+
+	@Test
+	void isSuppressZerosCompression_shouldReturnTrueForMatchingValue() {
+		assertTrue(
+			ConfigHelper.isSuppressZerosCompression(StateSetMetricCompression.SUPPRESS_ZEROS),
+			"Should return true for suppress_zeros"
+		);
+	}
+
+	@Test
+	void isSuppressZerosCompression_shouldReturnFalseForNonMatchingValue() {
+		assertFalse(
+			ConfigHelper.isSuppressZerosCompression(StateSetMetricCompression.NONE),
+			"Should return false for non-matching value"
+		);
 	}
 }

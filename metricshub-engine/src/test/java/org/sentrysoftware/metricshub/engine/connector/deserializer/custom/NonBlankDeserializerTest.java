@@ -45,7 +45,7 @@ class NonBlankDeserializerTest {
 	void testBlankValue() throws Exception {
 		{
 			doReturn("  ").when(yamlParser).getValueAsString();
-			doReturn("key").when(yamlParser).getCurrentName();
+			doReturn("key").when(yamlParser).currentName();
 			try {
 				NON_BLANK_DERSERIALIZER.deserialize(yamlParser, null);
 				fail("Expected IOException to be thrown");
@@ -60,7 +60,7 @@ class NonBlankDeserializerTest {
 
 		{
 			doReturn(MetricsHubConstants.EMPTY).when(yamlParser).getValueAsString();
-			doReturn("key").when(yamlParser).getCurrentName();
+			doReturn("key").when(yamlParser).currentName();
 			try {
 				NON_BLANK_DERSERIALIZER.deserialize(yamlParser, null);
 				fail("Expected IOException to be thrown");
