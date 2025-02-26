@@ -221,20 +221,11 @@ class MonitoringTaskTest {
 			final TelemetryManager telemetryManagerMock = spy(TelemetryManager.class);
 			doReturn(new Monitor()).when(telemetryManagerMock).getEndpointHostMonitor();
 
-			// Initialize the OpenTelemetry SDK with specific resource configurations
-			newMonitoringTask.initOtelSdk(
-				telemetryManagerMock,
-				ResourceConfig
-					.builder()
-					.loggerLevel("OFF")
-					.attributes(Map.of(HOST_NAME, HOSTNAME, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX))
-					.discoveryCycle(4)
-					.resolveHostnameToFqdn(true)
-					.build()
-			);
-
 			// Create metric and monitor data for testing
-			final Monitor monitor = Monitor.builder().id("enclosure-1").type("enclosure").build();
+
+			final String monitorId = "enclosure-1";
+			final String monitorType = "enclosure";
+			final Monitor monitor = Monitor.builder().id("enclosure-1").type(monitorType).build();
 			final String expectedUnit = "Cel";
 			final String metricName = "hw.temperature.limit";
 			final double expectedMetricValue = 70D;
@@ -248,19 +239,36 @@ class MonitoringTaskTest {
 			);
 
 			// Create a mock metric entry
-			final Entry<String, AbstractMetric> metricEntry = Map.entry(
-				metricKey,
-				NumberMetric
+			final NumberMetric temperatureLimit = NumberMetric
+				.builder()
+				.name(metricKey)
+				.value(expectedMetricValue)
+				.attributes(Map.of("limit_type", "high.critical"))
+				.collectTime(System.currentTimeMillis())
+				.build();
+
+			monitor.addMetric(metricName, temperatureLimit);
+
+			doReturn(Map.of(HOSTNAME + "_" + monitorId, Map.of(monitorType, monitor)))
+				.when(telemetryManagerMock)
+				.getMonitors();
+
+			// Initialize the OpenTelemetry SDK with specific resource configurations
+			newMonitoringTask.initOtelSdk(
+				telemetryManagerMock,
+				ResourceConfig
 					.builder()
-					.name(metricKey)
-					.value(expectedMetricValue)
-					.attributes(Map.of("limit_type", "high.critical"))
-					.collectTime(System.currentTimeMillis())
+					.loggerLevel("OFF")
+					.attributes(Map.of(HOST_NAME, HOSTNAME, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX))
+					.discoveryCycle(4)
+					.resolveHostnameToFqdn(true)
 					.build()
 			);
 
+			final Entry<String, AbstractMetric> metricEntry = Map.entry(metricKey, temperatureLimit);
+
 			// Initialize the metric observer
-			newMonitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry);
+			newMonitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry, false);
 
 			// Collect metrics from the in-memory reader and perform assertions
 			final Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();

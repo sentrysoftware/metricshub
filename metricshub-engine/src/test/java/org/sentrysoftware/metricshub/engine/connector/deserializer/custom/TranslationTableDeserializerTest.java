@@ -32,7 +32,7 @@ class TranslationTableDeserializerTest {
 			assertNull(new TranslationTableDeserializer().deserialize(null, null));
 		}
 		{
-			doReturn("translationTable").when(yamlParser).getCurrentName();
+			doReturn("translationTable").when(yamlParser).currentName();
 			doReturn(null).when(yamlParser).readValueAsTree();
 			assertThrows(
 				InvalidFormatException.class,
@@ -43,7 +43,7 @@ class TranslationTableDeserializerTest {
 
 	@Test
 	void testDeserializeReferenceTranslationTableOK() throws Exception {
-		doReturn("translationTable").when(yamlParser).getCurrentName();
+		doReturn("translationTable").when(yamlParser).currentName();
 		doReturn(new TextNode("${translation::DiskControllerStatusTranslationTable}")).when(yamlParser).readValueAsTree();
 
 		ITranslationTable translationTable = new TranslationTableDeserializer().deserialize(yamlParser, null);
@@ -56,7 +56,7 @@ class TranslationTableDeserializerTest {
 
 	@Test
 	void testDeserializeTranslationTableOK() throws Exception {
-		doReturn("translationTable").when(yamlParser).getCurrentName();
+		doReturn("translationTable").when(yamlParser).currentName();
 
 		ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
 		objectNode.set("optimal", new TextNode("ok"));

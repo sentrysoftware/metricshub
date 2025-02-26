@@ -60,7 +60,6 @@ public class Monitor {
 	@Default
 	private Map<String, List<AlertRule>> alertRules = new HashMap<>();
 
-	private Resource resource;
 	private Long discoveryTime;
 	private String type;
 	private String id;

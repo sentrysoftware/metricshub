@@ -38,7 +38,7 @@ public class PortDeserializer extends JsonDeserializer<Integer> {
 			return null;
 		}
 
-		final String key = parser.getCurrentName();
+		final String key = parser.currentName();
 
 		final String str = parser.getValueAsString();
 		if (str == null) {
