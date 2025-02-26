@@ -25,9 +25,6 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_TYPE_TO_OTEL_HOST_TYPE;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_TYPE_TO_OTEL_OS_TYPE;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.IS_ENDPOINT;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.UNDERSCORE;
 
 import java.net.InetAddress;
@@ -43,7 +40,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.alert.AlertRule;
-import org.sentrysoftware.metricshub.engine.common.HostLocation;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
@@ -66,8 +62,6 @@ public class MonitorFactory {
 
 	private Map<String, String> attributes;
 
-	private Resource resource;
-
 	private Map<String, List<AlertRule>> alertRules;
 
 	private TelemetryManager telemetryManager;
@@ -89,7 +83,7 @@ public class MonitorFactory {
 	 * @return created or updated {@link Monitor} instance
 	 */
 	public Monitor createOrUpdateMonitor(final String id) {
-		return createOrUpdateMonitor(attributes, resource, monitorType, id);
+		return createOrUpdateMonitor(attributes, monitorType, id);
 	}
 
 	/**
@@ -107,32 +101,25 @@ public class MonitorFactory {
 
 		// Build the monitor unique identifier
 		final String id = buildMonitorId(connectorId, monitorType, keysString);
-		return createOrUpdateMonitor(attributes, resource, monitorType, id);
+		return createOrUpdateMonitor(attributes, monitorType, id);
 	}
 
 	/**
 	 * This method creates or updates the monitor
 	 *
-	 * @param attributes  monitor attributes
-	 * @param resource    monitor resource
-	 * @param monitorType the type of the monitor
-	 * @param id          unique identifier of the monitor
+	 * @param attributes        Monitor's attributes
+	 * @param monitorType       Type of the monitor
+	 * @param id                Unique identifier of the monitor
 	 * @return Monitor instance
 	 */
-	Monitor createOrUpdateMonitor(
-		final Map<String, String> attributes,
-		final Resource resource,
-		final String monitorType,
-		final String id
-	) {
-		return createOrUpdateMonitor(attributes, resource, monitorType, id, discoveryTime);
+	Monitor createOrUpdateMonitor(final Map<String, String> attributes, final String monitorType, final String id) {
+		return createOrUpdateMonitor(attributes, monitorType, id, discoveryTime);
 	}
 
 	/**
 	 * This method creates or updates the monitor
 	 *
 	 * @param attributes    monitor attributes
-	 * @param resource      monitor resource
 	 * @param monitorType   the type of the monitor
 	 * @param id            unique identifier of the monitor
 	 * @param discoveryTime The time of discovery
@@ -140,7 +127,6 @@ public class MonitorFactory {
 	 */
 	Monitor createOrUpdateMonitor(
 		final Map<String, String> attributes,
-		final Resource resource,
 		final String monitorType,
 		final String id,
 		final long discoveryTime
@@ -149,7 +135,6 @@ public class MonitorFactory {
 
 		if (foundMonitor != null) {
 			foundMonitor.setAttributes(attributes);
-			foundMonitor.setResource(resource);
 			foundMonitor.setType(monitorType);
 			foundMonitor.setDiscoveryTime(discoveryTime);
 
@@ -160,7 +145,6 @@ public class MonitorFactory {
 		} else {
 			final Monitor newMonitor = Monitor
 				.builder()
-				.resource(resource)
 				.attributes(attributes)
 				.type(monitorType)
 				.id(id)
@@ -190,26 +174,13 @@ public class MonitorFactory {
 	/**
 	 * Creates the endpoint Host monitor
 	 *
-	 * @param isLocalhost Whether the host should be localhost or not.
 	 * @return Monitor instance
 	 */
-	public Monitor createEndpointHostMonitor(final boolean isLocalhost) {
+	public Monitor createEndpointHostMonitor() {
 		// Get the host configuration
 		final HostConfiguration hostConfiguration = telemetryManager.getHostConfiguration();
 
 		final String hostname = hostConfiguration.getHostname();
-
-		// Create the host
-		final Map<String, String> monitorAttributes = Map.of(
-			MONITOR_ATTRIBUTE_ID,
-			telemetryManager.getHostConfiguration().getHostId(),
-			"location",
-			isLocalhost ? HostLocation.LOCAL.getKey() : HostLocation.REMOTE.getKey(),
-			IS_ENDPOINT,
-			"true",
-			MONITOR_ATTRIBUTE_NAME,
-			telemetryManager.getHostname()
-		);
 
 		final DeviceKind deviceKind = hostConfiguration.getHostType();
 
@@ -222,9 +193,7 @@ public class MonitorFactory {
 			deviceKind.getDisplayName().toLowerCase()
 		);
 
-		final Map<String, String> resourceAttributes = Map.of(
-			"host.id",
-			hostConfiguration.getHostId(),
+		final Map<String, String> monitorAttributes = Map.of(
 			HOST_NAME,
 			hostConfiguration.isResolveHostnameToFqdn() ? NetworkHelper.getFqdn(hostname) : hostname,
 			"host.type",
@@ -234,20 +203,18 @@ public class MonitorFactory {
 			"agent.host.name",
 			StringHelper.getValue(() -> InetAddress.getLocalHost().getCanonicalHostName(), "unknown")
 		);
-		final Resource monitorResource = Resource.builder().type("host").attributes(resourceAttributes).build();
 
 		// Create the monitor using createOrUpdateMonitor
 		final Monitor monitor = createOrUpdateMonitor(
 			monitorAttributes,
-			monitorResource,
 			KnownMonitorType.HOST.getKey(),
-			telemetryManager.getHostConfiguration().getHostId()
+			"endpoint_host_%s".formatted(telemetryManager.getHostname())
 		);
 
 		// Flag the host as endpoint
 		monitor.setAsEndpoint();
 
-		log.debug("Hostname {} - Created endpoint host ID: {} ", hostname, hostConfiguration.getHostId());
+		log.debug("Hostname {} - Created endpoint host: {} ", hostname, hostname);
 
 		return monitor;
 	}

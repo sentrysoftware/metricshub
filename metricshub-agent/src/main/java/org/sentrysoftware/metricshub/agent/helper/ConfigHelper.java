@@ -66,6 +66,7 @@ import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.AlertingSystemConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
+import org.sentrysoftware.metricshub.agent.config.StateSetMetricCompression;
 import org.sentrysoftware.metricshub.agent.connector.AdditionalConnectorsParsingResult;
 import org.sentrysoftware.metricshub.agent.connector.ConnectorVariablesLibraryParser;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
@@ -1239,5 +1240,15 @@ public class ConfigHelper {
 		}
 
 		return connectorStore;
+	}
+
+	/**
+	 * Checks if the given compression is suppress zeros.
+	 *
+	 * @param compression the compression to check.
+	 * @return true if the compression is suppress zeros, false otherwise.
+	 */
+	public static boolean isSuppressZerosCompression(final String compression) {
+		return StateSetMetricCompression.SUPPRESS_ZEROS.equalsIgnoreCase(compression);
 	}
 }

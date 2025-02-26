@@ -34,7 +34,7 @@ import org.sentrysoftware.metricshub.agent.config.AdditionalConnector;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
+import org.sentrysoftware.metricshub.agent.opentelemetry.OtelConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
 import org.sentrysoftware.metricshub.engine.configuration.ConnectorVariables;
 import org.sentrysoftware.metricshub.engine.connector.model.common.HttpMethod;
@@ -136,19 +136,19 @@ class AgentContextTest {
 		);
 		assertEquals(4, sentryParisTelemetryManagers.size());
 
-		// Check the OpenTelemetry SDK configuration is correctly created
-		final Map<String, String> expectedOtelSdkConfiguration = new HashMap<>();
-		expectedOtelSdkConfiguration.putAll(OtelSdkConfigConstants.DEFAULT_CONFIGURATION);
-		expectedOtelSdkConfiguration.put(
-			OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
-			OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
+		// Check the OpenTelemetry configuration is correctly created
+		final Map<String, String> expectedOtelConfiguration = new HashMap<>();
+		expectedOtelConfiguration.put(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_PROTOCOL, "noop");
+		expectedOtelConfiguration.put(
+			OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_POOL_SIZE,
+			String.valueOf(agentConfig.getJobPoolSize())
 		);
 
-		final Map<String, String> otelSdkConfiguration = agentContext.getOtelSdkConfiguration();
+		final Map<String, String> otelConfiguration = agentContext.getOtelConfiguration();
 
 		assertTrue(
-			MapHelper.areEqual(expectedOtelSdkConfiguration, agentContext.getOtelSdkConfiguration()),
-			() -> String.format("expected %s but was: %s", expectedOtelSdkConfiguration, otelSdkConfiguration)
+			MapHelper.areEqual(expectedOtelConfiguration, otelConfiguration),
+			() -> String.format("expected %s but was: %s", expectedOtelConfiguration, otelConfiguration)
 		);
 
 		// Make sure the engine is notified with configuredConnectorId

@@ -16,14 +16,11 @@ import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorsVo;
-import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
 @Data
 public abstract class AbstractITJob implements ITJob {
-
-	private static final String AGENT_HOSTNAME_ATTRIBUTE = "agent.host.name";
 
 	@NonNull
 	protected final TelemetryManager telemetryManager;
@@ -40,7 +37,6 @@ public abstract class AbstractITJob implements ITJob {
 		assertConditionalCollection(expected, actual);
 		assertLegacyTextParameters(expected, actual);
 		assertAlertRules(expected, actual);
-		assertResource(expected, actual);
 		assertNotNull(actual.getDiscoveryTime());
 
 		final String expectedMonitorId = expected.getId();
@@ -184,58 +180,6 @@ public abstract class AbstractITJob implements ITJob {
 						expectedMonitor.getId()
 					)
 			);
-		}
-	}
-
-	/**
-	 * Assert that expected and actual monitor resource attributes are equal
-	 *
-	 * @param expectedMonitor Expected monitor defined in the expected JSON file
-	 * @param actualMonitor   Actual collected monitor from the {@link TelemetryManager}
-	 */
-	private static void assertResource(final Monitor expectedMonitor, final Monitor actualMonitor) {
-		final Resource expectedResource = expectedMonitor.getResource();
-		final Resource actualResource = actualMonitor.getResource();
-
-		final String expectedMonitorId = expectedMonitor.getId();
-		if (expectedResource != null) {
-			assertEquals(
-				expectedResource.getType(),
-				actualResource.getType(),
-				() ->
-					String.format(
-						"Actual resouruce type did not match expected: %s on monitor identifier: %s.",
-						expectedResource.getType(),
-						expectedMonitorId
-					)
-			);
-			for (Entry<String, String> expectedAttribute : expectedResource.getAttributes().entrySet()) {
-				// host name can change from different IT runs. if it is not null, check that actual has value.
-				final String expectedKey = expectedAttribute.getKey();
-				final String expectedValue = expectedAttribute.getValue();
-				if (expectedKey.equals(AGENT_HOSTNAME_ATTRIBUTE)) {
-					assertNotNull(
-						actualResource.getAttributes().get(expectedKey),
-						() ->
-							String.format(
-								"%s cannot be null on the resource for the monitor identifier: %s.",
-								AGENT_HOSTNAME_ATTRIBUTE,
-								expectedMonitorId
-							)
-					);
-				} else if (expectedValue != null) {
-					assertEquals(
-						expectedValue,
-						actualResource.getAttributes().get(expectedKey),
-						() ->
-							String.format(
-								"Actual attribute did not match expected: %s on monitor identifier: %s.",
-								expectedKey,
-								expectedMonitorId
-							)
-					);
-				}
-			}
 		}
 	}
 

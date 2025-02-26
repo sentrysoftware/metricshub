@@ -37,7 +37,7 @@ import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.agent.config.otel.OtelCollectorConfig;
 import org.sentrysoftware.metricshub.agent.deserialization.AttributesDeserializer;
 import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
-import org.sentrysoftware.metricshub.agent.helper.OtelSdkConfigConstants;
+import org.sentrysoftware.metricshub.agent.opentelemetry.OtelConfigConstants;
 import org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants;
 import org.sentrysoftware.metricshub.engine.deserialization.TimeDeserializer;
 
@@ -115,7 +115,7 @@ public class AgentConfig {
 	@Default
 	@JsonSetter(nulls = SKIP)
 	@JsonProperty("otel")
-	private Map<String, String> otelSdkConfig = OtelSdkConfigConstants.DEFAULT_CONFIGURATION;
+	private Map<String, String> otelConfig = OtelConfigConstants.DEFAULT_CONFIGURATION;
 
 	@Default
 	@JsonSetter(nulls = SKIP)

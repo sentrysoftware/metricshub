@@ -106,7 +106,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			log.error(
 				"Hostname {} - No protocol configuration provided. Please check the protocol configuration for resource {}.",
 				hostname,
-				hostConfiguration.getHostId()
+				hostname
 			);
 			return;
 		}
@@ -170,7 +170,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			.telemetryManager(telemetryManager)
 			.discoveryTime(strategyTime)
 			.build();
-		monitorFactory.createEndpointHostMonitor(hostProperties.isLocalhost());
+		monitorFactory.createEndpointHostMonitor();
 
 		// Create monitors
 		createConnectorMonitors(connectorTestResults);
@@ -189,7 +189,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			return;
 		}
 
-		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final String hostname = telemetryManager.getHostname();
 
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
@@ -198,7 +198,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			MONITOR_ATTRIBUTE_NAME,
 			telemetryManager.getConnectorStore().getStore().get(configuredConnectorId).getConnectorIdentity().getDisplayName()
 		);
-		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostname);
 
 		// Create the monitor factory
 		final MonitorFactory monitorFactory = MonitorFactory
@@ -244,7 +244,7 @@ public class DetectionStrategy extends AbstractStrategy {
 
 		// Set monitor attributes
 		final Map<String, String> monitorAttributes = new HashMap<>();
-		final String hostId = telemetryManager.getHostConfiguration().getHostId();
+		final String hostname = telemetryManager.getHostname();
 		final String connectorId = connector.getCompiledFilename();
 		final String connectorName = connector.getConnectorIdentity().getDisplayName();
 
@@ -264,7 +264,7 @@ public class DetectionStrategy extends AbstractStrategy {
 				.collect(Collectors.joining(MetricsHubConstants.COMMA))
 		);
 
-		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostId);
+		monitorAttributes.put(MONITOR_ATTRIBUTE_PARENT_ID, hostname);
 
 		// Create the monitor factory
 		final MonitorFactory monitorFactory = MonitorFactory
