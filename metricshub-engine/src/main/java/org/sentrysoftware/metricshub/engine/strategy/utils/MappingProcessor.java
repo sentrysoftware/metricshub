@@ -52,12 +52,10 @@ import org.sentrysoftware.metricshub.engine.common.helpers.state.IntrusionStatus
 import org.sentrysoftware.metricshub.engine.common.helpers.state.LinkStatus;
 import org.sentrysoftware.metricshub.engine.common.helpers.state.NeedsCleaning;
 import org.sentrysoftware.metricshub.engine.common.helpers.state.PredictedFailure;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.mapping.MappingResource;
 import org.sentrysoftware.metricshub.engine.connector.model.monitor.task.Mapping;
 import org.sentrysoftware.metricshub.engine.strategy.source.SourceUpdaterProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.springframework.core.io.ClassPathResource;
@@ -1305,24 +1303,6 @@ public class MappingProcessor {
 			return extractColumnValue(columnRefOrValue, key);
 		}
 		return columnRefOrValue;
-	}
-
-	/**
-	 * This method interprets mapping instance mapping resource field
-	 * @return Resource
-	 */
-	public Resource interpretMappingResource() {
-		final MappingResource mappingResource = mapping.getResource();
-
-		if (mappingResource != null && mappingResource.hasType()) {
-			return Resource
-				.builder()
-				.type(interpretNonContextMapping(Map.of("type", mappingResource.getType())).get("type"))
-				.attributes(interpretNonContextMapping(mappingResource.getAttributes()))
-				.build();
-		}
-
-		return null;
 	}
 
 	/**

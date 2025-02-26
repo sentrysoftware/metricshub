@@ -81,10 +81,13 @@ public class MonitoringTask implements Runnable {
 	private final MonitoringTaskInfo monitoringTaskInfo;
 
 	private int numberOfCollects;
-	private AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk;
+	// The OpenTelemetry SDK instance for the host
+	private AutoConfiguredOpenTelemetrySdk hostAutoConfiguredOpenTelemetrySdk;
+	// The OpenTelemetry SDK instances for the monitors
+	private Map<String, AutoConfiguredOpenTelemetrySdk> monitorAutoConfiguredOpenTelemetrySdks = new HashMap<>();
 
 	private Map<String, Set<String>> initializedMetricsPerMonitorId = new HashMap<>();
-	private Map<String, String> mainResourceAttributes;
+	private Map<String, String> hostResourceAttributes = new HashMap<>();
 
 	@Override
 	public void run() {
@@ -128,8 +131,8 @@ public class MonitoringTask implements Runnable {
 			// Initialize metric observers
 			initAllObservers(telemetryManager);
 
-			// Call the flush of all the metric readers associated with this meter provider
-			autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
+			// Call the flush of all the metric readers
+			flushMetrics();
 		}
 
 		log.info("Calling the engine to collect resource: {}.", hostId);
@@ -151,8 +154,8 @@ public class MonitoringTask implements Runnable {
 		// Initialize metric observers
 		initAllObservers(telemetryManager);
 
-		// Call the flush of all the metric readers associated with this meter provider
-		autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
+		// Call the flush of all the metric readers
+		flushMetrics();
 
 		// Increment the number of collects
 		numberOfCollects++;
@@ -161,6 +164,16 @@ public class MonitoringTask implements Runnable {
 		if (numberOfCollects >= discoveryCycle) {
 			numberOfCollects = 0;
 		}
+	}
+
+	/**
+	 * Force flush all the metric readers associated with the meter provider
+	 */
+	private void flushMetrics() {
+		hostAutoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush();
+		monitorAutoConfiguredOpenTelemetrySdks
+			.values()
+			.forEach(sdk -> sdk.getOpenTelemetrySdk().getSdkMeterProvider().forceFlush());
 	}
 
 	/**
@@ -179,14 +192,15 @@ public class MonitoringTask implements Runnable {
 			.map(Map::values)
 			.flatMap(Collection::stream)
 			.forEach(monitor -> {
-				if (monitor.isEndpointHost()) {
+				final boolean isEndpointHost = monitor.isEndpointHost();
+				if (isEndpointHost) {
 					// The host's metric definitions cannot be null because they are available as resources in metricshub-host-metrics.yaml
 					final Map<String, MetricDefinition> hostMetricDefinitions = monitoringTaskInfo
 						.getHostMetricDefinitions()
 						.metrics();
 
 					// Initialize endpoint host metric observers
-					initMonitorMetricObservers(monitor, telemetryManager, hostMetricDefinitions);
+					initMonitorMetricObservers(monitor, telemetryManager, hostMetricDefinitions, isEndpointHost);
 
 					// Initialize the metricshub.host.configured metric observer
 					initializeHostConfiguredMetricObserver(monitor, hostMetricDefinitions);
@@ -197,7 +211,8 @@ public class MonitoringTask implements Runnable {
 						ConfigHelper.fetchMetricDefinitions(
 							connectorStore,
 							monitor.getAttribute(MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID)
-						)
+						),
+						isEndpointHost
 					);
 				}
 			});
@@ -223,13 +238,8 @@ public class MonitoringTask implements Runnable {
 			hostMetricDefinitions
 		);
 
-		// Merge main resource attributes and monitor attributes
-		final Map<String, String> attributesMap = new HashMap<>();
-		ConfigHelper.mergeAttributes(mainResourceAttributes, attributesMap);
-		ConfigHelper.mergeAttributes(host.getAttributes(), attributesMap);
-
 		// A registry for creating named Meters
-		final SdkMeterProvider sdkMeterProvider = autoConfiguredOpenTelemetrySdk
+		final SdkMeterProvider sdkMeterProvider = hostAutoConfiguredOpenTelemetrySdk
 			.getOpenTelemetrySdk()
 			.getSdkMeterProvider();
 
@@ -248,7 +258,7 @@ public class MonitoringTask implements Runnable {
 					)
 				)
 			)
-			.withAttributes(OtelHelper.buildOtelAttributesFromMap(attributesMap))
+			.withAttributes(Attributes.empty())
 			.withUnit(metricDefinition.getUnit())
 			.withDescription(metricDefinition.getDescription())
 			.build()
@@ -266,11 +276,13 @@ public class MonitoringTask implements Runnable {
 	 * @param monitor             {@link Monitor} instance
 	 * @param telemetryManager    Wraps monitors and metrics
 	 * @param metricDefinitionMap Map of Metric definitions
+	 * @param isEndpointHost      Whether the monitor is an endpoint host or not
 	 */
 	void initMonitorMetricObservers(
 		final Monitor monitor,
 		final TelemetryManager telemetryManager,
-		final Map<String, MetricDefinition> metricDefinitionMap
+		final Map<String, MetricDefinition> metricDefinitionMap,
+		final boolean isEndpointHost
 	) {
 		monitor
 			.getMetrics()
@@ -279,7 +291,7 @@ public class MonitoringTask implements Runnable {
 			.filter(entry -> Objects.nonNull(entry.getValue()))
 			.filter(entry -> OtelHelper.isAcceptedKey(entry.getKey()))
 			.filter(metricEntry -> isMetricObserverNotInitialized(monitor.getId(), metricEntry.getKey()))
-			.forEach(metricEntry -> initMetricObserver(monitor, metricDefinitionMap, metricEntry));
+			.forEach(metricEntry -> initMetricObserver(monitor, metricDefinitionMap, metricEntry, isEndpointHost));
 	}
 
 	/**
@@ -289,11 +301,13 @@ public class MonitoringTask implements Runnable {
 	 * @param metricDefinitionMap Map of Metric definitions (E.g. metric definitions from Hardware.yaml or Storage.yaml)
 	 * @param metricEntry         Key-value where the key is the unique metric key and the value
 	 *                            is the {@link AbstractMetric}
+	 * @param isEndpointHost      Whether the monitor is an endpoint host or not
 	 */
 	void initMetricObserver(
 		final Monitor monitor,
 		final Map<String, MetricDefinition> metricDefinitionMap,
-		final Entry<String, AbstractMetric> metricEntry
+		final Entry<String, AbstractMetric> metricEntry,
+		final boolean isEndpointHost
 	) {
 		// Retrieve the metric unique key
 		final String metricKey = metricEntry.getKey();
@@ -304,23 +318,21 @@ public class MonitoringTask implements Runnable {
 		// Get the metric definition from the metric definition map
 		final MetricDefinition metricDefinition = lookupMetricDefinition(metricName, metricDefinitionMap);
 
-		// Merge main resource attributes and monitor attributes
-		final Map<String, String> attributesMap = new HashMap<>();
-		ConfigHelper.mergeAttributes(mainResourceAttributes, attributesMap);
-		ConfigHelper.mergeAttributes(monitor.getAttributes(), attributesMap);
-
 		final AbstractMetric metric = metricEntry.getValue();
 
-		// A registry for creating named Meters
-		final SdkMeterProvider sdkMeterProvider = autoConfiguredOpenTelemetrySdk
-			.getOpenTelemetrySdk()
-			.getSdkMeterProvider();
+		final Attributes attributes;
+		final SdkMeterProvider sdkMeterProvider;
+		if (isEndpointHost) {
+			// A registry for creating named Meters
+			sdkMeterProvider = hostAutoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
+		} else {
+			// A registry for creating named Meters for the monitor
+			sdkMeterProvider =
+				monitorAutoConfiguredOpenTelemetrySdks.get(monitor.getId()).getOpenTelemetrySdk().getSdkMeterProvider();
+		}
 
-		// Build the metric attributes
-		final Attributes attributes = OtelHelper.mergeOtelAttributes(
-			OtelHelper.buildOtelAttributesFromMap(attributesMap),
-			OtelHelper.buildOtelAttributesFromMap(metric.getAttributes())
-		);
+		// Only the metric attributes are required (e.g. state, io.direction, etc.)
+		attributes = OtelHelper.buildOtelAttributesFromMap(metric.getAttributes());
 
 		// Initialize the metric observer using the MetricTypeVisitor
 		// that handles each metric type
@@ -386,23 +398,14 @@ public class MonitoringTask implements Runnable {
 	 */
 	void initOtelSdk(final TelemetryManager telemetryManager, final ResourceConfig resourceConfig) {
 		// Create a resource if it hasn't been created during the previous cycle
-		if (autoConfiguredOpenTelemetrySdk == null) {
+		if (hostAutoConfiguredOpenTelemetrySdk == null) {
 			// Create the resource
 			final Monitor hostMonitor = telemetryManager.getEndpointHostMonitor();
 			final Map<String, String> userAttributes = resourceConfig.getAttributes();
-
-			final Map<String, String> hostMonitorResourceAttributes;
-			final org.sentrysoftware.metricshub.engine.telemetry.Resource monitorResource = hostMonitor.getResource();
-			if (monitorResource != null) {
-				hostMonitorResourceAttributes = monitorResource.getAttributes();
-			} else {
-				hostMonitorResourceAttributes = Map.of();
-			}
-
-			final Resource resource = OtelHelper.createHostResource(hostMonitorResourceAttributes, userAttributes);
+			final Resource resource = OtelHelper.createHostResource(hostMonitor.getAttributes(), userAttributes);
 
 			// Store the host monitor attributes for future use
-			mainResourceAttributes =
+			hostResourceAttributes =
 				resource
 					.getAttributes()
 					.asMap()
@@ -417,9 +420,42 @@ public class MonitoringTask implements Runnable {
 						)
 					);
 
-			autoConfiguredOpenTelemetrySdk =
+			hostAutoConfiguredOpenTelemetrySdk =
 				OtelHelper.initOpenTelemetrySdk(resource, monitoringTaskInfo.getOtelSdkConfiguration());
 		}
+
+		// Initialize the monitor OpenTelemetry SDKs
+		telemetryManager
+			.getMonitors()
+			.values()
+			.stream()
+			.map(Map::values)
+			.flatMap(Collection::stream)
+			.filter(monitor -> !monitor.isEndpointHost())
+			.filter(monitor -> monitorAutoConfiguredOpenTelemetrySdks.get(monitor.getId()) == null)
+			.forEach(this::initMonitorOtelSdk);
+	}
+
+	/**
+	 * Initialize the OpenTelemetry SDK for the given monitor if it is not initialized
+	 * @param monitor The monitor instance
+	 */
+	private void initMonitorOtelSdk(final Monitor monitor) {
+		final Map<String, String> finalMonitorResourceAttributes = new HashMap<>();
+
+		// Get the monitor attributes mapped by the connector
+		final Map<String, String> monitorAttributes = monitor.getAttributes();
+
+		// Merge the attributes of the monitor and the parent resource
+		ConfigHelper.mergeAttributes(hostResourceAttributes, finalMonitorResourceAttributes);
+		ConfigHelper.mergeAttributes(monitorAttributes, finalMonitorResourceAttributes);
+
+		final Resource monitorResourceInstance = OtelHelper.createOpenTelemetryResource(finalMonitorResourceAttributes);
+
+		monitorAutoConfiguredOpenTelemetrySdks.put(
+			monitor.getId(),
+			OtelHelper.initOpenTelemetrySdk(monitorResourceInstance, monitoringTaskInfo.getOtelSdkConfiguration())
+		);
 	}
 
 	/**

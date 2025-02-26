@@ -43,7 +43,7 @@ class PositiveIntegerDeserializerTest {
 	@Test
 	void testNegativeValue() throws Exception {
 		doReturn("-1234").when(yamlParser).getValueAsString();
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");
@@ -59,7 +59,7 @@ class PositiveIntegerDeserializerTest {
 	@Test
 	void testBadValue() throws Exception {
 		doReturn("toto").when(yamlParser).getValueAsString();
-		doReturn("key").when(yamlParser).getCurrentName();
+		doReturn("key").when(yamlParser).currentName();
 		try {
 			DERSERIALIZER.deserialize(yamlParser, null);
 			fail("Expected InvalidFormatException to be thrown");

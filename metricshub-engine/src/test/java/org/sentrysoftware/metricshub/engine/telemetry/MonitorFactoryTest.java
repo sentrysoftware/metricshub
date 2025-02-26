@@ -8,17 +8,12 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.DEFAULT_JOB_TIMEOUT;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.STATE_SET_METRIC_OK;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.AGENT_HOSTNAME_VALUE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.COMPUTE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_ID_ATTRIBUTE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.HOST_TYPE;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.ID;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.LINUX;
-import static org.sentrysoftware.metricshub.engine.constants.Constants.LOCATION;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.MONITOR_ID_ATTRIBUTE_VALUE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.OS_TYPE;
 import static org.sentrysoftware.metricshub.engine.constants.Constants.STATE_SET;
@@ -32,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sentrysoftware.metricshub.engine.common.HostLocation;
 import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
 import org.sentrysoftware.metricshub.engine.common.helpers.NetworkHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
@@ -72,7 +66,6 @@ class MonitorFactoryTest {
 			monitor,
 			monitorFactory.createOrUpdateMonitor(
 				monitorAttributes,
-				null,
 				KnownMonitorType.CONNECTOR.getKey(),
 				MONITOR_ID_ATTRIBUTE_VALUE
 			)
@@ -96,7 +89,6 @@ class MonitorFactoryTest {
 		// Call method createOrUpdateMonitor in MonitorFactory and retrieve the created monitor
 		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
 			monitorAttributes,
-			null,
 			KnownMonitorType.CONNECTOR.getKey(),
 			MONITOR_ID_ATTRIBUTE_VALUE
 		);
@@ -120,7 +112,6 @@ class MonitorFactoryTest {
 		// Create the monitor and check its attributes
 		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
 			monitorAttributes,
-			null,
 			KnownMonitorType.CONNECTOR.getKey(),
 			MONITOR_ID_ATTRIBUTE_VALUE
 		);
@@ -156,7 +147,6 @@ class MonitorFactoryTest {
 		// Call method createOrUpdateMonitor in MonitorFactory, retrieve the created monitor then check its attributes
 		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
 			monitorAttributes,
-			null,
 			KnownMonitorType.CONNECTOR.getKey(),
 			MONITOR_ID_ATTRIBUTE_VALUE
 		);
@@ -187,7 +177,6 @@ class MonitorFactoryTest {
 		// Create the monitor and check its attributes
 		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
 			monitorAttributes,
-			null,
 			KnownMonitorType.CONNECTOR.getKey(),
 			MONITOR_ID_ATTRIBUTE_VALUE
 		);
@@ -229,7 +218,6 @@ class MonitorFactoryTest {
 		// Create the monitor and check its attributes
 		final Monitor createdMonitor = monitorFactory.createOrUpdateMonitor(
 			monitorAttributes,
-			null,
 			KnownMonitorType.CONNECTOR.getKey(),
 			MONITOR_ID_ATTRIBUTE_VALUE
 		);
@@ -270,31 +258,19 @@ class MonitorFactoryTest {
 
 		// Mock host configuration, hostname and host properties
 		doReturn(telemetryManager.getHostConfiguration()).when(telemetryManagerMock).getHostConfiguration();
-		doReturn(HOST_NAME).when(telemetryManagerMock).getHostname();
 
 		// Call create host monitor
-		final Monitor hostMonitor = monitorFactory.createEndpointHostMonitor(Boolean.TRUE);
+		final Monitor hostMonitor = monitorFactory.createEndpointHostMonitor();
 
 		// Check that the created monitor is not null
 		assertNotNull(hostMonitor);
 
-		// Check host monitor attributes
-		assertEquals(HOST_ID, hostMonitor.getAttributes().get(ID));
-		assertEquals(HostLocation.LOCAL.getKey(), hostMonitor.getAttributes().get(LOCATION));
-		assertEquals(HOST_NAME, hostMonitor.getAttributes().get(MONITOR_ATTRIBUTE_NAME));
-
-		// Retrieve host monitor resource
-		final Resource hostMonitorResource = hostMonitor.getResource();
-
-		// Check host monitor resource type
-		assertEquals(HOST, hostMonitorResource.getType());
-
 		// Check host monitor resource attributes
-		assertEquals(COMPUTE, hostMonitorResource.getAttributes().get(HOST_TYPE));
-		assertEquals(HOST_ID, hostMonitorResource.getAttributes().get(HOST_ID_ATTRIBUTE));
-		assertEquals(LINUX.toLowerCase(), hostMonitorResource.getAttributes().get(OS_TYPE));
-		assertEquals(AGENT_HOSTNAME_VALUE, hostMonitorResource.getAttributes().get("agent.host.name"));
-		assertEquals(HOST_NAME, hostMonitorResource.getAttributes().get(HOST_NAME));
+		final Map<String, String> hostAttributes = hostMonitor.getAttributes();
+		assertEquals(COMPUTE, hostAttributes.get(HOST_TYPE));
+		assertEquals(LINUX.toLowerCase(), hostMonitor.getAttributes().get(OS_TYPE));
+		assertEquals(AGENT_HOSTNAME_VALUE, hostMonitor.getAttributes().get("agent.host.name"));
+		assertEquals(HOST_NAME, hostMonitor.getAttributes().get(HOST_NAME));
 
 		// Check that the monitor is an endpoint host monitor
 		assertTrue(hostMonitor.isEndpointHost());
@@ -306,9 +282,9 @@ class MonitorFactoryTest {
 			final String expectedHostname = "host.name.resolved";
 			networkHelperMock.when(() -> NetworkHelper.getFqdn(HOST_NAME)).thenReturn(expectedHostname);
 
-			final Monitor fqdnHostMonitor = monitorFactory.createEndpointHostMonitor(Boolean.TRUE);
+			final Monitor fqdnHostMonitor = monitorFactory.createEndpointHostMonitor();
 
-			assertEquals(expectedHostname, fqdnHostMonitor.getResource().getAttributes().get(HOST_NAME));
+			assertEquals(expectedHostname, fqdnHostMonitor.getAttributes().get(HOST_NAME));
 		}
 	}
 

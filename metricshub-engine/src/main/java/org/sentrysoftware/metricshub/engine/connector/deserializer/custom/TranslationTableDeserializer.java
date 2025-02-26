@@ -46,7 +46,7 @@ public class TranslationTableDeserializer extends JsonDeserializer<ITranslationT
 			return null;
 		}
 
-		final String key = parser.getCurrentName();
+		final String key = parser.currentName();
 		final JsonNode node = parser.readValueAsTree();
 
 		if (node != null) {

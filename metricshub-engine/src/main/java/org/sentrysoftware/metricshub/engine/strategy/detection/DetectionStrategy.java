@@ -170,7 +170,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			.telemetryManager(telemetryManager)
 			.discoveryTime(strategyTime)
 			.build();
-		monitorFactory.createEndpointHostMonitor(hostProperties.isLocalhost());
+		monitorFactory.createEndpointHostMonitor();
 
 		// Create monitors
 		createConnectorMonitors(connectorTestResults);
