@@ -21,6 +21,7 @@ package org.sentrysoftware.metricshub.cli;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import org.sentrysoftware.jawk.Main;
@@ -30,8 +31,6 @@ import org.sentrysoftware.jawk.Main;
  */
 public class JawkCli {
 
-	static PrintStream printStream;
-
 	/**
 	 * Entry point for executing AWK scripts.
 	 *
@@ -39,19 +38,22 @@ public class JawkCli {
 	 * @throws Exception if an error occurs during execution.
 	 */
 	public static void main(String[] args) throws Exception {
-		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
-		System.setOut(printStream == null ? new ReplacingPrintStream(System.out) : printStream);
-		new Main(args, System.in, System.out, System.err);
+		main(args, System.in, System.out, System.err);
 	}
 
 	/**
-	 * Sets the {@link PrintStream} for standard output.
+	 * Entry point for executing AWK scripts with custom input, output, and error
 	 *
-	 * @param ps the {@link PrintStream} to set as the new standard output
+	 * @param args Command line arguments
+	 * @param in   Input as {@link InputStream}
+	 * @param out  Output stream as {@link PrintStream}
+	 * @param err  Error stream as {@link PrintStream}
+	 * @throws Exception if an error occurs during execution
 	 */
-	public static void setPrintStream(final PrintStream ps) {
-		printStream = ps;
-		System.setOut(ps);
+	public static void main(final String[] args, final InputStream in, final PrintStream out, final PrintStream err)
+		throws Exception {
+		System.setProperty("log4j2.configurationFile", "log4j2-cli.xml");
+		new Main(args, in, new ReplacingPrintStream(out), err);
 	}
 
 	/**

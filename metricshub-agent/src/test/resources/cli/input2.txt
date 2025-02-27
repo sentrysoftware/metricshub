@@ -1,6 +1,0 @@
-Hardware;Brand;Voltage
-Processor;Intel;1.25V
-GPU;Nvidia;1.1V
-Motherboard;ASUS;12V
-RAM;Corsair;1.2V
-SSD;Samsung;3.3V
