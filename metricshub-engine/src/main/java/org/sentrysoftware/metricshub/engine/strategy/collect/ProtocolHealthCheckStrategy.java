@@ -110,13 +110,16 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 						Boolean.TRUE.equals(isUp) ? UP : DOWN,
 						strategyTime
 					);
-					// Collect protocol check response time metric
-					metricFactory.collectNumberMetric(
-						endpointHostMonitor,
-						RESPONSE_TIME_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
-						responseTime,
-						strategyTime
-					);
+
+					// Collect protocol check response time metric if response up is true
+					if (Boolean.TRUE.equals(isUp)) {
+						metricFactory.collectNumberMetric(
+							endpointHostMonitor,
+							RESPONSE_TIME_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
+							responseTime,
+							strategyTime
+						);
+					}
 				});
 		});
 		// CHECKSTYLE:ON
