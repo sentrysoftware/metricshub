@@ -102,19 +102,23 @@ public class ProtocolHealthCheckStrategy extends AbstractStrategy {
 					final Double responseTime = (System.currentTimeMillis() - startTime) / 1000.0;
 					final Monitor endpointHostMonitor = telemetryManager.getEndpointHostMonitor();
 					final Long strategyTime = telemetryManager.getStrategyTime();
-					MetricFactory metricFactory = new MetricFactory();
+					final MetricFactory metricFactory = new MetricFactory();
+					Double up = DOWN;
+					if (Boolean.TRUE.equals(isUp)) {
+						up = UP;
+						// Collect protocol check response time metric if response up is true
+						metricFactory.collectNumberMetric(
+							endpointHostMonitor,
+							RESPONSE_TIME_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
+							responseTime,
+							strategyTime
+						);
+					}
 					// Collect protocol check metric
 					metricFactory.collectNumberMetric(
 						endpointHostMonitor,
 						UP_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
-						Boolean.TRUE.equals(isUp) ? UP : DOWN,
-						strategyTime
-					);
-					// Collect protocol check response time metric
-					metricFactory.collectNumberMetric(
-						endpointHostMonitor,
-						RESPONSE_TIME_METRIC_FORMAT.formatted(protocolExtension.getIdentifier()),
-						responseTime,
+						up,
 						strategyTime
 					);
 				});
