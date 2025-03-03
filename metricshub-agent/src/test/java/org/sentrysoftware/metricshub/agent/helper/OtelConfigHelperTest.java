@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
+import org.sentrysoftware.metricshub.agent.opentelemetry.OtelConfigConstants;
 
 class OtelConfigHelperTest {
 
@@ -73,30 +74,27 @@ class OtelConfigHelperTest {
 	}
 
 	@Test
-	void testBuildOtelSdkConfiguration() {
-		assertDoesNotThrow(() -> OtelConfigHelper.buildOtelSdkConfiguration(new AgentConfig()));
+	void testBuildOtelConfiguration() {
+		assertDoesNotThrow(() -> OtelConfigHelper.buildOtelConfiguration(new AgentConfig()));
 	}
 
 	@Test
-	void testBuildOtelSdkConfigurationHeaders() {
+	void testBuildOtelConfigurationHeaders() {
 		{
-			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(AgentConfig.empty());
-			assertFalse(sdkConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
+			final Map<String, String> otelConfig = OtelConfigHelper.buildOtelConfiguration(AgentConfig.empty());
+			assertFalse(otelConfig.containsKey(OTEL_EXPORTER_OTLP_HEADERS_PROPERTY));
 		}
 
 		{
 			final AgentConfig agentConfig = AgentConfig
 				.builder()
-				.otelSdkConfig(OtelSdkConfigConstants.DEFAULT_CONFIGURATION)
+				.otelConfig(OtelConfigConstants.DEFAULT_CONFIGURATION)
 				.build();
-			final Map<String, String> sdkConfig = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
+			final Map<String, String> otelConfig = OtelConfigHelper.buildOtelConfiguration(agentConfig);
 			final Map<String, String> expectedSdkConfig = new HashMap<>();
-			expectedSdkConfig.putAll(OtelSdkConfigConstants.DEFAULT_CONFIGURATION);
-			expectedSdkConfig.put(
-				OtelSdkConfigConstants.OTEL_METRIC_EXPORT_INTERVAL,
-				OtelSdkConfigConstants.DEFAULT_METRICS_EXPORT_INTERVAL
-			);
-			assertEquals(expectedSdkConfig, sdkConfig);
+			expectedSdkConfig.putAll(OtelConfigConstants.DEFAULT_CONFIGURATION);
+
+			assertEquals(expectedSdkConfig, otelConfig);
 		}
 	}
 }

@@ -208,13 +208,13 @@ public class MonitorFactory {
 		final Monitor monitor = createOrUpdateMonitor(
 			monitorAttributes,
 			KnownMonitorType.HOST.getKey(),
-			telemetryManager.getHostConfiguration().getHostId()
+			"endpoint_host.%s".formatted(telemetryManager.getHostname())
 		);
 
 		// Flag the host as endpoint
 		monitor.setAsEndpoint();
 
-		log.debug("Hostname {} - Created endpoint host ID: {} ", hostname, hostConfiguration.getHostId());
+		log.debug("Hostname {} - Created endpoint host: {} ", hostname, hostname);
 
 		return monitor;
 	}

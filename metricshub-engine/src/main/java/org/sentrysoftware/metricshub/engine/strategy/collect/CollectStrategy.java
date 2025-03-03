@@ -580,5 +580,8 @@ public class CollectStrategy extends AbstractStrategy {
 
 		// Collect each connector
 		sortedConnectors.forEach(connector -> collect(connector, hostname));
+
+		// Collect the metricshub.host.configured metric
+		collectHostConfigured(hostname);
 	}
 }

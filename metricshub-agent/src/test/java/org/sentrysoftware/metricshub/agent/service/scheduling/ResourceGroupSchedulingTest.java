@@ -88,7 +88,7 @@ class ResourceGroupSchedulingTest {
 			ResourceGroupScheduling
 				.builder()
 				.withAgentConfig(agentConfig)
-				.withOtelSdkConfiguration(new HashMap<>())
+				.withOtelConfiguration(new HashMap<>())
 				.withResourceGroupConfig(resourceGroupConfig)
 				.withResourceGroupKey(SENTRY_PARIS_RESOURCE_GROUP_KEY)
 				.withSchedules(new HashMap<>())
@@ -96,7 +96,7 @@ class ResourceGroupSchedulingTest {
 				.build()
 				.schedule();
 
-			// Trigger the observer
+			// Trigger the recorder
 			final Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
 
 			assertFalse(metrics.isEmpty());

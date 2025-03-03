@@ -1,10 +1,10 @@
-package org.sentrysoftware.metricshub.agent.service.scheduling;
+package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
  * MetricsHub Agent
  * ჻჻჻჻჻჻
- * Copyright 2023 - 2024 Sentry Software
+ * Copyright 2023 - 2025 Sentry Software
  * ჻჻჻჻჻჻
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,31 +21,31 @@ package org.sentrysoftware.metricshub.agent.service.scheduling;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import java.util.Map;
-import java.util.concurrent.ScheduledFuture;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
-import org.springframework.scheduling.TaskScheduler;
+import io.opentelemetry.proto.metrics.v1.Metric;
+import lombok.Builder;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
 /**
- * AbstractScheduling is the base class for implementing scheduling-related tasks in the MetricsHub agent.
- * It provides common functionality for scheduling tasks using a TaskScheduler.
+ * This class is used to record counter metrics. It extends {@link AbstractNumberMetricRecorder}.
  */
-@RequiredArgsConstructor
-public abstract class AbstractScheduling {
-
-	@NonNull
-	protected TaskScheduler taskScheduler;
-
-	@NonNull
-	protected Map<String, ScheduledFuture<?>> schedules;
-
-	@NonNull
-	protected MetricsExporter metricsExporter;
+public class CounterMetricRecorder extends AbstractNumberMetricRecorder {
 
 	/**
-	 * Schedules a task
+	 * Constructor for the class.
+	 * @param metric      the metric to record.
+	 * @param unit        the unit of the metric.
+	 * @param description the description of the metric
 	 */
-	public abstract void schedule();
+	@Builder(setterPrefix = "with")
+	public CounterMetricRecorder(final NumberMetric metric, final String unit, final String description) {
+		super(metric, unit, description);
+	}
+
+	/**
+	 * Builds the counter metric based on the current value.
+	 */
+	@Override
+	protected Metric buildMetric(Double value) {
+		return buildCounterMetric(value);
+	}
 }

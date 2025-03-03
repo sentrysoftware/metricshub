@@ -161,5 +161,14 @@ public class OtelCollectorProcessService extends AbstractProcess {
 			);
 			log.debug("Error: ", e);
 		}
+
+		// Add a delay to let the OpenTelemetry Collector activate its OTLP receiver endpoint
+		// before the MetricsHub Agent starts sending data.
+		try {
+			Thread.sleep(2 * 1000);
+		} catch (InterruptedException e) {
+			log.error("The MetricsHub Agent startup process has been interrupted.");
+			log.debug("Error: ", e);
+		}
 	}
 }

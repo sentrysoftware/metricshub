@@ -44,7 +44,7 @@ class ResourceSchedulingTest {
 		final ResourceScheduling resourceScheduling = ResourceScheduling
 			.builder()
 			.withHostMetricDefinitions(ConfigHelper.readHostMetricDefinitions())
-			.withOtelSdkConfiguration(new HashMap<>())
+			.withOtelConfiguration(new HashMap<>())
 			.withResourceConfig(resourceConfig)
 			.withTelemetryManager(new TelemetryManager())
 			.withTaskScheduler(taskSchedulerMock)

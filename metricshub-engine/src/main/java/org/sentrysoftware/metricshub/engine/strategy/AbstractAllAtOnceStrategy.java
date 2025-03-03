@@ -480,6 +480,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		// Process each connector
 		sortedConnectors.forEach(connector -> process(connector, hostname));
+
+		// Collect the metricshub.host.configured metric
+		collectHostConfigured(hostname);
 	}
 
 	/**
