@@ -380,7 +380,7 @@ public abstract class AbstractStrategy implements IStrategy {
 				executionClassName,
 				executionKey,
 				connectorId,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
+				TextTableHelper.generateTextTable(sourceTable.getTable())
 			);
 			return;
 		}
@@ -393,7 +393,7 @@ public abstract class AbstractStrategy implements IStrategy {
 			executionKey,
 			connectorId,
 			sourceTable.getRawData(),
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
+			TextTableHelper.generateTextTable(sourceTable.getTable())
 		);
 	}
 
