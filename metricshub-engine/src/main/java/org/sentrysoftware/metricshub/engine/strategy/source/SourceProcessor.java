@@ -538,7 +538,7 @@ public class SourceProcessor implements ISourceProcessor {
 				parentSourceKey,
 				childSourceKey,
 				connectorId,
-				TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
+				TextTableHelper.generateTextTable(sourceTable.getTable())
 			);
 			return;
 		}
@@ -550,7 +550,7 @@ public class SourceProcessor implements ISourceProcessor {
 			childSourceKey,
 			connectorId,
 			sourceTable.getRawData(),
-			TextTableHelper.generateTextTable(sourceTable.getHeaders(), sourceTable.getTable())
+			TextTableHelper.generateTextTable(sourceTable.getTable())
 		);
 	}
 
