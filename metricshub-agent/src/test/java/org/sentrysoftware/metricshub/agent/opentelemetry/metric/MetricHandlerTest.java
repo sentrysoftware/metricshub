@@ -13,10 +13,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.AbstractMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.CounterMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.CounterStateMetricRecorder;
+import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.CounterSuppressZerosStateMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.GaugeMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.GaugeStateMetricRecorder;
+import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.GaugeSuppressZerosStateMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.UpDownCounterMetricRecorder;
 import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.UpDownCounterStateMetricRecorder;
+import org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder.UpDownCounterSuppressZerosStateMetricRecorder;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
@@ -60,6 +63,18 @@ class MetricHandlerTest {
 	}
 
 	@Test
+	void handle_shouldReturnGaugeSuppressZerosStateMetricRecorder_whenHandlingGaugeStateSetMetric() {
+		when(mockContext.getType()).thenReturn(MetricType.GAUGE);
+		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
+		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+
+		assertEquals(2, recorders.size());
+		assertTrue(recorders.get(0) instanceof GaugeSuppressZerosStateMetricRecorder);
+		assertTrue(recorders.get(1) instanceof GaugeSuppressZerosStateMetricRecorder);
+	}
+
+	@Test
 	void handle_shouldReturnCounterMetricRecorder_whenHandlingCounterNumberMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.COUNTER);
 		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockNumberMetric);
@@ -80,6 +95,18 @@ class MetricHandlerTest {
 	}
 
 	@Test
+	void handle_shouldReturnCopunterSuppressZerosStateMetricRecorder_whenHandlingGaugeStateSetMetric() {
+		when(mockContext.getType()).thenReturn(MetricType.COUNTER);
+		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
+		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+
+		assertEquals(2, recorders.size());
+		assertTrue(recorders.get(0) instanceof CounterSuppressZerosStateMetricRecorder);
+		assertTrue(recorders.get(1) instanceof CounterSuppressZerosStateMetricRecorder);
+	}
+
+	@Test
 	void handle_shouldReturnUpDownCounterMetricRecorder_whenHandlingUpDownCounterNumberMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.UP_DOWN_COUNTER);
 		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockNumberMetric);
@@ -97,5 +124,17 @@ class MetricHandlerTest {
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof UpDownCounterStateMetricRecorder);
 		assertTrue(recorders.get(1) instanceof UpDownCounterStateMetricRecorder);
+	}
+
+	@Test
+	void handle_shouldReturnUpDownCounterSuppressZerosStateMetricRecorderRecorder_whenHandlingUpDownCounterStateSetMetric() {
+		when(mockContext.getType()).thenReturn(MetricType.UP_DOWN_COUNTER);
+		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
+		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+
+		assertEquals(2, recorders.size());
+		assertTrue(recorders.get(0) instanceof UpDownCounterSuppressZerosStateMetricRecorder);
+		assertTrue(recorders.get(1) instanceof UpDownCounterSuppressZerosStateMetricRecorder);
 	}
 }

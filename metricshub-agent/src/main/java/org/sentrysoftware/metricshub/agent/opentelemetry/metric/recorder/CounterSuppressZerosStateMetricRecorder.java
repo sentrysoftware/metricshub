@@ -26,7 +26,7 @@ import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
- * This class is used to record counter state metrics. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
+ * This class is used to record counter state metrics with suppress zeros compression. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
  */
 public class CounterSuppressZerosStateMetricRecorder extends AbstractSuppressZerosStateMetricRecorder {
 

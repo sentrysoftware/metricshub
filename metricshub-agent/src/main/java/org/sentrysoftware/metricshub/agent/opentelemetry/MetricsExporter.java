@@ -83,36 +83,13 @@ public class MetricsExporter {
 				protocol = OtelConfigConstants.GRPC;
 			}
 
-			String endpoint = configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT);
-
-			// If the endpoint is not defined, fallback to the default based on the protocol
-			if (endpoint == null) {
-				if (OtelConfigConstants.GRPC.equals(protocol)) {
-					log.debug(
-						"The endpoint is not defined. Fallback to default gRPC endpoint {}",
-						OtelConfigConstants.DEFAULT_OTLP_GRPC_ENDPOINT
-					);
-					endpoint = OtelConfigConstants.DEFAULT_OTLP_GRPC_ENDPOINT;
-				} else if (OtelConfigConstants.HTTP_PROTOBUF.equals(protocol)) {
-					log.debug(
-						"The endpoint is not defined. Fallback to default HTTP endpoint {}",
-						OtelConfigConstants.DEFAULT_OTLP_HTTP_ENDPOINT
-					);
-					endpoint = OtelConfigConstants.DEFAULT_OTLP_HTTP_ENDPOINT;
-				} else {
-					log.debug("Creating no-op client. Protocol: {}", protocol);
-					// Fallback to no-op client
-					newNoopClient();
-					return this;
-				}
-			}
-
+			final String endpoint = configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT);
 			final String headers = configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_HEADERS);
 			final String certificate = configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_CERTIFICATE);
 			final long timeout = parseTimeout(configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_TIMEOUT));
 			final int poolSize = parsePoolSize(configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_POOL_SIZE));
 
-			switch (protocol) {
+			switch (protocol.toLowerCase().trim()) {
 				case OtelConfigConstants.GRPC:
 					newGrpcClient(endpoint, headers, certificate, timeout, poolSize);
 					break;
@@ -185,18 +162,27 @@ public class MetricsExporter {
 		 * Creates a new HTTP client. If the client cannot be created, it falls back to a NoopClient.
 		 *
 		 * @param endpoint    The endpoint to connect to.
+		 *                    If the endpoint is not defined, it falls back to the default: {@value OtelConfigConstants#DEFAULT_OTLP_HTTP_ENDPOINT}
 		 * @param headers     The headers to send.
 		 * @param certificate The certificate use by the client.
 		 * @param timeout     The timeout in seconds.
 		 * @param poolSize    The pool size of the client.
 		 */
 		void newHttpProtobufClient(
-			final String endpoint,
+			String endpoint,
 			final String headers,
 			final String certificate,
 			final long timeout,
 			final int poolSize
 		) {
+			if (endpoint == null) {
+				log.debug(
+					"The endpoint is not defined. Fallback to default HTTP endpoint {}",
+					OtelConfigConstants.DEFAULT_OTLP_HTTP_ENDPOINT
+				);
+				endpoint = OtelConfigConstants.DEFAULT_OTLP_HTTP_ENDPOINT;
+			}
+
 			try {
 				client =
 					HttpProtobufClient
@@ -218,18 +204,27 @@ public class MetricsExporter {
 		 * Creates a new gRPC client. If the client cannot be created, it falls back to a NoopClient.
 		 *
 		 * @param endpoint    The endpoint to connect to.
+		 *                    If the endpoint is not defined, it falls back to the default: {@value OtelConfigConstants#DEFAULT_OTLP_GRPC_ENDPOINT}
 		 * @param headers     The headers to send.
 		 * @param certificate The certificate use by the client.
 		 * @param timeout     The timeout in seconds.
 		 * @param poolSize    The pool size of the client.
 		 */
 		void newGrpcClient(
-			final String endpoint,
+			String endpoint,
 			final String headers,
 			final String certificate,
 			final long timeout,
 			final int poolSize
 		) {
+			if (endpoint == null) {
+				log.debug(
+					"The endpoint is not defined. Fallback to default gRPC endpoint {}",
+					OtelConfigConstants.DEFAULT_OTLP_GRPC_ENDPOINT
+				);
+				endpoint = OtelConfigConstants.DEFAULT_OTLP_GRPC_ENDPOINT;
+			}
+
 			try {
 				client =
 					GrpcClient

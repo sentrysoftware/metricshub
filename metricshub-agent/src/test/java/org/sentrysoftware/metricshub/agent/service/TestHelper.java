@@ -30,8 +30,7 @@ public class TestHelper {
 
 	/**
 	 * Configure the 'org.sentrysoftware' logger based on the user's command.<br>
-	 * See src/main/resources/log4j2.xml
-	 *
+	 * See src/main/resources/log4j2.xml for the logger configuration.
 	 */
 	public static void configureGlobalLogger() {
 		final Level loggerLevel = Level.ERROR;

@@ -26,7 +26,7 @@ import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
- * This class is used to record gauge metrics with suppressed zeros. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
+ * This class is used to record gauge metrics with suppressed zeros compression. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
  */
 public class GaugeSuppressZerosStateMetricRecorder extends AbstractSuppressZerosStateMetricRecorder {
 

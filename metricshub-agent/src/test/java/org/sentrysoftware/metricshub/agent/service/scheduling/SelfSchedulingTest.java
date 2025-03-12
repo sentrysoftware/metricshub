@@ -42,7 +42,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 class SelfSchedulingTest {
 
 	@Test
-	void testScheduleAndRecordAndExport() {
+	void testSchedule() {
 		TestHelper.configureGlobalLogger();
 		final AgentInfo agentInfo = new AgentInfo();
 		final AgentConfig agentConfig = AgentConfig

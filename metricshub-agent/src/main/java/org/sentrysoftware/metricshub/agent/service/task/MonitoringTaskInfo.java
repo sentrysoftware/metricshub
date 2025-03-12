@@ -32,7 +32,7 @@ import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
- * Information required for the monitoring task, including telemetry manager, resource configuration, keys, OpenTelemetry configuration, and host metric definitions.
+ * Information required for the monitoring task, including telemetry manager, resource configuration, keys, metrics exporter, and host metric definitions.
  */
 @Data
 @AllArgsConstructor

@@ -78,7 +78,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link SelfScheduling} to schedule SelfRecorder
+	 * Initialize the {@link SelfScheduling} to schedule agent metrics recorder
 	 * which triggers a periodic task to flush metrics
 	 */
 	void scheduleSelfRecorder() {
@@ -94,8 +94,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link SimpleGaugeMetricRecorder} for each resource group and
-	 * trigger a periodic task to flush metrics
+	 * Initialize the {@link ResourceGroupScheduling} to schedule recorders for each resource group
 	 */
 	void scheduleResourceGroupRecorders() {
 		agentConfig
@@ -114,8 +113,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link SimpleGaugeMetricRecorder} for each resource and
-	 * trigger a periodic task to flush metrics
+	 * Schedule top level resources recorders
 	 */
 	void scheduleTopLevelResourcesRecorders() {
 		agentConfig
@@ -129,8 +127,7 @@ public class TaskSchedulingService {
 	}
 
 	/**
-	 * Initialize the {@link ResourceGroupScheduling} to schedule {@link SimpleGaugeMetricRecorder}
-	 * for the given resource group configuration
+	 * Initialize the {@link ResourceGroupScheduling} to schedule recorders for a resource group
 	 *
 	 * @param resourceGroupKey    unique key of the resource group configuration.
 	 * @param resourceGroupConfig {@link ResourceGroupConfig} instance configured by the user.
@@ -165,7 +162,7 @@ public class TaskSchedulingService {
 
 	/**
 	 * Initialize the {@link ResourceScheduling} that schedules
-	 * a monitoring task for the given resource configuration entry
+	 * a monitoring task for the given resource configuration
 	 *
 	 * @param resourceGroupKey The key of the parent resource group configuration.
 	 * @param resourceKey      The unique key of the resource configuration.

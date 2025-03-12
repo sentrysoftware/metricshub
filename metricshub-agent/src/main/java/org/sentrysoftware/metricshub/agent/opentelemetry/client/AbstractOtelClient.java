@@ -137,7 +137,7 @@ public abstract class AbstractOtelClient implements IOtelClient {
 	/**
 	 * Shutdown the executor service.
 	 *
-	 * @throws InterruptedException if the executor service is interrupted.
+	 * @throws InterruptedException if the executor service is interrupted while waiting to shutdown.
 	 */
 	protected void shutdownExecutor() throws InterruptedException {
 		executorService.shutdown();

@@ -44,6 +44,7 @@ public class GaugeMetricRecorder extends AbstractNumberMetricRecorder {
 
 	/**
 	 * Builds the gauge metric based on the current value.
+	 *
 	 * @param value The value to record.
 	 * @return The recorded OpenTelemetry metric as a {@link Metric}.
 	 */

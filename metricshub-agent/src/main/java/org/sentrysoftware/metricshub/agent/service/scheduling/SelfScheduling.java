@@ -43,7 +43,7 @@ import org.springframework.scheduling.support.PeriodicTrigger;
 
 /**
  * Scheduling class responsible for self-recording tasks in MetricsHub.
- * This class creates and schedules an recorder for collecting MetricsHub agent information.
+ * This class creates and schedules a recorder for collecting MetricsHub agent information.
  */
 @Slf4j
 public class SelfScheduling extends AbstractScheduling {
@@ -102,7 +102,7 @@ public class SelfScheduling extends AbstractScheduling {
 	}
 
 	/**
-	 * Records and pushes the MetricsHub agent information.
+	 * Records and pushes the agent metric {@value AgentInfo#METRICS_HUB_AGENT_METRIC_NAME}.
 	 */
 	void recordAndExport() {
 		final Map<String, String> resourceAttributes = new HashMap<>();
