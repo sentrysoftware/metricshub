@@ -40,7 +40,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 class ResourceGroupSchedulingTest {
 
 	@Test
-	void testScheduleAndRecordAndExport() {
+	void testSchedule() {
 		TestHelper.configureGlobalLogger();
 		final AgentConfig agentConfig = AgentConfig
 			.builder()

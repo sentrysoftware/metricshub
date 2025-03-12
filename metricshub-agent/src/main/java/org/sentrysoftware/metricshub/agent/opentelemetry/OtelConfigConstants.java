@@ -71,7 +71,7 @@ public class OtelConfigConstants {
 	public static final String GRPC = "grpc";
 
 	/**
-	 * OTLP protocol: gRPC
+	 * OTLP protocol: HTTP/Protobuf
 	 */
 	public static final String HTTP_PROTOBUF = "http/protobuf";
 

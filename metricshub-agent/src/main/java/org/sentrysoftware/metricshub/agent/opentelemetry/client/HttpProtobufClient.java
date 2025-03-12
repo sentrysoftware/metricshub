@@ -52,6 +52,7 @@ public class HttpProtobufClient extends AbstractOtelClient {
 	 * @param headers     The headers to be sent on OpenTelemetry requests.
 	 * @param certificate The path to the file containing trusted certificates to use when verifying a server's TLS credentials.
 	 * @param timeout     The timeout for the OpenTelemetry requests.
+	 * @param poolSize    The size of the thread pool used by the client.
 	 */
 	@Builder(setterPrefix = "with")
 	public HttpProtobufClient(
@@ -68,6 +69,9 @@ public class HttpProtobufClient extends AbstractOtelClient {
 
 	/**
 	 * Sends an ExportMetricsServiceRequest to the OpenTelemetry receiver.
+	 * The request is serialized into a Protobuf byte array and sent as the request body.
+	 * The response is logged to the console in case of an error.
+	 * @param request the ExportMetricsServiceRequest to send.
 	 */
 	@Override
 	public void send(final ExportMetricsServiceRequest request) {
@@ -132,7 +136,7 @@ public class HttpProtobufClient extends AbstractOtelClient {
 		try {
 			if (!isSecure()) {
 				// Use plain HTTP (no TLS)
-				return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeout)).build();
+				return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(timeout)).executor(executorService).build();
 			}
 
 			final SSLContext sslContext = certificate != null && !certificate.isBlank()
@@ -152,6 +156,8 @@ public class HttpProtobufClient extends AbstractOtelClient {
 
 	/**
 	 * Loads a custom certificate into an SSLContext.
+	 * The certificate is loaded from the provided path.
+	 * @param certPath the path to the certificate
 	 *
 	 * @return the {@link SSLContext} instance.
 	 */

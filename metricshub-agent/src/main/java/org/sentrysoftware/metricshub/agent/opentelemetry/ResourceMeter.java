@@ -29,10 +29,12 @@ import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
 import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
 import io.opentelemetry.proto.resource.v1.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
@@ -51,7 +53,10 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 public class ResourceMeter {
 
 	private final String instrumentation;
-	private final Map<String, String> attributes;
+
+	@Default
+	private Map<String, String> attributes = new HashMap<>();
+
 	private final List<AbstractMetricRecorder> metricRecorders = new ArrayList<>();
 
 	/**

@@ -26,12 +26,13 @@ import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
- * This class is used to record up-down counter suppress zeros state metrics. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
+ * This class is used to record up-down counter state metrics with suppress zeros compression. It extends {@link AbstractSuppressZerosStateMetricRecorder}.
  */
 public class UpDownCounterSuppressZerosStateMetricRecorder extends AbstractSuppressZerosStateMetricRecorder {
 
 	/**
 	 * Constructor for the class.
+	 *
 	 * @param metric      the metric to record.
 	 * @param unit        the unit of the metric.
 	 * @param description the description of the metric.

@@ -47,7 +47,7 @@ public class OtelHelper {
 	/**
 	 * Create the host attributes based on the given attributes.
 	 *
-	 * @param computedHostResourceAttributes Host Resource attributes: host.id, host.name, os.type, host.type, etc
+	 * @param computedHostResourceAttributes Host Resource attributes: host.name, os.type, host.type, etc
 	 *                                       collected by the engine.
 	 * @param userAttributes                 User configured attributes.
 	 * @return Map instance containing the host attributes.

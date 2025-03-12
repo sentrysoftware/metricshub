@@ -75,7 +75,7 @@ public abstract class AbstractSuppressZerosStateMetricRecorder extends AbstractS
 	 *
 	 * @param current  The current state value to check.
 	 * @param previous The previous state value to check.
-	 * @return True if the state has switched, false.
+	 * @return True if the state has switched, otherwise false.
 	 */
 	private boolean hasSwitched(final String current, final String previous) {
 		return previous != null && !previous.equalsIgnoreCase(current) && previous.equalsIgnoreCase(stateValue);

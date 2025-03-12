@@ -136,7 +136,7 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 	}
 
 	/**
-	 * Record and push the metrics for the resource group
+	 * Records and pushes resource group metrics.
 	 */
 	void recordAndExport() {
 		// Create a new meter provider with the metrics exporter

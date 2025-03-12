@@ -27,7 +27,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
 /**
  * This class is used to record metrics that are not compressed and are based on a state.
- * It is an abstract class that extends {@link AbstractStateMetricRecorder} The concrete classes
+ * It is an abstract class that extends {@link AbstractStateMetricRecorder}. The concrete classes
  * will be responsible to implement the method that builds the metric.
  */
 public abstract class AbstractNotCompressedStateMetricRecorder extends AbstractStateMetricRecorder {

@@ -654,16 +654,16 @@ Refer to:
 - [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 - [Monitoring the health of a Web service](https://metricshub.com/usecases/monitoring-the-health-of-a-web-service/) for a practical example that demonstrates how to use this feature effectively.
 
-### OTLP Exporter Settings
+### OTLP Exporter settings
 
-**MetricsHub**'s internal `OTLP exporter` sends collected metrics to the `OTLP receiver` using **gRPC** or **HTTP/Protobuf**. 
+**MetricsHub**'s internal `OTLP Exporter` sends collected metrics to the `OTLP Receiver` using **gRPC** or **HTTP/Protobuf**. 
 
 By default, the **Enterprise Edition** is set up to push telemetry to its embedded *OpenTelemetry Collector*, but it can also send metrics directly to observability
 platforms that support native OTLP ingestion. A working example is included in **`metricshub-example.yaml`**, which provides the default configuration for **MetricsHub Enterprise**.
 
 If you are using the **Community Edition**, you need to manually configure these properties to send metrics to your observability backend. 
 
-To define where and how the metrics should be sent, update the **OTLP exporter properties** under the `otel` section in **`metricshub.yaml`**.
+To define where and how the metrics should be sent, update the **OTLP Exporter properties** under the `otel` section in **`metricshub.yaml`**.
 
 Here are the available properties you can configure:
 
@@ -685,7 +685,7 @@ otel:
   otel.exporter.otlp.metrics.headers: Authorization=<value>
 ```
 
-This configuration ensures that **MetricsHub** sends metrics through **gRPC** to an `OTLP receiver` at `https://localhost:4317`, including an *Authorization* header for secure communication.
+This configuration ensures that **MetricsHub** sends metrics through **gRPC** to an `OTLP Receiver` at `https://localhost:4317`, including an *Authorization* header for secure communication.
 
 ### Basic Authentication settings
 

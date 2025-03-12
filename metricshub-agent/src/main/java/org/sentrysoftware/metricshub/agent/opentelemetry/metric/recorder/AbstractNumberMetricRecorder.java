@@ -46,6 +46,7 @@ public abstract class AbstractNumberMetricRecorder extends AbstractMetricRecorde
 
 	/**
 	 * Builds the metric based on the current value.
+	 * @return The recorded OpenTelemetry metric as an {@link Optional} of {@link Metric}.
 	 */
 	@Override
 	public Optional<Metric> doRecord() {

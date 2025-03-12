@@ -32,6 +32,7 @@ public class CounterMetricRecorder extends AbstractNumberMetricRecorder {
 
 	/**
 	 * Constructor for the class.
+	 *
 	 * @param metric      the metric to record.
 	 * @param unit        the unit of the metric.
 	 * @param description the description of the metric
@@ -43,9 +44,12 @@ public class CounterMetricRecorder extends AbstractNumberMetricRecorder {
 
 	/**
 	 * Builds the counter metric based on the current value.
+	 *
+	 * @param value the value of the metric.
+	 * @return The recorded OpenTelemetry metric as a {@link Metric}.
 	 */
 	@Override
-	protected Metric buildMetric(Double value) {
+	protected Metric buildMetric(final Double value) {
 		return buildCounterMetric(value);
 	}
 }

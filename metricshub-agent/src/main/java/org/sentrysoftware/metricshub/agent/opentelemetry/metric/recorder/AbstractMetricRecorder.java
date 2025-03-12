@@ -39,7 +39,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
 /**
- * AbstractMetricRecorder class used to record metrics. It define the entry point to record a metric through the doRecord method.
+ * AbstractMetricRecorder class used to record metrics. It defines the entry point to record a metric through the <code>doRecord</code> method.
  * It also provides the abstract methods to build the OpenTelemetry metric.
  */
 @AllArgsConstructor
