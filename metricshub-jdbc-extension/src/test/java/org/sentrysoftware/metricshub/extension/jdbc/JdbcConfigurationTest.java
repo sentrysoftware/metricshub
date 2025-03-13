@@ -18,11 +18,10 @@ class JdbcConfigurationTest {
 			.builder()
 			.type("mysql")
 			.hostname("localhost")
-			.database("testdb")
 			.port(3306)
 			.build();
 
-		char[] expectedUrl = "jdbc:mysql://localhost:3306/testdb".toCharArray();
+		char[] expectedUrl = "jdbc:mysql://localhost:3306".toCharArray();
 		assertArrayEquals(expectedUrl, jdbcConfiguration.generateUrl());
 	}
 
@@ -110,7 +109,7 @@ class JdbcConfigurationTest {
 
 		assertDoesNotThrow(() -> jdbcConfiguration.validateConfiguration("resourceKey"));
 		assertNotNull(jdbcConfiguration.getUrl());
-		assertEquals("jdbc:mysql://localhost:3306/testdb", new String(jdbcConfiguration.getUrl()));
+		assertEquals("jdbc:mysql://localhost:3306", new String(jdbcConfiguration.getUrl()));
 	}
 
 	@Test
@@ -167,7 +166,7 @@ class JdbcConfigurationTest {
 
 		assertDoesNotThrow(() -> jdbcConfiguration.validateConfiguration("resourceKey"));
 		assertNotNull(jdbcConfiguration.getUrl());
-		assertEquals("jdbc:mysql://localhost:3306/testdb", new String(jdbcConfiguration.getUrl()));
+		assertEquals("jdbc:mysql://localhost:3306", new String(jdbcConfiguration.getUrl()));
 	}
 
 	@Test

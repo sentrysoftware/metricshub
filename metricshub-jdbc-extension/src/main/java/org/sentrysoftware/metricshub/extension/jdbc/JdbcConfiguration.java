@@ -99,17 +99,6 @@ public class JdbcConfiguration implements IConfiguration {
 
 		if (url == null || url.length == 0) {
 			StringHelper.validateConfigurationAttribute(
-				database,
-				attr -> attr == null || attr.isBlank(),
-				() ->
-					"""
-					Resource %s - No database name configured for JDBC. \
-					Database value returned: %s. This resource will not be monitored. \
-					Please verify the configured database value.\
-					""".formatted(resourceKey, database)
-			);
-
-			StringHelper.validateConfigurationAttribute(
 				type,
 				attr -> attr == null || attr.isBlank(),
 				() ->
@@ -188,9 +177,9 @@ public class JdbcConfiguration implements IConfiguration {
 	char[] generateUrl() {
 		return switch (type.toLowerCase()) {
 			case "postgresql" -> String.format("jdbc:postgresql://%s:%d/%s", hostname, port, database).toCharArray();
-			case "mysql" -> String.format("jdbc:mysql://%s:%d/%s", hostname, port, database).toCharArray();
-			case "sqlserver" -> String
-				.format("jdbc:sqlserver://%s:%d;databaseName=%s", hostname, port, database)
+			case "mysql" -> String.format("jdbc:mysql://%s:%d", hostname, port).toCharArray();
+			case "mssql" -> String
+				.format("jdbc:sqlserver://%s:%d;decrypt=true;trustServerCertificate=true", hostname, port)
 				.toCharArray();
 			default -> new char[0];
 		};
