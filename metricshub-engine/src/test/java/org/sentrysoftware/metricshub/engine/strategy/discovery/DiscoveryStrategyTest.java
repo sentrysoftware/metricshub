@@ -1,8 +1,10 @@
 package org.sentrysoftware.metricshub.engine.strategy.discovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -537,5 +539,23 @@ class DiscoveryStrategyTest {
 				)
 				.getValue()
 		);
+	}
+
+	@Test
+	void testHasAllIdentifyingAttributes() {
+		final ExtensionManager extensionManager = ExtensionManager
+			.builder()
+			.withProtocolExtensions(List.of(protocolExtensionMock))
+			.build();
+		discoveryStrategy =
+			DiscoveryStrategy
+				.builder()
+				.clientsExecutor(clientsExecutorMock)
+				.strategyTime(strategyTime)
+				.telemetryManager(new TelemetryManager())
+				.extensionManager(extensionManager)
+				.build();
+		assertTrue(discoveryStrategy.hasAllIdentifyingAttributes(Set.of("id1", "id2"), Map.of("id1", "1", "id2", "2")));
+		assertFalse(discoveryStrategy.hasAllIdentifyingAttributes(Set.of("id1", "id2"), Map.of("id1", "1")));
 	}
 }

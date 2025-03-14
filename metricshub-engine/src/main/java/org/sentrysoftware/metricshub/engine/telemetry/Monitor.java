@@ -23,8 +23,12 @@ package org.sentrysoftware.metricshub.engine.telemetry;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -67,6 +71,9 @@ public class Monitor {
 
 	@JsonProperty("is_endpoint")
 	private boolean isEndpoint;
+
+	@Default
+	private Set<String> identifyingAttributeKeys = new HashSet<>(MetricsHubConstants.DEFAULT_KEYS);
 
 	/**
 	 * Gets a metric of the specified type by name.
@@ -177,5 +184,18 @@ public class Monitor {
 	 */
 	public void setAsEndpoint() {
 		setIsEndpoint(true);
+	}
+
+	/**
+	 * Format the identifying attributes
+	 *
+	 * @return formatted identifying attributes separated by "_"
+	 */
+	public String formatIdentifyingAttributes() {
+		return identifyingAttributeKeys
+			.stream()
+			.sorted()
+			.map(key -> Optional.ofNullable(attributes.get(key)).orElse(""))
+			.collect(Collectors.joining("_"));
 	}
 }
