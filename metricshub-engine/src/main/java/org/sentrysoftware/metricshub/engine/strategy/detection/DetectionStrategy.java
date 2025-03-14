@@ -28,6 +28,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -169,6 +170,7 @@ public class DetectionStrategy extends AbstractStrategy {
 			.builder()
 			.telemetryManager(telemetryManager)
 			.discoveryTime(strategyTime)
+			.keys(new HashSet<>(Set.of(MetricsHubConstants.HOST_NAME)))
 			.build();
 		monitorFactory.createEndpointHostMonitor();
 
