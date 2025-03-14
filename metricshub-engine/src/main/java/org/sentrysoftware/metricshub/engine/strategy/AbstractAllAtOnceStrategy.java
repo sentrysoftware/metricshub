@@ -371,6 +371,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 			// Initialize a monitor factory with the previously created attributes and resources
 
+			// Get the identifying attribute keys
+			final Set<String> identifyingAttributeKeys = monitorJob.getKeys();
+
 			final MonitorFactory monitorFactory = MonitorFactory
 				.builder()
 				.monitorType(monitorType)
@@ -379,14 +382,15 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.resource(resource)
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
-				.keys(monitorJob.getKeys())
+				.keys(identifyingAttributeKeys)
 				.build();
 
-			// The attribute id is mandatory
-			if (noContextAttributeInterpretedValues.get(MONITOR_ATTRIBUTE_ID) == null) {
+			// The identifying attributes should be available
+			if (!hasAllIdentifyingAttributes(identifyingAttributeKeys, noContextAttributeInterpretedValues)) {
 				log.info(
-					"Hostname {} - No mapping attribute 'id' found with {} during the {} job for the connector {}. Processed row: {}. The monitor will not be created.",
+					"Hostname {} - No identifying attributes {} found with {} during the {} job for the connector {}. Processed row: {}. The monitor will not be created.",
 					hostname,
+					identifyingAttributeKeys,
 					monitorType,
 					getJobName(),
 					connectorId,
@@ -420,6 +424,21 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			monitor.addLegacyParameters(mappingProcessor.interpretNonContextMappingLegacyTextParameters());
 			monitor.addLegacyParameters(mappingProcessor.interpretContextMappingLegacyTextParameters(monitor));
 		}
+	}
+
+	/**
+	 * This method checks if the identifying attributes are available
+	 *
+	 * @param identifyingAttributeKeys The identifying attribute keys
+	 * @param attributes               The attribute interpreted values
+	 * @return True if the identifying attributes are available, false otherwise
+	 */
+	public boolean hasAllIdentifyingAttributes(
+		final Set<String> identifyingAttributeKeys,
+		final Map<String, String> attributes
+	) {
+		// All the identifying attributes should be available
+		return identifyingAttributeKeys.stream().noneMatch(key -> attributes.get(key) == null);
 	}
 
 	/**
