@@ -136,7 +136,7 @@ This command will connect to the `STOR02` storage system (`storage`) using `SNMP
 ### Windows, JDBC (MySQL)
 
 ```batch
-$ metricshub WIN06 -t win --jdbc --jdbc-username USERA --jdbc-password MYSECRET --jdbc-port 3306 --jdbc-database MyDB --jdbc-type mysql -c +MySql
+$ metricshub WIN06 -t win --jdbc --jdbc-username USERA --jdbc-password MYSECRET --jdbc-port 3306 --jdbc-type mysql -c +MySql
 ```
 
 This command will connect to the `WIN06` `Win`dows system using the `JDBC` configuration to access the database and execute SQL queries as `USERA`.
