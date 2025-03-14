@@ -31,6 +31,7 @@ import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubCons
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.UNDERSCORE;
 
 import java.net.InetAddress;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -80,7 +82,8 @@ public class MonitorFactory {
 	private Long discoveryTime;
 
 	// Monitor job keys
-	private Set<String> keys;
+	@Default
+	private Set<String> keys = new HashSet<>(MetricsHubConstants.DEFAULT_KEYS);
 
 	/**
 	 * This method creates or updates the monitor
@@ -102,6 +105,7 @@ public class MonitorFactory {
 		// monitor section in the connector file
 		final String keysString = keys
 			.stream()
+			.sorted()
 			.map(key -> Optional.ofNullable(attributes.get(key)).orElse(""))
 			.collect(Collectors.joining("_"));
 
@@ -164,6 +168,7 @@ public class MonitorFactory {
 				.attributes(attributes)
 				.type(monitorType)
 				.id(id)
+				.identifyingAttributeKeys(keys)
 				.discoveryTime(discoveryTime)
 				.build();
 
