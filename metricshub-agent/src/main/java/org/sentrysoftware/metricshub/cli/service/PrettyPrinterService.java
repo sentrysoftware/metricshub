@@ -22,7 +22,6 @@ package org.sentrysoftware.metricshub.cli.service;
  */
 
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_CONNECTOR_ID;
-import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_NAME;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.MONITOR_ATTRIBUTE_PARENT_ID;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.WHITE_SPACE;
@@ -362,7 +361,7 @@ public class PrettyPrinterService {
 	 */
 	private String getMonitorDisplayName(final Monitor monitor) {
 		String displayName = monitor.getAttribute(MONITOR_ATTRIBUTE_NAME);
-		displayName = displayName != null ? displayName : monitor.getAttribute(MONITOR_ATTRIBUTE_ID);
+		displayName = displayName != null ? displayName : monitor.formatIdentifyingAttributes();
 		return displayName != null ? displayName : monitor.getId();
 	}
 
@@ -512,7 +511,7 @@ public class PrettyPrinterService {
 			// Create MonitorChildren for each Monitor and put them in the map
 			for (final Monitor monitorInstance : monitors) {
 				final MonitorChildren monitorChildren = new MonitorChildren(monitorInstance);
-				final String attributeId = monitorInstance.getAttribute(MONITOR_ATTRIBUTE_ID);
+				final String attributeId = monitorInstance.formatIdentifyingAttributes();
 				final String monitorType = monitorInstance.getType();
 				monitorMap.put(String.format(MONITOR_ID_FORMAT, monitorType, attributeId), monitorChildren);
 			}
