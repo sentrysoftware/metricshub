@@ -14,20 +14,20 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testGenerateUrl() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.type("mysql")
 			.hostname("localhost")
 			.port(3306)
 			.build();
 
-		char[] expectedUrl = "jdbc:mysql://localhost:3306".toCharArray();
+		final char[] expectedUrl = "jdbc:mysql://localhost:3306/".toCharArray();
 		assertArrayEquals(expectedUrl, jdbcConfiguration.generateUrl());
 	}
 
 	@Test
 	void testValidateConfigurationMissingUsername() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.type("mysql")
 			.database("testdb")
@@ -35,7 +35,7 @@ class JdbcConfigurationTest {
 			.username("")
 			.build();
 
-		Exception exception = assertThrows(
+		final Exception exception = assertThrows(
 			InvalidConfigurationException.class,
 			() -> jdbcConfiguration.validateConfiguration("resourceKey")
 		);
@@ -49,7 +49,7 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testValidateConfigurationInvalidTimeout() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
@@ -58,7 +58,7 @@ class JdbcConfigurationTest {
 			.timeout(-10L)
 			.build();
 
-		Exception exception = assertThrows(
+		final Exception exception = assertThrows(
 			InvalidConfigurationException.class,
 			() -> jdbcConfiguration.validateConfiguration("resourceKey")
 		);
@@ -73,7 +73,7 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testValidateConfigurationInvalidPort() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
@@ -82,7 +82,7 @@ class JdbcConfigurationTest {
 			.port(-1)
 			.build();
 
-		Exception exception = assertThrows(
+		final Exception exception = assertThrows(
 			InvalidConfigurationException.class,
 			() -> jdbcConfiguration.validateConfiguration("resourceKey")
 		);
@@ -97,7 +97,7 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testValidateConfigurationGeneratesUrlWhenNull() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
@@ -109,12 +109,12 @@ class JdbcConfigurationTest {
 
 		assertDoesNotThrow(() -> jdbcConfiguration.validateConfiguration("resourceKey"));
 		assertNotNull(jdbcConfiguration.getUrl());
-		assertEquals("jdbc:mysql://localhost:3306", new String(jdbcConfiguration.getUrl()));
+		assertEquals("jdbc:mysql://localhost:3306/testdb", new String(jdbcConfiguration.getUrl()));
 	}
 
 	@Test
 	void testValidateConfigurationWithEmptyUrl() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("unsupported_db")
@@ -123,7 +123,7 @@ class JdbcConfigurationTest {
 			.port(3306)
 			.build();
 
-		Exception exception = assertThrows(
+		final Exception exception = assertThrows(
 			InvalidConfigurationException.class,
 			() -> jdbcConfiguration.validateConfiguration("resourceKey")
 		);
@@ -138,7 +138,7 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testValidateConfigurationWithPredefinedUrl() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
@@ -154,11 +154,10 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testValidateConfigurationGeneratesUrlWhenEmpty() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
-			.database("testdb")
 			.hostname("localhost")
 			.port(3306)
 			.url(new char[0]) // URL is empty
@@ -166,12 +165,12 @@ class JdbcConfigurationTest {
 
 		assertDoesNotThrow(() -> jdbcConfiguration.validateConfiguration("resourceKey"));
 		assertNotNull(jdbcConfiguration.getUrl());
-		assertEquals("jdbc:mysql://localhost:3306", new String(jdbcConfiguration.getUrl()));
+		assertEquals("jdbc:mysql://localhost:3306/", new String(jdbcConfiguration.getUrl()));
 	}
 
 	@Test
 	void testValidateConfigurationAssignsDefaultPort() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.type("mysql")
@@ -186,7 +185,7 @@ class JdbcConfigurationTest {
 
 	@Test
 	void testCopyConfigurationWithAllFields() {
-		JdbcConfiguration jdbcConfiguration = JdbcConfiguration
+		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
 			.password("password".toCharArray())

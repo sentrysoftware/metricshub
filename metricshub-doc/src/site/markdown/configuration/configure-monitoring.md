@@ -291,11 +291,10 @@ resourceGroups:
             hostname: my-host-02
             username: dbuser
             password: dbpassword
-            url: jdbc:mysql://my-host-02:3306/mydatabase
+            url: jdbc:mysql://my-host-02:3306
             timeout: 120s
             type: mysql
             port: 3306
-            database: mydatabase
 ```
 
 #### OS commands
