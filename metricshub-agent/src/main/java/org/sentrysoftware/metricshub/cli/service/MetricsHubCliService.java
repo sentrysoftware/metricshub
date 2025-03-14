@@ -486,6 +486,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.map(protocolConfig -> {
 				try {
 					final IConfiguration protocol = protocolConfig.toConfiguration(username, password);
+					// Duplicate the main hostname on each configuration. By design, the extensions retrieve the hostname from the configuration.
 					protocol.setHostname(hostname);
 					protocol.validateConfiguration(hostname);
 					return protocol;
