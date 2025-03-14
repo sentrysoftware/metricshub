@@ -75,7 +75,7 @@ public class JdbcConfigCli implements IProtocolConfigCli {
 	private String timeout;
 
 	@Option(names = "--jdbc-port", order = 6, paramLabel = "PORT", description = "Port for JDBC connection")
-	private int port;
+	private Integer port;
 
 	@Option(names = "--jdbc-database", order = 7, paramLabel = "DATABASE", description = "Name of the database")
 	private String database;
@@ -113,7 +113,9 @@ public class JdbcConfigCli implements IProtocolConfigCli {
 			configuration.set("url", new TextNode(String.valueOf(url)));
 		}
 		configuration.set("timeout", new TextNode(timeout));
-		configuration.set("port", new IntNode(port));
+		if (port != null) {
+			configuration.set("port", new IntNode(port));
+		}
 		configuration.set("database", new TextNode(database));
 		configuration.set("type", new TextNode(type));
 
