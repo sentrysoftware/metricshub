@@ -653,6 +653,37 @@ Refer to:
 - [Monitors](https://sentrysoftware.org/metricshub-community-connectors/develop/monitors.html) for more information on how to configure custom resource monitoring.
 - [Monitoring the health of a Web service](https://metricshub.com/usecases/monitoring-the-health-of-a-web-service/) for a practical example that demonstrates how to use this feature effectively.
 
+### OTLP Exporter settings
+
+**MetricsHub** sends collected metrics to an OTLP Receiver using **gRPC** or **HTTP/Protobuf**.
+
+* In the **Enterprise Edition**, telemetry is **automatically sent** to the embedded *OpenTelemetry Collector*. You can also configure it to send metrics directly to observability platforms that support **native OTLP ingestion**. A working example is provided in the `metricshub-example.yaml` file.
+* In the **Community Edition**, you need to manually configure the OTLP Exporter settings in `config/metricshub.yaml` under the `otel` section.
+
+The table below describes the available OTLP Exporter properties:
+
+| Property | Description |
+|----------|------------|
+| **`otel.exporter.otlp.metrics.endpoint`** | The OTLP metrics endpoint URL. <p><p></p>Must be an `http` or `https` URL, depending on whether TLS is used.</p><p></p><p>**Default:** `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf)</p> |
+| **`otel.exporter.otlp.metrics.protocol`** | Transport protocol for OTLP metric requests.<p></p><p>Possible Values: `grpc`, `http/protobuf`.</p><p></p><p>**Default:** `grpc`</p> |
+| **`otel.exporter.otlp.metrics.certificate`** | Path to a PEM-formatted file containing trusted certificates for verifying the OTLP server’s TLS credentials.<p></p><p>**Default:** Uses the host platform’s trusted root certificates</p> |
+| **`otel.exporter.otlp.metrics.headers`** | Custom headers to send with OTLP metric requests, typically for authentication.<p></p><p>**Default:** Not set</p> |
+| **`otel.exporter.otlp.metrics.timeout`** | Timeout for OTLP metric requests (in seconds).<p></p><p>**Default:** `10` </p>|
+| **`otel.exporter.otlp.metrics.pool.size`** | Exporter pool size.<p></p><p> This setting directly determines how many metric export operations can run in parallel.</p><p></p><p>**Default:** `20`</p> |
+
+#### Example
+
+To send **MetricsHub** metrics via **gRPC** to an `OTLP Receiver` at `https://localhost:4317`, including an *Authorization* header, configure the following in config/metricshub.yaml:
+
+```yaml
+otel:
+  otel.exporter.otlp.metrics.endpoint: https://localhost:4317
+  otel.exporter.otlp.metrics.protocol: grpc
+  otel.exporter.otlp.metrics.headers: Authorization=<value>
+```
+
+This configuration ensures that metrics are securely transmitted to the specified endpoint.
+
 ### Basic Authentication settings
 
 #### Enterprise Edition authentication
@@ -661,19 +692,15 @@ In the Enterprise Edition, the **MetricsHub**'s internal `OTLP Exporter` authent
 
 These settings are already configured in the `config/metricshub.yaml` file of **MetricsHub Enterprise Edition**. Changing them is **not recommended** unless you are familiar with managing communication between the **MetricsHub** `OTLP Exporter` and the *OpenTelemetry Collector*'s `OTLP Receiver`.
 
-To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+To override the default value of the *Basic Authentication Header*, configure the `otel.exporter.otlp.metrics.headers` parameter under the `otel` section:
 
 ```yaml
-# Internal OpenTelemetry SDK configuration
+# Internal OpenTelemetry configuration
 otel:
-  # OpenTelemetry SDK Autoconfigure properties
-  # https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure
-  # MetricsHub Default configuration
-  otel.metrics.exporter: otlp
   otel.exporter.otlp.metrics.endpoint: https://localhost:4317
   otel.exporter.otlp.metrics.protocol: grpc
   otel.exporter.otlp.metrics.headers: Authorization=Basic <base64-username-password>
-  otel.exporter.otlp.logs.headers: Authorization=Basic <base64-username-password>
+
 resourceGroups: # ...
 ```
 
@@ -683,12 +710,11 @@ where `<base64-username-password>` credentials are built by first joining your u
 
 #### Community Edition authentication
 
-If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` and `otel.exporter.otlp.logs.headers` parameters under the `otel` section:
+If your `OTLP Receiver` requires authentication headers, configure the `otel.exporter.otlp.metrics.headers` parameter under the `otel` section:
 
 ```yaml
 otel:
   otel.exporter.otlp.metrics.headers: <custom-header1>
-  otel.exporter.otlp.logs.headers: <custom-header2>
 
 resourceGroups: # ...
 ```
@@ -885,12 +911,12 @@ resources:
           <variable-name>: <value>
 ```
 
-| Property                 | Description                                                                                                                    |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `<connector-custom-id>`  | Custom ID for this additional connector.                                                                                       |
-| `uses`                   | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
-| `force`                  | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
-| `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
+| Property                | Description                                                                                                                    |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `<connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `uses`                  | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                 | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `variables`             | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
 
 > Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
 

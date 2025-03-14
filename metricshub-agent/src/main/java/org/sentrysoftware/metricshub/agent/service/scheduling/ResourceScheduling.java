@@ -30,6 +30,8 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTask;
 import org.sentrysoftware.metricshub.agent.service.task.MonitoringTaskInfo;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
@@ -75,13 +77,11 @@ public class ResourceScheduling extends AbstractScheduling {
 	 *
 	 * @param taskScheduler         The task scheduler to use for scheduling.
 	 * @param schedules             The map to store scheduled tasks.
-	 * @param otelSdkConfiguration  The OpenTelemetry SDK configuration.
-	 * @param resourceGroupKey      Key for identifying the resource group to which
-	 *                              the resource belongs.
+	 * @param metricsExporter       The exporter to use for exporting metrics.
+	 * @param resourceGroupKey      Key for identifying the resource group to which the resource belongs.
 	 * @param resourceKey           Key for identifying the resource.
 	 * @param resourceConfig        Configuration for the monitored resource.
-	 * @param telemetryManager      Telemetry manager responsible for collecting and
-	 *                              processing metrics for the resource.
+	 * @param telemetryManager      Telemetry manager responsible for collecting and processing metrics for the resource.
 	 * @param hostMetricDefinitions Definitions of metrics for the host.
 	 * @param extensionManager      Manages and aggregates various types of extensions used within MetricsHub.
 	 */
@@ -89,7 +89,7 @@ public class ResourceScheduling extends AbstractScheduling {
 	public ResourceScheduling(
 		@NonNull final TaskScheduler taskScheduler,
 		@NonNull final Map<String, ScheduledFuture<?>> schedules,
-		@NonNull final Map<String, String> otelSdkConfiguration,
+		@NonNull final MetricsExporter metricsExporter,
 		@NonNull final String resourceGroupKey,
 		@NonNull final String resourceKey,
 		@NonNull final ResourceConfig resourceConfig,
@@ -97,7 +97,7 @@ public class ResourceScheduling extends AbstractScheduling {
 		@NonNull final MetricDefinitions hostMetricDefinitions,
 		@NonNull final ExtensionManager extensionManager
 	) {
-		super(taskScheduler, schedules, otelSdkConfiguration);
+		super(taskScheduler, schedules, metricsExporter);
 		this.resourceGroupKey = resourceGroupKey;
 		this.resourceKey = resourceKey;
 		this.resourceConfig = resourceConfig;
@@ -121,9 +121,10 @@ public class ResourceScheduling extends AbstractScheduling {
 				.resourceConfig(resourceConfig)
 				.resourceGroupKey(resourceGroupKey)
 				.resourceKey(resourceKey)
-				.otelSdkConfiguration(otelSdkConfiguration)
+				.metricsExporter(metricsExporter)
 				.hostMetricDefinitions(hostMetricDefinitions)
 				.extensionManager(extensionManager)
+				.isSuppressZerosCompression(ConfigHelper.isSuppressZerosCompression(resourceConfig.getStateSetCompression()))
 				.build()
 		);
 

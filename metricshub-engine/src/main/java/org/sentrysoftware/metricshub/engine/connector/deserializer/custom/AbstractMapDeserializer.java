@@ -50,7 +50,7 @@ public abstract class AbstractMapDeserializer<T> extends JsonDeserializer<Map<St
 		}
 
 		if (!isValidMap(map)) {
-			throw new InvalidFormatException(parser, messageOnInvalidMap(parser.getCurrentName()), map, Map.class);
+			throw new InvalidFormatException(parser, messageOnInvalidMap(parser.currentName()), map, Map.class);
 		}
 
 		if (isExpectedInstance(map)) {

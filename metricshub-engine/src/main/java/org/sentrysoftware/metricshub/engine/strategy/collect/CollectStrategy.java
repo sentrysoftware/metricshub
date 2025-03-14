@@ -384,8 +384,8 @@ public class CollectStrategy extends AbstractStrategy {
 		}
 
 		log.debug(
-			"Hostname {} - Start collect {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
-			"and resource{}. Connector ID: {}.",
+			"Hostname {} - Start collect {} mapping with source {}, attributes {}, metrics {}, conditional collection {}" +
+			" and legacy text parameters {}. Connector ID: {}.",
 			hostname,
 			monitorType,
 			mapping.getSource(),
@@ -393,7 +393,6 @@ public class CollectStrategy extends AbstractStrategy {
 			mapping.getMetrics(),
 			mapping.getConditionalCollection(),
 			mapping.getLegacyTextParameters(),
-			mapping.getResource(),
 			connectorId
 		);
 
@@ -581,5 +580,8 @@ public class CollectStrategy extends AbstractStrategy {
 
 		// Collect each connector
 		sortedConnectors.forEach(connector -> collect(connector, hostname));
+
+		// Collect the metricshub.host.configured metric
+		collectHostConfigured(hostname);
 	}
 }

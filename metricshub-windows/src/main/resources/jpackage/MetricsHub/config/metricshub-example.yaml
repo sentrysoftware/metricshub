@@ -6,18 +6,12 @@ loggerLevel: error
 # Internal collect interval
 collectPeriod: 1m
 
-# Internal OpenTelemetry SDK configuration
+# Internal OTLP Exporter configuration
 otel:
-  # OpenTelemetry SDK Autoconfigure properties
-  # https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure
   # MetricsHub Default configuration
-  # otel.metrics.exporter: otlp
-  # otel.logs.exporter: otlp
   # otel.exporter.otlp.metrics.endpoint: http://localhost:4317
-  # otel.exporter.otlp.logs.endpoint: http://localhost:4317
   # otel.exporter.otlp.metrics.protocol: grpc # Options include grpc and http/protobuf
-  # otel.exporter.otlp.logs.protocol: grpc # Options include grpc and http/protobuf
-  
+
 # Simple resource configuration
 resources:
 

@@ -34,7 +34,6 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sentrysoftware.metricshub.engine.connector.deserializer.custom.CaseInsensitiveTreeMapDeserializer;
-import org.sentrysoftware.metricshub.engine.connector.model.monitor.mapping.MappingResource;
 
 /**
  * A class representing the mapping configuration for a monitor task. It includes mappings for source attributes,
@@ -84,10 +83,4 @@ public class Mapping implements Serializable {
 	@JsonDeserialize(using = CaseInsensitiveTreeMapDeserializer.class)
 	@JsonSetter(nulls = SKIP)
 	private Map<String, String> legacyTextParameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-	/**
-	 * The resource associated with the mapping.
-	 */
-	@JsonSetter(nulls = SKIP)
-	private MappingResource resource;
 }

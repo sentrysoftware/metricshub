@@ -2,14 +2,11 @@ package org.sentrysoftware.metricshub.agent.service.task;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,32 +17,40 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.OS_LINUX;
 import static org.sentrysoftware.metricshub.agent.helper.TestConstants.OS_TYPE_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
-import io.opentelemetry.api.common.AttributeKey;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.data.DoublePointData;
-import io.opentelemetry.sdk.metrics.data.GaugeData;
-import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.resources.Resource;
-import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
-import java.util.Collection;
+import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
+import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.metrics.v1.Gauge;
+import io.opentelemetry.proto.metrics.v1.Metric;
+import io.opentelemetry.proto.metrics.v1.NumberDataPoint;
+import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
+import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
+import io.opentelemetry.proto.resource.v1.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.StateSetMetricCompression;
-import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
+import org.sentrysoftware.metricshub.agent.context.MetricDefinitions;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
+import org.sentrysoftware.metricshub.agent.opentelemetry.client.NoopClient;
+import org.sentrysoftware.metricshub.agent.service.TestHelper;
+import org.sentrysoftware.metricshub.engine.common.helpers.KnownMonitorType;
+import org.sentrysoftware.metricshub.engine.common.helpers.MapHelper;
 import org.sentrysoftware.metricshub.engine.configuration.HostConfiguration;
+import org.sentrysoftware.metricshub.engine.connector.model.Connector;
+import org.sentrysoftware.metricshub.engine.connector.model.ConnectorStore;
 import org.sentrysoftware.metricshub.engine.connector.model.common.DeviceKind;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
+import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
+import org.sentrysoftware.metricshub.engine.strategy.AbstractStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.IStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.CollectStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.collect.PrepareCollectStrategy;
@@ -53,10 +58,10 @@ import org.sentrysoftware.metricshub.engine.strategy.collect.ProtocolHealthCheck
 import org.sentrysoftware.metricshub.engine.strategy.detection.DetectionStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.discovery.DiscoveryStrategy;
 import org.sentrysoftware.metricshub.engine.strategy.simple.SimpleStrategy;
+import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
+import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
-import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostCollectStrategy;
 import org.sentrysoftware.metricshub.hardware.strategy.HardwarePostDiscoveryStrategy;
@@ -126,166 +131,191 @@ class MonitoringTaskTest {
 
 		doReturn(ExtensionManager.empty()).when(monitoringTaskInfoMock).getExtensionManager();
 
-		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
-			otelHelperMockedStatic.when(() -> OtelHelper.createHostResource(anyMap(), anyMap())).thenCallRealMethod();
-			otelHelperMockedStatic.when(() -> OtelHelper.createOpenTelemetryResource(anyMap())).thenCallRealMethod();
-			otelHelperMockedStatic.when(() -> OtelHelper.buildOtelAttributesFromMap(anyMap())).thenCallRealMethod();
+		doReturn(MetricsExporter.builder().withClient(new NoopClient()).build())
+			.when(monitoringTaskInfoMock)
+			.getMetricsExporter();
 
-			// Build the SdkMeterProvider using InMemoryMetricReader, it's not required to
-			// build PeriodicMetricReaderFactory using the gRPC exporter in this test.
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.initOpenTelemetrySdk(any(Resource.class), any()))
-				.thenAnswer(answer -> {
-					final var sdkBuilder = AutoConfiguredOpenTelemetrySdk.builder();
+		monitoringTask.run(); // Discover + Collect
+		monitoringTask.run(); // Collect
+		monitoringTask.run(); // Collect
+		monitoringTask.run(); // Collect
 
-					sdkBuilder.addMeterProviderCustomizer((builder, u) -> {
-						return builder.registerMetricReader(InMemoryMetricReader.create()).setResource(answer.getArgument(0));
-					});
-
-					return sdkBuilder.build();
-				});
-
-			monitoringTask.run(); // Discover + Collect
-			monitoringTask.run(); // Collect
-			monitoringTask.run(); // Collect
-			monitoringTask.run(); // Collect
-
-			verify(telemetryManagerMock, times(1))
-				.run(
-					any(DetectionStrategy.class),
-					any(DiscoveryStrategy.class),
-					any(SimpleStrategy.class),
-					any(HardwarePostDiscoveryStrategy.class)
-				);
-			verify(telemetryManagerMock, times(4))
-				.run(
-					any(PrepareCollectStrategy.class),
-					any(ProtocolHealthCheckStrategy.class),
-					any(CollectStrategy.class),
-					any(SimpleStrategy.class),
-					any(HardwarePostCollectStrategy.class)
-				);
-		}
+		verify(telemetryManagerMock, times(1))
+			.run(
+				any(DetectionStrategy.class),
+				any(DiscoveryStrategy.class),
+				any(SimpleStrategy.class),
+				any(HardwarePostDiscoveryStrategy.class)
+			);
+		verify(telemetryManagerMock, times(4))
+			.run(
+				any(PrepareCollectStrategy.class),
+				any(ProtocolHealthCheckStrategy.class),
+				any(CollectStrategy.class),
+				any(SimpleStrategy.class),
+				any(HardwarePostCollectStrategy.class)
+			);
 	}
 
 	@Test
-	void testInitMetricObserver() {
-		// Create a new MonitoringTask using the mocked monitoringTaskInfo instance
-		final MonitoringTask newMonitoringTask = new MonitoringTask(monitoringTaskInfoMock);
+	void testRegisterTelemetryManagerRecorders() {
+		final Map<String, String> hostAttributes = Map.of(
+			HOST_NAME,
+			HOSTNAME,
+			HOST_TYPE_ATTRIBUTE_KEY,
+			COMPUTE_HOST_TYPE,
+			OS_TYPE_ATTRIBUTE_KEY,
+			OS_LINUX
+		);
 
-		doReturn(ResourceConfig.builder().stateSetCompression(StateSetMetricCompression.SUPPRESS_ZEROS).build())
-			.when(monitoringTaskInfoMock)
-			.getResourceConfig();
-
-		// Create an in-memory metric reader for testing, this instance will be used later to collect
-		// and get the metric value
-		final InMemoryMetricReader inMemoryReader = InMemoryMetricReader.create();
-
-		// Use a try-with-resources block to mock static methods in OtelHelper
-		try (MockedStatic<OtelHelper> otelHelperMockedStatic = mockStatic(OtelHelper.class)) {
-			// Mock the initialization of the OpenTelemetry SDK
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.initOpenTelemetrySdk(any(Resource.class), any()))
-				.thenAnswer(answer -> {
-					final var sdkBuilder = AutoConfiguredOpenTelemetrySdk.builder();
-
-					// Customize the meter provider to use the in-memory metric reader and set the resource
-					sdkBuilder.addMeterProviderCustomizer((builder, u) -> {
-						return builder.registerMetricReader(inMemoryReader).setResource(answer.getArgument(0));
-					});
-
-					return sdkBuilder.build();
-				});
-
-			// Mock other OtelHelper methods to ensure that the behavior correctly initializes intermediate objects
-			otelHelperMockedStatic.when(() -> OtelHelper.createOpenTelemetryResource(anyMap())).thenCallRealMethod();
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.createHostResource(anyMap(), anyMap()))
-				.thenReturn(
-					Resource.create(
-						Attributes.of(
-							AttributeKey.stringKey(OS_TYPE_ATTRIBUTE_KEY),
-							OS_LINUX,
-							AttributeKey.stringKey(HOST_NAME),
-							HOSTNAME
-						)
+		final TelemetryManager telemetryManager = new TelemetryManager();
+		final ConnectorStore connectorStore = new ConnectorStore();
+		connectorStore.setStore(new HashMap<>());
+		connectorStore.addOne(
+			"connector",
+			Connector
+				.builder()
+				.metrics(
+					Map.of(
+						"hw.power",
+						MetricDefinition.builder().description("Device power in watts").type(MetricType.GAUGE).unit("W").build()
 					)
-				);
-			otelHelperMockedStatic
-				.when(() -> OtelHelper.mergeOtelAttributes(any(Attributes.class), any(Attributes.class)))
-				.thenCallRealMethod();
-			otelHelperMockedStatic.when(() -> OtelHelper.buildOtelAttributesFromMap(anyMap())).thenCallRealMethod();
-			otelHelperMockedStatic.when(() -> OtelHelper.isAcceptedKey(anyString())).thenCallRealMethod();
+				)
+				.build()
+		);
+		telemetryManager.setConnectorStore(connectorStore);
+		telemetryManager.setHostConfiguration(hostConfiguration);
 
-			// Create a telemetry manager mock and set behavior for getting the host monitor
-			final TelemetryManager telemetryManagerMock = spy(TelemetryManager.class);
-			doReturn(new Monitor()).when(telemetryManagerMock).getEndpointHostMonitor();
+		final MonitorFactory hostFactory = MonitorFactory
+			.builder()
+			.attributes(hostAttributes)
+			.discoveryTime(System.currentTimeMillis())
+			.monitorType(KnownMonitorType.HOST.getKey())
+			.telemetryManager(telemetryManager)
+			.build();
+		final Monitor host = hostFactory.createOrUpdateMonitor(HOSTNAME);
+		host.setIsEndpoint(true);
 
-			// Initialize the OpenTelemetry SDK with specific resource configurations
-			newMonitoringTask.initOtelSdk(
-				telemetryManagerMock,
-				ResourceConfig
-					.builder()
-					.loggerLevel("OFF")
-					.attributes(Map.of(HOST_NAME, HOSTNAME, HOST_TYPE_ATTRIBUTE_KEY, OS_LINUX))
-					.discoveryCycle(4)
-					.resolveHostnameToFqdn(true)
-					.build()
-			);
+		final MetricFactory metricFactory = new MetricFactory();
+		metricFactory.collectNumberMetric(
+			host,
+			AbstractStrategy.HOST_CONFIGURED_METRIC_NAME,
+			1.0,
+			System.currentTimeMillis()
+		);
 
-			// Create metric and monitor data for testing
-			final Monitor monitor = Monitor.builder().id("enclosure-1").type("enclosure").build();
-			final String expectedUnit = "Cel";
-			final String metricName = "hw.temperature.limit";
-			final double expectedMetricValue = 70D;
-			final String metricKey = "hw.temperature.limit{limit_type=\"high.critical\"}";
-			final String expectedDescription = "description";
+		final Map<String, String> enclosureAttributes = new HashMap<>(
+			Map.of("name", "enclosure", "id", "enclosure", "serial_number", "SN12345")
+		);
+		final MonitorFactory enclosureFactory = MonitorFactory
+			.builder()
+			.attributes(enclosureAttributes)
+			.connectorId("connector")
+			.discoveryTime(System.currentTimeMillis())
+			.monitorType(KnownMonitorType.ENCLOSURE.getKey())
+			.telemetryManager(telemetryManager)
+			.build();
+		final Monitor enclosure = enclosureFactory.createOrUpdateMonitor("enclosure");
+		metricFactory.collectNumberMetric(enclosure, "hw.power{hw.type=\"enclosure\"}", 30.0, System.currentTimeMillis());
 
-			// Create metric definition map that defines the expected unit and description for the hw.temperature.limit metric
-			final Map<String, MetricDefinition> metricDefinitionMap = Map.of(
-				metricName,
-				MetricDefinition.builder().unit(expectedUnit).description(expectedDescription).build()
-			);
+		final TestHelper.TestOtelClient otelClient = new TestHelper.TestOtelClient();
 
-			// Create a mock metric entry
-			final Entry<String, AbstractMetric> metricEntry = Map.entry(
-				metricKey,
-				NumberMetric
-					.builder()
-					.name(metricKey)
-					.value(expectedMetricValue)
-					.attributes(Map.of("limit_type", "high.critical"))
-					.collectTime(System.currentTimeMillis())
-					.build()
-			);
+		final MetricsExporter metricsExporter = MetricsExporter.builder().withClient(otelClient).build();
 
-			// Initialize the metric observer
-			newMonitoringTask.initMetricObserver(monitor, metricDefinitionMap, metricEntry);
+		doReturn(metricsExporter).when(monitoringTaskInfoMock).getMetricsExporter();
+		doReturn(
+			new MetricDefinitions(
+				Map.of(
+					AbstractStrategy.HOST_CONFIGURED_METRIC_NAME,
+					MetricDefinition.builder().description("Whether the host is configured or not").type(MetricType.GAUGE).build()
+				)
+			)
+		)
+			.when(monitoringTaskInfoMock)
+			.getHostMetricDefinitions();
 
-			// Collect metrics from the in-memory reader and perform assertions
-			final Collection<MetricData> metrics = inMemoryReader.collectAllMetrics();
-			assertFalse(metrics.isEmpty());
+		final ResourceConfig resourceConfig = ResourceConfig.builder().attributes(hostAttributes).build();
+		monitoringTask.initHostAttributes(telemetryManager, resourceConfig);
 
-			// Filter the collected metrics for the specific metric name
-			final List<MetricData> metricList = metrics
-				.stream()
-				.filter(metricData -> metricName.equals(metricData.getName()))
-				.toList();
+		monitoringTask.registerTelemetryManagerRecorders(telemetryManager).exportMetrics();
 
-			// Assert that there is one metric with the expected name
-			assertEquals(1, metricList.size());
-			final MetricData hwTemperatureLimitData = metricList.get(0);
-			assertNotNull(hwTemperatureLimitData);
+		final ExportMetricsServiceRequest request = otelClient.getRequest();
+		assertNotNull(request);
 
-			// Assert that the description and unit of the metric match the expected values
-			assertEquals(expectedDescription, hwTemperatureLimitData.getDescription());
-			assertEquals(expectedUnit, hwTemperatureLimitData.getUnit());
+		// Verify the host metrics
+		final ResourceMetrics hostResourceMetrics = request
+			.getResourceMetricsList()
+			.stream()
+			.filter(r -> r.getResource().getAttributesList().size() == hostAttributes.size())
+			.findFirst()
+			.orElseThrow();
+		assertNotNull(hostResourceMetrics);
+		final Resource hostResource = hostResourceMetrics.getResource();
+		assertNotNull(hostResource);
+		final List<KeyValue> hostKeyValueAttributes = hostResource.getAttributesList();
+		final Map<String, String> hostAttributesResult = hostKeyValueAttributes
+			.stream()
+			.collect(Collectors.toMap(KeyValue::getKey, keyValue -> keyValue.getValue().getStringValue()));
 
-			// Assert the value of the metric
-			final GaugeData<DoublePointData> doubleData = hwTemperatureLimitData.getDoubleGaugeData();
-			final DoublePointData dataPoint = doubleData.getPoints().stream().findAny().orElse(null);
-			assertNotNull(dataPoint);
-			assertEquals(expectedMetricValue, dataPoint.getValue());
-		}
+		assertTrue(MapHelper.areEqual(hostAttributes, hostAttributesResult), "Host attributes are not equal");
+
+		final List<ScopeMetrics> hostScopeMetricsList = hostResourceMetrics.getScopeMetricsList();
+		assertEquals(1, hostScopeMetricsList.size());
+		final ScopeMetrics scopeMetrics = hostScopeMetricsList.get(0);
+		assertEquals(1, scopeMetrics.getMetricsCount());
+		final List<Metric> hostMetrics = scopeMetrics.getMetricsList();
+		assertEquals(1, hostMetrics.size());
+		final Metric hostMetric = hostMetrics.get(0);
+		assertEquals(AbstractStrategy.HOST_CONFIGURED_METRIC_NAME, hostMetric.getName());
+		assertEquals("Whether the host is configured or not", hostMetric.getDescription());
+		assertEquals("", hostMetric.getUnit());
+		final Gauge gauge = hostMetric.getGauge();
+		final List<NumberDataPoint> dataPointsList = gauge.getDataPointsList();
+		assertEquals(1, dataPointsList.size());
+		final NumberDataPoint dataPoint = dataPointsList.get(0);
+		assertEquals(1.0, dataPoint.getAsDouble());
+
+		// Verify the enclosure metrics
+		final ResourceMetrics enclosureResourceMetrics = request
+			.getResourceMetricsList()
+			.stream()
+			.filter(r -> r.getResource().getAttributesList().size() == enclosureAttributes.size() + hostAttributes.size())
+			.findFirst()
+			.orElseThrow();
+		assertNotNull(enclosureResourceMetrics);
+		final Resource enclosureResource = enclosureResourceMetrics.getResource();
+		assertNotNull(enclosureResource);
+		final List<KeyValue> enclosureKeyValueAttributes = enclosureResource.getAttributesList();
+		final Map<String, String> expectedEnclosureAttributes = new HashMap<>(hostAttributes);
+		expectedEnclosureAttributes.putAll(enclosureAttributes);
+
+		final Map<String, String> enclosureAttributesResult = enclosureKeyValueAttributes
+			.stream()
+			.collect(Collectors.toMap(KeyValue::getKey, keyValue -> keyValue.getValue().getStringValue()));
+		assertTrue(
+			MapHelper.areEqual(expectedEnclosureAttributes, enclosureAttributesResult),
+			"Enclosure attributes are not equal"
+		);
+
+		final List<ScopeMetrics> enclosureScopeMetricsList = enclosureResourceMetrics.getScopeMetricsList();
+		assertEquals(1, enclosureScopeMetricsList.size());
+		final ScopeMetrics enclosureScopeMetrics = enclosureScopeMetricsList.get(0);
+		assertEquals(1, enclosureScopeMetrics.getMetricsCount());
+		final List<Metric> enclosureMetrics = enclosureScopeMetrics.getMetricsList();
+		assertEquals(1, enclosureMetrics.size());
+		final Metric enclosureMetric = enclosureMetrics.get(0);
+		assertEquals("hw.power", enclosureMetric.getName());
+		assertEquals("Device power in watts", enclosureMetric.getDescription());
+		assertEquals("W", enclosureMetric.getUnit());
+		final Gauge enclosureGauge = enclosureMetric.getGauge();
+		final List<NumberDataPoint> enclosureDataPointsList = enclosureGauge.getDataPointsList();
+		assertEquals(1, enclosureDataPointsList.size());
+		final NumberDataPoint enclosureDataPoint = enclosureDataPointsList.get(0);
+		assertEquals(30.0, enclosureDataPoint.getAsDouble());
+		final Map<String, Object> enclosureDataPointAttributes = enclosureDataPoint
+			.getAttributesList()
+			.stream()
+			.collect(Collectors.toMap(KeyValue::getKey, keyValue -> keyValue.getValue().getStringValue()));
+		assertEquals(Map.of("hw.type", "enclosure"), enclosureDataPointAttributes);
 	}
 }
