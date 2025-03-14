@@ -656,27 +656,25 @@ Refer to:
 
 ### OTLP Exporter settings
 
-**MetricsHub**'s internal `OTLP Exporter` sends collected metrics to the `OTLP Receiver` using **gRPC** or **HTTP/Protobuf**. 
+**MetricsHub** sends collected metrics to an OTLP Receiver using **gRPC** or **HTTP/Protobuf**.
 
-By default, the **Enterprise Edition** is set up to push telemetry to its embedded *OpenTelemetry Collector*, but it can also send metrics directly to observability
-platforms that support native OTLP ingestion. A working example is included in **`metricshub-example.yaml`**, which provides the default configuration for **MetricsHub Enterprise**.
+* In the **Enterprise Edition**, telemetry is **automatically sent** to the embedded *OpenTelemetry Collector*. You can also configure it to send metrics directly to observability platforms that support **native OTLP ingestion**. A working example is provided in the `metricshub-example.yaml` file.
+* In the **Community Edition**, you need to manually configure the OTLP Exporter settings in `config/metricshub.yaml` under the `otel` section.
 
-If you are using the **Community Edition**, you need to manually configure these properties to send metrics to your observability backend. 
+The table below describes the available OTLP Exporter properties:
 
-To define where and how the metrics should be sent, update the **OTLP Exporter properties** under the `otel` section in **`metricshub.yaml`**.
-
-Here are the available properties you can configure:
-
-| Property                                 | Description                                                                                                   | Default Value                                                                       |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `otel.exporter.otlp.metrics.endpoint`    | OTLP metrics endpoint URL. Must be an `http` or `https` URL, depending on whether TLS is used.                | `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf) |
-| `otel.exporter.otlp.metrics.protocol`    | Transport protocol used for OTLP metric requests. Options: `grpc` and `http/protobuf`.                        | `grpc`                                                                              |
-| `otel.exporter.otlp.metrics.certificate` | Path to a file containing trusted certificates in PEM format for verifying the OTLP server’s TLS credentials. | Uses the host platform’s trusted root certificates                                  |
-| `otel.exporter.otlp.metrics.headers`     | Custom headers to be sent with OTLP metric requests, typically for authentication.                            | Not set                                                                             |
-| `otel.exporter.otlp.metrics.timeout`     | Timeout for OTLP metric requests (in seconds).                                                                | `10`                                                                                |
-| `otel.exporter.otlp.metrics.pool.size`   | Exporter pool size, which determines the number of parallel metric export operations.                         | `20`                                                                                |
+| Property | Description |
+|----------|------------|
+| **`otel.exporter.otlp.metrics.endpoint`** | The OTLP metrics endpoint URL. <p><p></p>Must be an `http` or `https` URL, depending on whether TLS is used.</p><p></p><p>**Default:** `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf)</p> |
+| **`otel.exporter.otlp.metrics.protocol`** | Transport protocol for OTLP metric requests.<p></p><p>Possible Values: `grpc`, `http/protobuf`.</p><p></p><p>**Default:** `grpc`</p> |
+| **`otel.exporter.otlp.metrics.certificate`** | Path to a PEM-formatted file containing trusted certificates for verifying the OTLP server’s TLS credentials.<p></p><p>**Default:** Uses the host platform’s trusted root certificates</p> |
+| **`otel.exporter.otlp.metrics.headers`** | Custom headers to send with OTLP metric requests, typically for authentication.<p></p><p>**Default:** Not set</p> |
+| **`otel.exporter.otlp.metrics.timeout`** | Timeout for OTLP metric requests (in seconds).<p></p><p>**Default:** `10` </p>|
+| **`otel.exporter.otlp.metrics.pool.size`** | Exporter pool size.<p></p><p> This setting directly determines how many metric export operations can run in parallel.</p><p></p><p>**Default:** `20`</p> |
 
 #### Example
+
+To send **MetricsHub** metrics via **gRPC** to an `OTLP Receiver` at `https://localhost:4317`, including an *Authorization* header, configure the following in config/metricshub.yaml:
 
 ```yaml
 otel:
@@ -685,7 +683,7 @@ otel:
   otel.exporter.otlp.metrics.headers: Authorization=<value>
 ```
 
-This configuration ensures that **MetricsHub** sends metrics through **gRPC** to an `OTLP Receiver` at `https://localhost:4317`, including an *Authorization* header for secure communication.
+This configuration ensures that metrics are securely transmitted to the specified endpoint.
 
 ### Basic Authentication settings
 
@@ -914,12 +912,12 @@ resources:
           <variable-name>: <value>
 ```
 
-| Property                 | Description                                                                                                                    |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `<connector-custom-id>`  | Custom ID for this additional connector.                                                                                       |
-| `uses`                   | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
-| `force`                  | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
-| `variables`              | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
+| Property                | Description                                                                                                                    |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `<connector-custom-id>` | Custom ID for this additional connector.                                                                                       |
+| `uses`                  | *(Optional)* Provide an ID for this additional connector. If not specified, the key ID will be used.                           |
+| `force`                 | *(Optional)* Set to `false` if you want the connector to only be activated when detected (Default: `true` - always activated). |
+| `variables`             | Specify the connector variable to be used and its value (Format: `<variable-name>: <value>`).                                  |
 
 > Note: If a connector is added under the `additionalConnectors` section with missing or unspecified variables, those variables will automatically be populated with default values defined by the connector itself.
 

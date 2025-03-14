@@ -174,6 +174,8 @@ resourceGroups: #...
 
 where `<my-host>` should be replaced with the hostname or IP address of the server where the OTLP receiver is installed.
 
+> Additional properties are available, refer to [OTLP Exporter settings](configure-monitoring.md#otlp-exporter-settings) for details.
+
 Use the below syntax if you wish to push metrics to the Prometheus OTLP Receiver:
 
 ```yaml
