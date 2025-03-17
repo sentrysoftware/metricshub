@@ -2,15 +2,15 @@ package org.sentrysoftware.metricshub.extension.jdbc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -106,27 +107,28 @@ class JdbcExtensionTest {
 	@Test
 	void testCheckSqlUpHealth() throws Exception {
 		initSql();
-
-		doReturn(List.of(List.of("success")))
-			.when(sqlRequestExecutorMock)
-			.executeSql(anyString(), any(JdbcConfiguration.class), eq(SQL_QUERY), anyBoolean());
-
-		// Start the SQL protocol check
-		final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
-
-		assertTrue(result.get());
+		// Mock the static method isDatabaseAlive
+		try (MockedStatic<JdbcExtension> mockedStatic = mockStatic(JdbcExtension.class)) {
+			mockedStatic
+				.when(() -> JdbcExtension.isDatabaseAlive(anyString(), anyString(), any(), anyLong()))
+				.thenReturn(true);
+			final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
+			assertTrue(result.get());
+		}
 	}
 
 	@Test
 	void testCheckSqlDownHealth() throws Exception {
 		initSql();
+		// Mock the static method isDatabaseAlive
+		try (MockedStatic<JdbcExtension> mockedStatic = mockStatic(JdbcExtension.class)) {
+			mockedStatic
+				.when(() -> JdbcExtension.isDatabaseAlive(anyString(), anyString(), any(), anyLong()))
+				.thenReturn(false);
 
-		doReturn(null)
-			.when(sqlRequestExecutorMock)
-			.executeSql(anyString(), any(JdbcConfiguration.class), eq(SQL_QUERY), anyBoolean());
-
-		final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
-		assertFalse(result.get());
+			final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
+			assertFalse(result.get());
+		}
 	}
 
 	@Test
@@ -370,54 +372,5 @@ class JdbcExtensionTest {
 			.timeout(120L)
 			.build();
 		assertThrows(ClientException.class, () -> jdbcExtension.executeQuery(configuration, queryNode));
-	}
-
-	@Test
-	void testGetDbTypeFromDriverWithMySQLUrl() {
-		final String jdbcUrl = "jdbc:mysql://localhost:3306/test";
-		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
-		assertEquals("mysql", dbType);
-	}
-
-	@Test
-	void testGetDbTypeFromDriverWithPostgreSQLUrl() {
-		final String jdbcUrl = "jdbc:postgresql://localhost:5432/test";
-		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
-		assertEquals("postgresql", dbType);
-	}
-
-	@Test
-	void testGetDbTypeFromDriverWithUnknownUrl() {
-		final String jdbcUrl = "jdbc:unknown://localhost:1234/test";
-		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
-		assertNull(dbType);
-	}
-
-	@Test
-	void testGetHealthCheckQueryByDbTypeWithMySQLUrl() {
-		final JdbcConfiguration config = JdbcConfiguration
-			.builder()
-			.url("jdbc:mysql://localhost:3306/test".toCharArray())
-			.build();
-
-		final String healthCheckQuery = jdbcExtension.getHealthCheckQueryByDbType(config);
-		assertEquals("SELECT 1", healthCheckQuery);
-	}
-
-	@Test
-	void testGetHealthCheckQueryByDbTypeWithUnsupportedUrl() {
-		final JdbcConfiguration jdbcConfig = JdbcConfiguration
-			.builder()
-			.url("jdbc:unknown://localhost:1234/test".toCharArray())
-			.build();
-
-		final IllegalStateException exception = assertThrows(
-			IllegalStateException.class,
-			() -> {
-				jdbcExtension.getHealthCheckQueryByDbType(jdbcConfig);
-			}
-		);
-
-		assertTrue(exception.getMessage().contains("Database type could not be determined"));
 	}
 }
