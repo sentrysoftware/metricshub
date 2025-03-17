@@ -2,6 +2,7 @@ package org.sentrysoftware.metricshub.extension.jdbc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -77,6 +78,7 @@ class JdbcExtensionTest {
 			.hostname("hostname")
 			.username(USERNAME)
 			.password(PASSWORD)
+			.url("jdbc:mysql://hostname:3306/testdb".toCharArray())
 			.timeout(30L)
 			.build();
 
@@ -211,9 +213,9 @@ class JdbcExtensionTest {
 	void testSqlCriterionFailureWithNullCriterion() {
 		initSql();
 
-		SqlCriterion sqlCriterion = null;
+		final SqlCriterion sqlCriterion = null;
 
-		IllegalArgumentException exception = assertThrows(
+		final IllegalArgumentException exception = assertThrows(
 			IllegalArgumentException.class,
 			() -> {
 				jdbcExtension.processCriterion(sqlCriterion, CONNECTOR_ID, telemetryManager);
@@ -315,7 +317,7 @@ class JdbcExtensionTest {
 	void testProcessSourceWithNullSource() {
 		initSql();
 
-		IllegalArgumentException exception = assertThrows(
+		final IllegalArgumentException exception = assertThrows(
 			IllegalArgumentException.class,
 			() -> jdbcExtension.processSource(null, CONNECTOR_ID, telemetryManager)
 		);
@@ -368,5 +370,54 @@ class JdbcExtensionTest {
 			.timeout(120L)
 			.build();
 		assertThrows(ClientException.class, () -> jdbcExtension.executeQuery(configuration, queryNode));
+	}
+
+	@Test
+	void testGetDbTypeFromDriverWithMySQLUrl() {
+		final String jdbcUrl = "jdbc:mysql://localhost:3306/test";
+		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
+		assertEquals("mysql", dbType);
+	}
+
+	@Test
+	void testGetDbTypeFromDriverWithPostgreSQLUrl() {
+		final String jdbcUrl = "jdbc:postgresql://localhost:5432/test";
+		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
+		assertEquals("postgresql", dbType);
+	}
+
+	@Test
+	void testGetDbTypeFromDriverWithUnknownUrl() {
+		final String jdbcUrl = "jdbc:unknown://localhost:1234/test";
+		final String dbType = jdbcExtension.getDbTypeFromDriver(jdbcUrl);
+		assertNull(dbType);
+	}
+
+	@Test
+	void testGetHealthCheckQueryByDbTypeWithMySQLUrl() {
+		final JdbcConfiguration config = JdbcConfiguration
+			.builder()
+			.url("jdbc:mysql://localhost:3306/test".toCharArray())
+			.build();
+
+		final String healthCheckQuery = jdbcExtension.getHealthCheckQueryByDbType(config);
+		assertEquals("SELECT 1", healthCheckQuery);
+	}
+
+	@Test
+	void testGetHealthCheckQueryByDbTypeWithUnsupportedUrl() {
+		final JdbcConfiguration jdbcConfig = JdbcConfiguration
+			.builder()
+			.url("jdbc:unknown://localhost:1234/test".toCharArray())
+			.build();
+
+		final IllegalStateException exception = assertThrows(
+			IllegalStateException.class,
+			() -> {
+				jdbcExtension.getHealthCheckQueryByDbType(jdbcConfig);
+			}
+		);
+
+		assertTrue(exception.getMessage().contains("Database type could not be determined"));
 	}
 }

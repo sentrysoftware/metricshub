@@ -96,7 +96,7 @@ class JdbcConfigurationTest {
 	}
 
 	@Test
-	void testValidateConfigurationGeneratesUrlWhenNull() {
+	void testValidateConfigurationWithNullUrl() {
 		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")
@@ -153,7 +153,7 @@ class JdbcConfigurationTest {
 	}
 
 	@Test
-	void testValidateConfigurationGeneratesUrlWhenEmpty() {
+	void testValidateConfigurationGeneratesUrlWhenUrlIsEmpty() {
 		final JdbcConfiguration jdbcConfiguration = JdbcConfiguration
 			.builder()
 			.username("testUser")

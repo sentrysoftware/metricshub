@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +60,22 @@ public class JdbcExtension implements IProtocolExtension {
 	 * The identifier for jdbc.
 	 */
 	private static final String IDENTIFIER = "jdbc";
+
+	/**
+	 * A mapping of database types to their corresponding health check SQL queries.
+	 */
+	private static final Map<String, String> HEALTH_CHECK_SQL_BY_DB_TYPE = Map.of(
+		"mysql",
+		"SELECT 1",
+		"mssql",
+		"SELECT 1",
+		"postgresql",
+		"SELECT 1",
+		"oracle",
+		"SELECT 1 FROM DUAL",
+		"cassandra",
+		"SELECT release_version FROM system.local"
+	);
 
 	private SqlRequestExecutor sqlRequestExecutor;
 
@@ -104,10 +123,13 @@ public class JdbcExtension implements IProtocolExtension {
 		final String hostname = jdbcConfiguration.getHostname();
 		log.info("Hostname {} - Performing {} health check.", hostname, getIdentifier());
 
+		// Get the specific query for the database type
+		final String healthCheckQuery = getHealthCheckQueryByDbType(jdbcConfiguration);
+
 		// Create and set the SQL result to null
 		List<List<String>> sqlResult = null;
 		try {
-			sqlResult = sqlRequestExecutor.executeSql(hostname, jdbcConfiguration, "SELECT 1", false);
+			sqlResult = sqlRequestExecutor.executeSql(hostname, jdbcConfiguration, healthCheckQuery, false);
 		} catch (Exception e) {
 			log.debug("Hostname {} - JDBC health check failed", hostname, e);
 		}
@@ -214,5 +236,52 @@ public class JdbcExtension implements IProtocolExtension {
 		} else {
 			return TextTableHelper.generateTextTable(columns, resultList);
 		}
+	}
+
+	/**
+	 * Determines the database type based on the JDBC driver's class name.
+	 *
+	 * @param jdbcUrl the JDBC URL
+	 * @return the database type as a String, or {@code null} if it cannot be determined
+	 */
+	public String getDbTypeFromDriver(String jdbcUrl) {
+		try {
+			final Driver driver = DriverManager.getDriver(jdbcUrl);
+			if (driver != null) {
+				final String driverClassName = driver.getClass().getName().toLowerCase();
+				if (driverClassName.contains("mysql")) {
+					return "mysql";
+				} else if (driverClassName.contains("postgresql")) {
+					return "postgresql";
+				} else if (driverClassName.contains("sqlserver")) {
+					return "mssql";
+				} else if (driverClassName.contains("oracle")) {
+					return "oracle";
+				} else if (driverClassName.contains("cassandra")) {
+					return "cassandra";
+				}
+			}
+		} catch (SQLException e) {
+			log.warn("No driver found for URL: " + jdbcUrl, e);
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieves the appropriate health check SQL query based on the database type.
+	 *
+	 * @param jdbcConfiguration the JDBC configuration containing the database connection details
+	 * @return the SQL query for the health check corresponding to the determined database type
+	 * @throws IllegalStateException if the database type could not be determined from the driver
+	 */
+	public String getHealthCheckQueryByDbType(JdbcConfiguration jdbcConfiguration) {
+		final String jdbcUrl = String.valueOf(jdbcConfiguration.getUrl());
+		final String dbType = getDbTypeFromDriver(jdbcUrl);
+
+		if (dbType == null) {
+			throw new IllegalStateException("Database type could not be determined from the driver for URL: " + jdbcUrl);
+		}
+
+		return HEALTH_CHECK_SQL_BY_DB_TYPE.get(dbType);
 	}
 }
