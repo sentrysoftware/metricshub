@@ -117,7 +117,7 @@ public class JdbcExtension implements IProtocolExtension {
 		boolean isAlive = isDatabaseAlive(jdbcUrl, username, password, timeout);
 
 		if (!isAlive) {
-			log.warn("Hostname {} - JDBC health check failed", hostname);
+			log.warn("Hostname {} - Database health check failed", hostname);
 		}
 
 		return Optional.of(isAlive);
