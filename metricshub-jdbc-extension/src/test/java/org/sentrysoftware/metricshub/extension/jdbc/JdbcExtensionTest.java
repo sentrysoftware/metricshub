@@ -6,11 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mockStatic;
 
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sentrysoftware.metricshub.engine.common.exception.ClientException;
 import org.sentrysoftware.metricshub.engine.common.exception.InvalidConfigurationException;
@@ -49,9 +46,10 @@ class JdbcExtensionTest {
 
 	private static final String HOST_NAME = "test-host";
 	private static final String CONNECTOR_ID = "connector_id";
-	private static final char[] PASSWORD = "password".toCharArray();
-	private static final String USERNAME = "user";
+	private static final char[] PASSWORD = "".toCharArray();
+	private static final String USERNAME = "sa";
 	private static final String SQL_QUERY = "SELECT 1";
+	private static final String JDBC_URL = "jdbc:h2:mem:testdb";
 	public static final List<List<String>> SQL_RESULT = Arrays.asList(
 		Arrays.asList("value1a", "value2a", "value3a"),
 		Arrays.asList("value1b", "value2b", "value3b")
@@ -70,7 +68,7 @@ class JdbcExtensionTest {
 	 *
 	 * @return A TelemetryManager instance configured with an SQL configuration.
 	 */
-	private void initSql() {
+	private void initSql(String jdbcUrl) {
 		final Monitor hostMonitor = Monitor.builder().type("HOST").isEndpoint(true).build();
 		final Map<String, Map<String, Monitor>> monitors = new HashMap<>(Map.of("HOST", Map.of(HOST_NAME, hostMonitor)));
 
@@ -79,7 +77,7 @@ class JdbcExtensionTest {
 			.hostname("hostname")
 			.username(USERNAME)
 			.password(PASSWORD)
-			.url("jdbc:mysql://hostname:3306/testdb".toCharArray())
+			.url(jdbcUrl.toCharArray())
 			.timeout(30L)
 			.build();
 
@@ -106,29 +104,16 @@ class JdbcExtensionTest {
 
 	@Test
 	void testCheckSqlUpHealth() throws Exception {
-		initSql();
-		// Mock the static method isDatabaseAlive
-		try (MockedStatic<JdbcExtension> mockedStatic = mockStatic(JdbcExtension.class)) {
-			mockedStatic
-				.when(() -> JdbcExtension.isDatabaseAlive(anyString(), anyString(), any(), anyLong()))
-				.thenReturn(true);
-			final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
-			assertTrue(result.get());
-		}
+		initSql(JDBC_URL);
+		final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
+		assertTrue(result.get());
 	}
 
 	@Test
 	void testCheckSqlDownHealth() throws Exception {
-		initSql();
-		// Mock the static method isDatabaseAlive
-		try (MockedStatic<JdbcExtension> mockedStatic = mockStatic(JdbcExtension.class)) {
-			mockedStatic
-				.when(() -> JdbcExtension.isDatabaseAlive(anyString(), anyString(), any(), anyLong()))
-				.thenReturn(false);
-
-			final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
-			assertFalse(result.get());
-		}
+		initSql("jdbc:h2:invalidUrl");
+		final Optional<Boolean> result = jdbcExtension.checkProtocol(telemetryManager);
+		assertFalse(result.get());
 	}
 
 	@Test
@@ -170,7 +155,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testSqlCriterionReturnsSuccessWithResults() throws Exception {
-		initSql();
+		initSql(JDBC_URL);
 		final SqlCriterion sqlCriterion = SqlCriterion.builder().query(SQL_QUERY).build();
 
 		doReturn(List.of(List.of("1")))
@@ -184,7 +169,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testSqlCriterionFailureNoResults() throws Exception {
-		initSql();
+		initSql(JDBC_URL);
 		final SqlCriterion sqlCriterion = SqlCriterion.builder().query(SQL_QUERY).build();
 
 		doReturn(List.of())
@@ -199,7 +184,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testSqlCriterionFailureWithException() throws Exception {
-		initSql();
+		initSql(JDBC_URL);
 		final SqlCriterion sqlCriterion = SqlCriterion.builder().query(SQL_QUERY).build();
 
 		doThrow(new ClientException("SQL query failed"))
@@ -213,7 +198,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testSqlCriterionFailureWithNullCriterion() {
-		initSql();
+		initSql(JDBC_URL);
 
 		final SqlCriterion sqlCriterion = null;
 
@@ -229,7 +214,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testSqlCriterionSuccessWithCsvFormatting() throws Exception {
-		initSql();
+		initSql(JDBC_URL);
 		final SqlCriterion sqlCriterion = SqlCriterion.builder().query(SQL_QUERY).build();
 
 		doReturn(List.of(List.of("value1", "value2")))
@@ -244,7 +229,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testProcessSourceThrowsIllegalArgumentException() {
-		initSql();
+		initSql(JDBC_URL);
 		final WbemSource wbemSource = WbemSource.builder().query("SELECT Name FROM testDb").build();
 		assertThrows(
 			IllegalArgumentException.class,
@@ -254,7 +239,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testProcessCriterionThrowsIllegalArgumentException() {
-		initSql();
+		initSql(JDBC_URL);
 
 		final WbemCriterion wbemCriterion = WbemCriterion.builder().query("SELECT Name FROM testDB").build();
 
@@ -317,7 +302,7 @@ class JdbcExtensionTest {
 
 	@Test
 	void testProcessSourceWithNullSource() {
-		initSql();
+		initSql(JDBC_URL);
 
 		final IllegalArgumentException exception = assertThrows(
 			IllegalArgumentException.class,
@@ -334,8 +319,6 @@ class JdbcExtensionTest {
 
 	@Test
 	void tesExecuteQuery() throws Exception {
-		initSql();
-
 		doReturn(SQL_RESULT)
 			.when(sqlRequestExecutorMock)
 			.executeSql(anyString(), any(JdbcConfiguration.class), anyString(), anyBoolean());
@@ -356,8 +339,6 @@ class JdbcExtensionTest {
 
 	@Test
 	void tesExecuteQueryThrow() throws Exception {
-		initSql();
-
 		doThrow(ClientException.class)
 			.when(sqlRequestExecutorMock)
 			.executeSql(anyString(), any(JdbcConfiguration.class), anyString(), anyBoolean());
