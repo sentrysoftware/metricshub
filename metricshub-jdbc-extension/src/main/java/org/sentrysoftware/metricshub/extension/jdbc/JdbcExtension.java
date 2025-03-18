@@ -27,6 +27,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -104,14 +107,20 @@ public class JdbcExtension implements IProtocolExtension {
 		final String hostname = jdbcConfiguration.getHostname();
 		log.info("Hostname {} - Performing {} health check.", hostname, getIdentifier());
 
-		// Create and set the SQL result to null
-		List<List<String>> sqlResult = null;
-		try {
-			sqlResult = sqlRequestExecutor.executeSql(hostname, jdbcConfiguration, "SELECT 1", false);
-		} catch (Exception e) {
-			log.debug("Hostname {} - JDBC health check failed", hostname, e);
+		// Retrieve connection details
+		final String jdbcUrl = String.valueOf(jdbcConfiguration.getUrl());
+		final String username = jdbcConfiguration.getUsername();
+		final char[] password = jdbcConfiguration.getPassword();
+		final long timeout = jdbcConfiguration.getTimeout();
+
+		// Check database availability using Connection.isValid()
+		boolean isAlive = isDatabaseAlive(jdbcUrl, username, password, timeout);
+
+		if (!isAlive) {
+			log.warn("Hostname {} - Database health check failed", hostname);
 		}
-		return Optional.of(sqlResult != null);
+
+		return Optional.of(isAlive);
 	}
 
 	@Override
@@ -213,6 +222,32 @@ public class JdbcExtension implements IProtocolExtension {
 			return TextTableHelper.generateTextTable(resultList);
 		} else {
 			return TextTableHelper.generateTextTable(columns, resultList);
+		}
+	}
+
+	/**
+	 * Checks if the database is reachable using Connection.isValid().
+	 *
+	 * @param jdbcUrl  The JDBC URL of the database
+	 * @param username The database username
+	 * @param password The database password
+	 * @param timeout  The timeout duration
+	 * @return true if the database is reachable, false otherwise
+	 */
+	static boolean isDatabaseAlive(
+		final String jdbcUrl,
+		final String username,
+		final char[] password,
+		final long timeout
+	) {
+		try (
+			Connection connection = (username == null || password == null)
+				? DriverManager.getConnection(jdbcUrl)
+				: DriverManager.getConnection(jdbcUrl, username, new String(password))
+		) {
+			return connection.isValid((int) timeout);
+		} catch (SQLException e) {
+			return false;
 		}
 	}
 }
