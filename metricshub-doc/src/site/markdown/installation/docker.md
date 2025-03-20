@@ -5,7 +5,7 @@ description: How to install MetricsHub on Linux, Windows, and Docker.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
-## Enterprise Edition 
+## Enterprise Edition
 
 ### Download
 
