@@ -5,6 +5,8 @@ description: How to install MetricsHub on Windows.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
+> MetricsHub supports Windows 2012R2 and higher.
+
 ## Enterprise Edition
 
 ### Download

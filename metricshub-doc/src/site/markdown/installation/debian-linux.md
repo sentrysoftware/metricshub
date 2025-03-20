@@ -5,6 +5,8 @@ description: How to install MetricsHub on Debian Linux.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
+> MetricsHub supports Debian v10.
+
 ## Enterprise Edition
 
 ### Download
