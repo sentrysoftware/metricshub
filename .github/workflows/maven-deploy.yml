@@ -43,7 +43,7 @@ jobs:
     - name: Set up Maven settings.xml on ${{ matrix.os }}
       uses: s4u/maven-settings-action@v3.1.0
       with:
-        repositories: '[{"id":"github","name":"MetricsHub JRE Builder","url":"https://maven.pkg.github.com/sentrysoftware/metricshub-jre-builder","snapshots":{"enabled":true},"releases":{"enabled":true}}]'
+        repositories: '[{"id":"github","name":"MetricsHub JRE Builder","url":"https://maven.pkg.github.com/metricshub/metricshub-jre-builder","snapshots":{"enabled":true},"releases":{"enabled":true}}]'
         servers: '[{"id": "ossrh", "username": "${env.OSSRH_USERNAME}", "password": "${env.OSSRH_TOKEN}"}]'
         sonatypeSnapshots: true
 
