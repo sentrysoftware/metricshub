@@ -258,6 +258,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	boolean resolveHostnameToFqdn;
 
+	@Option(
+		names = { "-to", "--timeout" },
+		order = 13,
+		defaultValue = "30",
+		description = "Sets the timeout in seconds for network calls",
+		help = true
+	)
+	long strategyTimeout;
+
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -284,6 +293,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostType(deviceType)
 			.sequential(sequential)
 			.resolveHostnameToFqdn(resolveHostnameToFqdn)
+			.strategyTimeout(strategyTimeout)
 			.build();
 
 		// Connectors
