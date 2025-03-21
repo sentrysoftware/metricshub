@@ -50,7 +50,7 @@ public class BooleanDeserializer extends JsonDeserializer<Boolean> {
 			return false;
 		}
 
-		final String key = jsonParser.getCurrentName();
+		final String key = jsonParser.currentName();
 
 		final String str = jsonParser.getValueAsString();
 		if (str == null) {

@@ -52,7 +52,6 @@ import org.sentrysoftware.metricshub.engine.common.helpers.NumberHelper;
 import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricDefinition;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
-import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
@@ -69,10 +68,6 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 @Data
 public class PrettyPrinterService {
 
-	/**
-	 * The header for the resource section
-	 */
-	static final String RESOURCE_HEADER = "Resource:";
 	/**
 	 * The header for the attributes section
 	 */
@@ -172,12 +167,6 @@ public class PrettyPrinterService {
 
 		// Attributes
 		printAttributes(monitor.getAttributes(), indentation + 2, ATTRIBUTES_HEADER);
-
-		final Resource resource = monitor.getResource();
-		if (resource != null) {
-			// Resource
-			printAttributes(resource.getAttributes(), indentation + 2, RESOURCE_HEADER);
-		}
 
 		// Metrics
 		printMetrics(monitor, indentation + 2);

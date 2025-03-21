@@ -1,3 +1,7 @@
+# Disables gRPC protocol in unit tests
+otel:
+  otel.exporter.otlp.metrics.protocol: noop
+
 enableSelfMonitoring: true
 # Resource Groups configuration
 resourceGroups:

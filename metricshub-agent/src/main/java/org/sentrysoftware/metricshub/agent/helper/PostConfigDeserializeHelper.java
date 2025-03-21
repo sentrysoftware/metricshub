@@ -50,6 +50,8 @@ public class PostConfigDeserializeHelper {
 		final SimpleModule module = new SimpleModule();
 		module.setDeserializerModifier(
 			new BeanDeserializerModifier() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public JsonDeserializer<?> modifyDeserializer(
 					DeserializationConfig config,

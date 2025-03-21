@@ -62,7 +62,6 @@ import org.sentrysoftware.metricshub.engine.strategy.utils.MappingProcessor;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.Monitor;
 import org.sentrysoftware.metricshub.engine.telemetry.MonitorFactory;
-import org.sentrysoftware.metricshub.engine.telemetry.Resource;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
@@ -269,10 +268,10 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 	/**
 	 * This method processes same type monitors
 	 *
-	 * @param connector
-	 * @param mapping
-	 * @param monitorType
-	 * @param hostname
+	 * @param connector   The connector instance defining the ID and also used to collect monitor's metrics
+	 * @param mapping     The mapping instance defining the attributes, metrics, conditional collection, legacy text parameters and resource
+	 * @param monitorType The type of the monitor we currently process
+	 * @param hostname    The host name of the monitored resource
 	 */
 	private void processSameTypeMonitors(
 		final Connector connector,
@@ -328,8 +327,8 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 		final List<List<String>> table = maybeSourceTable.get().getTable();
 
 		log.debug(
-			"Hostname {} - Start {} {} mapping with source {}, attributes {}, metrics {}, conditional collection {}, legacy text parameters {} " +
-			"and resource{}. Connector ID: {}.",
+			"Hostname {} - Start {} {} mapping with source {}, attributes {}, metrics {}, conditional collection {} and legacy text parameters {}" +
+			". Connector ID: {}.",
 			hostname,
 			monitorType,
 			getJobName(),
@@ -338,7 +337,6 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			mapping.getMetrics(),
 			mapping.getConditionalCollection(),
 			mapping.getLegacyTextParameters(),
-			mapping.getResource(),
 			connectorId
 		);
 
@@ -367,8 +365,6 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 			final Map<String, String> noContextAttributeInterpretedValues =
 				mappingProcessor.interpretNonContextMappingAttributes();
 
-			final Resource resource = mappingProcessor.interpretMappingResource();
-
 			// Initialize a monitor factory with the previously created attributes and resources
 
 			// Get the identifying attribute keys
@@ -379,7 +375,6 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 				.monitorType(monitorType)
 				.telemetryManager(telemetryManager)
 				.attributes(noContextAttributeInterpretedValues)
-				.resource(resource)
 				.connectorId(connectorId)
 				.discoveryTime(strategyTime)
 				.keys(identifyingAttributeKeys)
@@ -504,6 +499,9 @@ public abstract class AbstractAllAtOnceStrategy extends AbstractStrategy {
 
 		// Process each connector
 		sortedConnectors.forEach(connector -> process(connector, hostname));
+
+		// Collect the metricshub.host.configured metric
+		collectHostConfigured(hostname);
 	}
 
 	/**
