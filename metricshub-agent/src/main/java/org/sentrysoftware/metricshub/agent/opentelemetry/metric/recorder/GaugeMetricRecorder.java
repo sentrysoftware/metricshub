@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
  */
 
 import io.opentelemetry.proto.metrics.v1.Metric;
+import java.util.Map;
 import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
@@ -33,13 +34,19 @@ public class GaugeMetricRecorder extends AbstractNumberMetricRecorder {
 	/**
 	 * Constructor for the class.
 	 *
-	 * @param metric      The metric to record.
-	 * @param unit        The unit of the metric.
-	 * @param description The description of the metric.
+	 * @param metric             The metric to record.
+	 * @param unit               The unit of the metric.
+	 * @param description        The description of the metric.
+	 * @param resourceAttributes The resource attributes associated with the metric.
 	 */
 	@Builder(setterPrefix = "with")
-	public GaugeMetricRecorder(final NumberMetric metric, final String unit, final String description) {
-		super(metric, unit, description);
+	public GaugeMetricRecorder(
+		final NumberMetric metric,
+		final String unit,
+		final String description,
+		final Map<String, String> resourceAttributes
+	) {
+		super(metric, unit, description, resourceAttributes);
 	}
 
 	/**

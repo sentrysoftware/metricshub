@@ -29,6 +29,7 @@ import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
 import io.opentelemetry.proto.metrics.v1.ScopeMetrics;
 import io.opentelemetry.proto.resource.v1.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,8 @@ public class ResourceMeter {
 	private Map<String, String> attributes = new HashMap<>();
 
 	private final List<AbstractMetricRecorder> metricRecorders = new ArrayList<>();
+
+	private boolean isAppendResourceAttributes;
 
 	/**
 	 * Builds ResourceMetrics by invoking all metric recorders safely.
@@ -127,6 +130,8 @@ public class ResourceMeter {
 	 */
 	public void registerRecorder(final MetricContext context, final AbstractMetric metric) {
 		// Handle the metric and add the metric recorders to the list.
-		metricRecorders.addAll(MetricHandler.handle(context, metric));
+		metricRecorders.addAll(
+			MetricHandler.handle(context, metric, isAppendResourceAttributes ? attributes : Collections.emptyMap())
+		);
 	}
 }

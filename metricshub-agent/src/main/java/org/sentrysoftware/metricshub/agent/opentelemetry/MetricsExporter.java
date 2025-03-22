@@ -47,6 +47,9 @@ public class MetricsExporter {
 	@Getter
 	private IOtelClient client;
 
+	@Getter
+	private boolean isAppendResourceAttributes;
+
 	/**
 	 * Exports the metrics to the OptenTelemetry Collector.
 	 *
@@ -101,6 +104,11 @@ public class MetricsExporter {
 					newNoopClient();
 					break;
 			}
+
+			isAppendResourceAttributes =
+				Boolean.parseBoolean(
+					configuration.get(OtelConfigConstants.OTEL_EXPORTER_OTLP_METRICS_APPEND_RESOURCE_ATTRIBUTES)
+				);
 			return this;
 		}
 

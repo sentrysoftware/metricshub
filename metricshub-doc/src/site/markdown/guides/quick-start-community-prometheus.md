@@ -136,6 +136,7 @@ Add the below configuration under the `otel` section to push metrics to Promethe
 otel:
   otel.exporter.otlp.metrics.endpoint: http://localhost:9090/api/v1/otlp/v1/metrics
   otel.exporter.otlp.metrics.protocol: http/protobuf
+  otel.exporter.otlp.metrics.append_resource_attributes: true
 ```
 
 ## Step 4: Start Prometheus and MetricsHub

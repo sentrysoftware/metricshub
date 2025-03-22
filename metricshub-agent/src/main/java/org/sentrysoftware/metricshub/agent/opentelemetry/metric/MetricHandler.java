@@ -56,7 +56,7 @@ public class MetricHandler {
 	 * The handlers map used to handle the different metric types.
 	 */
 	// @formatter:off
-	private static final Map<MetricType, BiFunction<MetricContext, AbstractMetric, List<AbstractMetricRecorder>>> HANDLERS = Map.of(
+	private static final Map<MetricType, BiFunction<ResourceMetricContext, AbstractMetric, List<AbstractMetricRecorder>>> HANDLERS = Map.of(
 		MetricType.GAUGE, MetricHandler::handleGauge,
 		MetricType.COUNTER, MetricHandler::handleCounter,
 		MetricType.UP_DOWN_COUNTER, MetricHandler::handleUpDownCounter
@@ -67,18 +67,28 @@ public class MetricHandler {
 	/**
 	 * Handles the metric and generates the corresponding metric recorders.
 	 */
-	public static List<AbstractMetricRecorder> handle(final MetricContext context, final AbstractMetric metric) {
-		return HANDLERS.get(context.getType()).apply(context, metric);
+	public static List<AbstractMetricRecorder> handle(
+		final MetricContext context,
+		final AbstractMetric metric,
+		final Map<String, String> resourceAttributes
+	) {
+		return HANDLERS.get(context.getType()).apply(new ResourceMetricContext(context, resourceAttributes), metric);
 	}
 
 	/**
 	 * Hander for gauge metrics.
 	 *
-	 * @param context Metric information context defining the metric type, unit, description, etc.
-	 * @param metric  The metric to handle.
+	 * @param resourceMetricContext Metric information context defining the metric type, unit, description, resource attributes etc.
+	 * @param metric                The metric to handle.
 	 * @return a list of {@link AbstractMetricRecorder} instances.
 	 */
-	private static List<AbstractMetricRecorder> handleGauge(final MetricContext context, final AbstractMetric metric) {
+	private static List<AbstractMetricRecorder> handleGauge(
+		final ResourceMetricContext resourceMetricContext,
+		final AbstractMetric metric
+	) {
+		final MetricContext context = resourceMetricContext.context;
+		final Map<String, String> resourceAttributes = resourceMetricContext.resourceAttributes;
+
 		if (metric instanceof NumberMetric numberMetric) {
 			return List.of(
 				GaugeMetricRecorder
@@ -86,6 +96,7 @@ public class MetricHandler {
 					.withMetric(numberMetric)
 					.withDescription(context.getDescription())
 					.withUnit(context.getUnit())
+					.withResourceAttributes(resourceAttributes)
 					.build()
 			);
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
@@ -97,6 +108,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build()
 				: state ->
 					GaugeStateMetricRecorder
@@ -105,6 +117,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build();
 
 			return Stream.of(stateSetMetric.getStateSet()).map(creator).toList();
@@ -116,11 +129,16 @@ public class MetricHandler {
 	/**
 	 * Handler for counter metrics.
 	 *
-	 * @param context Metric information context defining the metric type, unit, description, etc.
-	 * @param metric The metric to handle.
+	 * @param resourceMetricContext Metric information context defining the metric type, unit, description, resource attributes etc.
+	 * @param metric                The metric to handle.
 	 * @return a list of {@link AbstractMetricRecorder} instances.
 	 */
-	private static List<AbstractMetricRecorder> handleCounter(final MetricContext context, final AbstractMetric metric) {
+	private static List<AbstractMetricRecorder> handleCounter(
+		final ResourceMetricContext resourceMetricContext,
+		final AbstractMetric metric
+	) {
+		final MetricContext context = resourceMetricContext.context;
+		final Map<String, String> resourceAttributes = resourceMetricContext.resourceAttributes;
 		if (metric instanceof NumberMetric numberMetric) {
 			return List.of(
 				CounterMetricRecorder
@@ -128,6 +146,7 @@ public class MetricHandler {
 					.withMetric(numberMetric)
 					.withDescription(context.getDescription())
 					.withUnit(context.getUnit())
+					.withResourceAttributes(resourceAttributes)
 					.build()
 			);
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
@@ -139,6 +158,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build()
 				: state ->
 					CounterStateMetricRecorder
@@ -147,6 +167,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build();
 
 			return Stream.of(stateSetMetric.getStateSet()).map(creator).toList();
@@ -158,14 +179,16 @@ public class MetricHandler {
 	/**
 	 * Handler for up-down counter metrics.
 	 *
-	 * @param context Metric information context defining the metric type, unit, description, etc.
-	 * @param metric  The metric to handle.
+	 * @param resourceMetricContext Metric information context defining the metric type, unit, description, resource attributes etc.
+	 * @param metric                The metric to handle.
 	 * @return a list of {@link AbstractMetricRecorder} instances.
 	 */
 	private static List<AbstractMetricRecorder> handleUpDownCounter(
-		final MetricContext context,
+		final ResourceMetricContext resourceMetricContext,
 		final AbstractMetric metric
 	) {
+		final MetricContext context = resourceMetricContext.context;
+		final Map<String, String> resourceAttributes = resourceMetricContext.resourceAttributes;
 		if (metric instanceof NumberMetric numberMetric) {
 			return List.of(
 				UpDownCounterMetricRecorder
@@ -173,6 +196,7 @@ public class MetricHandler {
 					.withMetric(numberMetric)
 					.withDescription(context.getDescription())
 					.withUnit(context.getUnit())
+					.withResourceAttributes(resourceAttributes)
 					.build()
 			);
 		} else if (metric instanceof StateSetMetric stateSetMetric) {
@@ -184,6 +208,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build()
 				: state ->
 					UpDownCounterStateMetricRecorder
@@ -192,6 +217,7 @@ public class MetricHandler {
 						.withDescription(context.getDescription())
 						.withUnit(context.getUnit())
 						.withStateValue(state)
+						.withResourceAttributes(resourceAttributes)
 						.build();
 
 			return Stream.of(stateSetMetric.getStateSet()).map(creator).toList();
@@ -199,4 +225,9 @@ public class MetricHandler {
 
 		return Collections.emptyList();
 	}
+
+	/**
+	 * ResourceMetricContext class used to hold the metric context and the resource attributes.
+	 */
+	private static record ResourceMetricContext(MetricContext context, Map<String, String> resourceAttributes) {}
 }

@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
  */
 
 import io.opentelemetry.proto.metrics.v1.Metric;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
@@ -36,12 +37,18 @@ public abstract class AbstractNumberMetricRecorder extends AbstractMetricRecorde
 
 	/**
 	 * Constructor for the class.
-	 * @param metric      the metric to record.
-	 * @param unit        the unit of the metric.
-	 * @param description the description of the metric.
+	 * @param metric             the metric to record.
+	 * @param unit               the unit of the metric.
+	 * @param description        the description of the metric.
+	 * @param resourceAttributes the resource attributes associated with the metric.
 	 */
-	protected AbstractNumberMetricRecorder(final NumberMetric metric, final String unit, final String description) {
-		super(metric, unit, description);
+	protected AbstractNumberMetricRecorder(
+		final NumberMetric metric,
+		final String unit,
+		final String description,
+		final Map<String, String> resourceAttributes
+	) {
+		super(metric, unit, description, resourceAttributes);
 	}
 
 	/**

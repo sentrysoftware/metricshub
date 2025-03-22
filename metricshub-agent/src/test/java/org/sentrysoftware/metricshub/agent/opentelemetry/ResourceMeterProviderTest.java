@@ -37,4 +37,18 @@ class ResourceMeterProviderTest {
 
 		assertEquals(2, client.getRequest().getResourceMetricsList().size(), "All registered meters should be exported");
 	}
+
+	@Test
+	void exportMetrics_shouldExportAllRegisteredMeters_withResourceAttributes() {
+		provider =
+			new ResourceMeterProvider(
+				MetricsExporter.builder().withClient(client).withIsAppendResourceAttributes(true).build()
+			);
+		provider.newResourceMeter("test.instrumentation1", Map.of("key1", "value1"));
+		provider.newResourceMeter("test.instrumentation2", Map.of("key2", "value2"));
+
+		provider.exportMetrics();
+
+		assertEquals(2, client.getRequest().getResourceMetricsList().size(), "All registered meters should be exported");
+	}
 }

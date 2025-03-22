@@ -69,6 +69,56 @@ class GaugeStateMetricRecorderTest {
 	}
 
 	@Test
+	void doRecord_shouldReturnMetric_whenMetricHasMatchingStateValue_andResourceAttributes() {
+		// Given
+		when(mockMetric.isUpdated()).thenReturn(true);
+		when(mockMetric.getValue()).thenReturn(TEST_STATE_VALUE);
+		when(mockMetric.getName()).thenReturn("test.state.metric");
+		when(mockMetric.getCollectTime()).thenReturn(System.currentTimeMillis());
+		when(mockMetric.getAttributes()).thenReturn(Map.of("state", "ok"));
+
+		gaugeStateMetricRecorder =
+			GaugeStateMetricRecorder
+				.builder()
+				.withMetric(mockMetric)
+				.withDescription("Test gauge state metric")
+				.withStateValue(TEST_STATE_VALUE)
+				.withResourceAttributes(Map.of("resource", "resourceValue"))
+				.build();
+
+		// When
+		final Optional<Metric> result = gaugeStateMetricRecorder.doRecord();
+
+		// Then
+		assertTrue(result.isPresent(), "Expected a recorded metric");
+		final Metric metric = result.get();
+		assertEquals("test.state.metric", metric.getName(), "Metric name should match");
+		assertEquals("Test gauge state metric", metric.getDescription(), "Metric description should match");
+		final List<NumberDataPoint> dataPointsList = metric.getGauge().getDataPointsList();
+		assertEquals(1, dataPointsList.size(), "Expected a single metric");
+		final NumberDataPoint numberDataPoint = dataPointsList.get(0);
+		assertEquals(1.0, numberDataPoint.getAsDouble(), "Metric value should match for matching state");
+		final List<KeyValue> attributesList = numberDataPoint.getAttributesList();
+
+		assertEquals(2, attributesList.size(), "Expected two attributes");
+		final KeyValue resourceKeyVaue = attributesList
+			.stream()
+			.filter(kv -> "resource".equals(kv.getKey()))
+			.findFirst()
+			.orElseThrow(() -> new AssertionError("resource attribute not found"));
+		assertEquals("resource", resourceKeyVaue.getKey(), "Attribute resource should match");
+		assertEquals("resourceValue", resourceKeyVaue.getValue().getStringValue(), "Attribute resourceValue should match");
+
+		final KeyValue attribute = attributesList
+			.stream()
+			.filter(kv -> "state".equals(kv.getKey()))
+			.findFirst()
+			.orElseThrow(() -> new AssertionError("state attribute not found"));
+		assertEquals("state", attribute.getKey(), "Attribute state should match");
+		assertEquals("ok", attribute.getValue().getStringValue(), "Attribute value should match");
+	}
+
+	@Test
 	void doRecord_shouldReturnMetricWithZero_whenMetricHasNonMatchingStateValue() {
 		// Given
 		when(mockMetric.isUpdated()).thenReturn(true);

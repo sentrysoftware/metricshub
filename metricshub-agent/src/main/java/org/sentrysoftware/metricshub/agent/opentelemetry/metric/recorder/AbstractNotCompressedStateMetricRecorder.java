@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
  */
 
 import io.opentelemetry.proto.metrics.v1.Metric;
+import java.util.Map;
 import java.util.Optional;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
@@ -34,18 +35,20 @@ public abstract class AbstractNotCompressedStateMetricRecorder extends AbstractS
 
 	/**
 	 * Constructor for the class.
-	 * @param metric      the metric to record.
-	 * @param unit        the unit of the metric.
-	 * @param description the description of the metric.
-	 * @param stateValue  the state value.
+	 * @param metric             the metric to record.
+	 * @param unit               the unit of the metric.
+	 * @param description        the description of the metric.
+	 * @param stateValue         the state value.
+	 * @param resourceAttributes the resource attributes associated with the metric.
 	 */
 	protected AbstractNotCompressedStateMetricRecorder(
 		final StateSetMetric metric,
 		final String unit,
 		final String description,
-		final String stateValue
+		final String stateValue,
+		final Map<String, String> resourceAttributes
 	) {
-		super(metric, unit, description, stateValue);
+		super(metric, unit, description, stateValue, resourceAttributes);
 	}
 
 	/**

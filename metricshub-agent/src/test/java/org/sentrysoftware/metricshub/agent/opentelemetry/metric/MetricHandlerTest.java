@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,11 @@ class MetricHandlerTest {
 	@Test
 	void handle_shouldReturnGaugeMetricRecorder_whenHandlingGaugeNumberMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.GAUGE);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockNumberMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockNumberMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(1, recorders.size());
 		assertTrue(recorders.get(0) instanceof GaugeMetricRecorder);
@@ -55,7 +60,11 @@ class MetricHandlerTest {
 	void handle_shouldReturnGaugeStateMetricRecorder_whenHandlingGaugeStateSetMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.GAUGE);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof GaugeStateMetricRecorder);
@@ -67,7 +76,11 @@ class MetricHandlerTest {
 		when(mockContext.getType()).thenReturn(MetricType.GAUGE);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
 		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof GaugeSuppressZerosStateMetricRecorder);
@@ -77,7 +90,11 @@ class MetricHandlerTest {
 	@Test
 	void handle_shouldReturnCounterMetricRecorder_whenHandlingCounterNumberMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.COUNTER);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockNumberMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockNumberMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(1, recorders.size());
 		assertTrue(recorders.get(0) instanceof CounterMetricRecorder);
@@ -87,7 +104,11 @@ class MetricHandlerTest {
 	void handle_shouldReturnCounterStateMetricRecorder_whenHandlingCounterStateSetMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.COUNTER);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof CounterStateMetricRecorder);
@@ -99,7 +120,11 @@ class MetricHandlerTest {
 		when(mockContext.getType()).thenReturn(MetricType.COUNTER);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
 		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof CounterSuppressZerosStateMetricRecorder);
@@ -109,7 +134,11 @@ class MetricHandlerTest {
 	@Test
 	void handle_shouldReturnUpDownCounterMetricRecorder_whenHandlingUpDownCounterNumberMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.UP_DOWN_COUNTER);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockNumberMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockNumberMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(1, recorders.size());
 		assertTrue(recorders.get(0) instanceof UpDownCounterMetricRecorder);
@@ -119,7 +148,11 @@ class MetricHandlerTest {
 	void handle_shouldReturnUpDownCounterStateMetricRecorder_whenHandlingUpDownCounterStateSetMetric() {
 		when(mockContext.getType()).thenReturn(MetricType.UP_DOWN_COUNTER);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof UpDownCounterStateMetricRecorder);
@@ -131,7 +164,11 @@ class MetricHandlerTest {
 		when(mockContext.getType()).thenReturn(MetricType.UP_DOWN_COUNTER);
 		when(mockStateSetMetric.getStateSet()).thenReturn(new String[] { "ok", "failed" });
 		when(mockContext.isSuppressZerosCompression()).thenReturn(true);
-		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(mockContext, mockStateSetMetric);
+		final List<AbstractMetricRecorder> recorders = MetricHandler.handle(
+			mockContext,
+			mockStateSetMetric,
+			Collections.emptyMap()
+		);
 
 		assertEquals(2, recorders.size());
 		assertTrue(recorders.get(0) instanceof UpDownCounterSuppressZerosStateMetricRecorder);

@@ -35,6 +35,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.OtelConfigConstants;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
 
@@ -42,8 +43,8 @@ import org.sentrysoftware.metricshub.engine.telemetry.metric.AbstractMetric;
  * AbstractMetricRecorder class used to record metrics. It defines the entry point to record a metric through the <code>doRecord</code> method.
  * It also provides the abstract methods to build the OpenTelemetry metric.
  */
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public abstract class AbstractMetricRecorder {
 
 	private static final String STATE_ATTRIBUTE_KEY = "state";
@@ -51,6 +52,12 @@ public abstract class AbstractMetricRecorder {
 	protected final AbstractMetric metric;
 	protected final String unit;
 	protected final String description;
+	/**
+	 * The resource attributes associated with the metric. Defaults to empty.
+	 * When {@value OtelConfigConstants#OTEL_EXPORTER_OTLP_METRICS_APPEND_RESOURCE_ATTRIBUTES} is set to {@code true}
+	 * in the configuration, these attributes are copied to the metric data point attributes.
+	 */
+	private Map<String, String> resourceAttributes = new HashMap<>();
 
 	/**
 	 * Records the metric and return the OpenTelemetry metric.
@@ -199,7 +206,17 @@ public abstract class AbstractMetricRecorder {
 	 * @return The OpenTelemetry data point.
 	 */
 	private NumberDataPoint buildDataPoint(final Double value, final String stateValue) {
-		final Map<String, String> attributes = new HashMap<>(metric.getAttributes());
+		final Map<String, String> attributes = new HashMap<>();
+
+		// Resource to metric attributes?
+		if (resourceAttributes != null) {
+			attributes.putAll(resourceAttributes);
+		}
+
+		// Add metric attributes
+		attributes.putAll(metric.getAttributes());
+
+		// Add state attribute
 		if (stateValue != null) {
 			attributes.put(STATE_ATTRIBUTE_KEY, stateValue);
 		}

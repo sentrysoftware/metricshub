@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
  */
 
 import io.opentelemetry.proto.metrics.v1.Metric;
+import java.util.Map;
 import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 
@@ -33,13 +34,19 @@ public class UpDownCounterMetricRecorder extends AbstractNumberMetricRecorder {
 	/**
 	 * Constructor for the class.
 	 *
-	 * @param metric      the metric to record.
-	 * @param unit        the unit of the metric.
-	 * @param description the description of the metric.
+	 * @param metric             the metric to record.
+	 * @param unit               the unit of the metric.
+	 * @param description        the description of the metric.
+	 * @param resourceAttributes the resource attributes associated with the metric.
 	 */
 	@Builder(setterPrefix = "with")
-	public UpDownCounterMetricRecorder(final NumberMetric metric, final String unit, final String description) {
-		super(metric, unit, description);
+	public UpDownCounterMetricRecorder(
+		final NumberMetric metric,
+		final String unit,
+		final String description,
+		final Map<String, String> resourceAttributes
+	) {
+		super(metric, unit, description, resourceAttributes);
 	}
 
 	/**

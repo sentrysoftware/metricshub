@@ -662,14 +662,15 @@ Refer to:
 
 The table below describes the available OTLP Exporter properties:
 
-| Property | Description |
-|----------|------------|
-| **`otel.exporter.otlp.metrics.endpoint`** | The OTLP metrics endpoint URL. <p><p></p>Must be an `http` or `https` URL, depending on whether TLS is used.</p><p></p><p>**Default:** `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf)</p> |
-| **`otel.exporter.otlp.metrics.protocol`** | Transport protocol for OTLP metric requests.<p></p><p>Possible Values: `grpc`, `http/protobuf`.</p><p></p><p>**Default:** `grpc`</p> |
-| **`otel.exporter.otlp.metrics.certificate`** | Path to a PEM-formatted file containing trusted certificates for verifying the OTLP server’s TLS credentials.<p></p><p>**Default:** Uses the host platform’s trusted root certificates</p> |
-| **`otel.exporter.otlp.metrics.headers`** | Custom headers to send with OTLP metric requests, typically for authentication.<p></p><p>**Default:** Not set</p> |
-| **`otel.exporter.otlp.metrics.timeout`** | Timeout for OTLP metric requests (in seconds).<p></p><p>**Default:** `10` </p>|
-| **`otel.exporter.otlp.metrics.pool.size`** | Exporter pool size.<p></p><p> This setting directly determines how many metric export operations can run in parallel.</p><p></p><p>**Default:** `20`</p> |
+| Property                                                    | Description                                                                                                                                                                                                                    |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **`otel.exporter.otlp.metrics.endpoint`**                   | The OTLP metrics endpoint URL. <p><p></p>Must be an `http` or `https` URL, depending on whether TLS is used.</p><p></p><p>**Default:** `http://localhost:4317` (gRPC) / `http://localhost:4318/v1/metrics` (HTTP/Protobuf)</p> |
+| **`otel.exporter.otlp.metrics.protocol`**                   | Transport protocol for OTLP metric requests.<p></p><p>Possible Values: `grpc`, `http/protobuf`.</p><p></p><p>**Default:** `grpc`</p>                                                                                           |
+| **`otel.exporter.otlp.metrics.certificate`**                | Path to a PEM-formatted file containing trusted certificates for verifying the OTLP server’s TLS credentials.<p></p><p>**Default:** Uses the host platform’s trusted root certificates</p>                                     |
+| **`otel.exporter.otlp.metrics.headers`**                    | Custom headers to send with OTLP metric requests, typically for authentication.<p></p><p>**Default:** Not set</p>                                                                                                              |
+| **`otel.exporter.otlp.metrics.timeout`**                    | Timeout for OTLP metric requests (in seconds).<p></p><p>**Default:** `10` </p>                                                                                                                                                 |
+| **`otel.exporter.otlp.metrics.pool.size`**                  | Exporter pool size.<p></p><p> This setting directly determines how many metric export operations can run in parallel.</p><p></p><p>**Default:** `20`</p>                                                                       |
+| **`otel.exporter.otlp.metrics.append_resource_attributes`** | When enabled, all resource attributes will be added as attributes on each exported metric.<p></p><p>**Default:** `false`</p>                                                                                                   |
 
 #### Example
 

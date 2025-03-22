@@ -66,6 +66,12 @@ public class OtelConfigConstants {
 	public static final String OTEL_EXPORTER_OTLP_METRICS_POOL_SIZE = "otel.exporter.otlp.metrics.pool.size";
 
 	/**
+	 * Property used to append resource attributes to each metric.
+	 */
+	public static final String OTEL_EXPORTER_OTLP_METRICS_APPEND_RESOURCE_ATTRIBUTES =
+		"otel.exporter.otlp.metrics.append_resource_attributes";
+
+	/**
 	 * OTLP protocol: gRPC
 	 */
 	public static final String GRPC = "grpc";

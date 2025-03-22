@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.metric.recorder;
  */
 
 import io.opentelemetry.proto.metrics.v1.Metric;
+import java.util.Map;
 import lombok.Builder;
 import org.sentrysoftware.metricshub.engine.telemetry.metric.StateSetMetric;
 
@@ -32,19 +33,21 @@ public class UpDownCounterStateMetricRecorder extends AbstractNotCompressedState
 
 	/**
 	 * Constructor for the class.
-	 * @param metric      the metric to record.
-	 * @param unit        the unit of the metric.
-	 * @param description the description of the metric.
-	 * @param stateValue  the state value to check.
+	 * @param metric             the metric to record.
+	 * @param unit               the unit of the metric.
+	 * @param description        the description of the metric.
+	 * @param stateValue         the state value to check.
+	 * @param resourceAttributes the resource attributes associated with the metric.
 	 */
 	@Builder(setterPrefix = "with")
 	public UpDownCounterStateMetricRecorder(
 		final StateSetMetric metric,
 		final String unit,
 		final String description,
-		final String stateValue
+		final String stateValue,
+		final Map<String, String> resourceAttributes
 	) {
-		super(metric, unit, description, stateValue);
+		super(metric, unit, description, stateValue, resourceAttributes);
 	}
 
 	/**

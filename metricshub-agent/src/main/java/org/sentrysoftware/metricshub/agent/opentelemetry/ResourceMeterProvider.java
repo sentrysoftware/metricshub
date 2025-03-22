@@ -65,6 +65,7 @@ public class ResourceMeterProvider {
 			.builder()
 			.withInstrumentation(instrumentation)
 			.withAttributes(attributes)
+			.withIsAppendResourceAttributes(metricsExporter.isAppendResourceAttributes())
 			.build();
 		meters.add(meter);
 		return meter;
