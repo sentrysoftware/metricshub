@@ -9,116 +9,132 @@ description: How to install MetricsHub on Linux, Windows, and Docker.
 
 ### Download
 
-From [MetricsHub's Web site](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz** and copy into `/tmp`.
+First, authenticate to the MetricsHub Docker registry using the credentials provided in your onboarding email:
 
-### Install
-
-First, unzip and untar the content of **metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz** into a docker directory, like **/docker**.
-
-```shell-session
-sudo mkdir -p /docker
-sudo tar xzf /tmp/metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz -C /docker
+```bash
+docker login docker.metricshub.com
 ```
 
-Then, build the docker image using the following command:
+Once logged in, download the latest **MetricsHub Enterprise** image:
 
-```shell-session
-cd /docker/metricshub
-sudo docker build -t metricshub:latest .
+```bash
+docker pull docker.metricshub.com/metricshub-enterprise:${enterpriseVersion}
 ```
 
 ### Configure
 
-*  In the **./lib/config/metricshub.yaml** file, located under the `/docker/metricshub` installation directory, configure the [resources to be monitored](../configuration/configure-monitoring.html#configure-resources).
-* In the **./lib/otel/otel-config.yaml** file, located under the `/docker/metricshub` installation directory, specify where the _OpenTelemetry Collector_ should [send the collected data](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29).
+Create the required local directories for configuration and logs:
 
+```bash
+mkdir -p /opt/metricshub/{logs,config,otel}
+```
 
-To assist with the setup process, two configuration examples are provided for guidance in the installation directory (`./metricshub`):
+> **Note:** The container runs as a non-root user with UID `1000` (`metricshub`). To avoid permission issues, make sure the container has access to the directories by updating ownership and permissions:
 
-* `./lib/config/metricshub-config-example.yaml`, a configuration example of the MetricsHub agent.
-* `./lib/otel/otel-config-example.yaml`, a configuration example of the OpenTelemetry Collector.
+```bash
+chown -R 1000:1000 /opt/metricshub && chmod -R 775 /opt/metricshub
+```
+
+Next, download the example configuration files to help you get started:
+
+```shell-session
+cd /opt/metricshub
+
+wget -O ./otel/otel-config.yaml https://metricshub.com/docs/latest/resources/config/otel/otel-config-example.yaml
+wget -O ./config/metricshub.yaml https://metricshub.com/docs/latest/resources/config/linux/metricshub-example.yaml
+```
+
+*  In the **./config/metricshub.yaml** file, configure the [resources to be monitored](../configuration/configure-monitoring.html#configure-resources).
+* In the **./otel/otel-config.yaml** file, specify where the _OpenTelemetry Collector_ should [send the collected data](../configuration/send-telemetry.html#configure-the-otel-collector-28enterprise-edition-29).
 
 ### Start
 
-You can start **MetricsHub** with the command below:
+To start **MetricsHub Enterprise** using the local configuration files, run the following command from **/opt/metricshub** directory:
 
-```shell-session
-cd /docker/metricshub
-sudo docker run -d --name=metricshub -p 24375:24375 -p 13133:13133 -v /docker/metricshub/lib/config:/opt/metricshub/lib/config -v /docker/metricshub/lib/otel:/opt/metricshub/lib/otel -v /docker/metricshub/lib/logs:/opt/metricshub/lib/logs -v /docker/metricshub/lib/security:/opt/metricshub/lib/security metricshub:latest
+```bash
+# Run docker using local configuration files as volumes
+docker run -d \
+  --name=metricshub-enterprise \
+  -p 24375:24375 -p 13133:13133 \
+  -v $(pwd)/config/metricshub.yaml:/opt/metricshub/lib/config/metricshub.yaml \
+  -v $(pwd)/otel/otel-config.yaml:/opt/metricshub/lib/otel/otel-config.yaml \
+  -v $(pwd)/logs:/opt/metricshub/lib/logs \
+  --hostname=localhost \
+  docker.metricshub.com/metricshub-enterprise:${enterpriseVersion}
 ```
-
-This will start **MetricsHub** with the default **MetricsHub Enterprise Agent** configuration file, **./lib/config/metricshub.yaml**.
 
 **Docker Compose Example**
 
-You can start **MetricsHub** with docker-compose:
+Alternatively, you can launch **MetricsHub Enterprise** using Docker Compose:
 
 ```shell-session
-sudo docker-compose up -d --build
+sudo docker compose up -d
 ```
 
-Example docker-compose.yaml
+Here’s an example of docker-compose.yaml file located under **/opt/metricshub**:
 
 ```yaml
-version: "2.1"
 services:
   metricshub:
-    build: .                                        # for image we will use ``image: sentrysoftware/metricshub:latest``
-    container_name: metricshub
+    image: docker.metricshub.com/metricshub-enterprise:${enterpriseVersion}
+    container_name: metricshub-enterprise
+    hostname: localhost
     ports:
-      - 13133:13133                                   # OpenTelemetry Collector HealthCheck
-      - 24375:24375                                   # OpenTelemetry Collector Prometheus Exporter
+      - 13133:13133                                                                      # OpenTelemetry Collector HealthCheck
+      - 24375:24375                                                                      # OpenTelemetry Collector Prometheus Exporter
     volumes:
-      - ./lib/logs:/opt/metricshub/lib/logs                # Mount the volume ./lib/logs into /opt/metricshub/lib/logs in the container
-      - ./lib/config:/opt/metricshub/lib/config            # Mount the volume ./lib/config into /opt/metricshub/lib/config in the container
-      - ./lib/otel:/opt/metricshub/lib/otel                # Mount the volume ./lib/otel into /opt/metricshub/lib/otel in the container
-      - ./lib/security:/opt/metricshub/lib/security        # Mount the volume ./lib/security into /opt/metricshub/lib/security in the container
+      - ./logs:/opt/metricshub/lib/logs                                                  # Mount the volume ./lib/logs into /opt/metricshub/lib/logs in the container
+      - ./config/metricshub.yaml:/opt/metricshub/lib/config/metricshub.yaml              # Inject local config/metricshub.yaml into the container
+      - ./otel/otel-config.yaml:/opt/metricshub/lib/otel/otel-config.yaml                # Inject local otel/otel-config.yaml into the container
     restart: unless-stopped
+```
+
+### Stop
+
+To stop the container, run:
+
+```bash
+docker stop metricshub-enterprise
+```
+
+### Remove
+
+To remove the container, run:
+
+```bash
+docker rm metricshub-enterprise
 ```
 
 ### Upgrade
 
-If you have installed a previous version of **MetricsHub Enterprise** and want to upgrade to the latest version **${enterpriseVersion}**, follow these steps:
+To upgrade to a newer version of **MetricsHub Enterprise**:
 
-1. From [MetricsHub's website](https://metricshub.com/downloads), download **metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz** and copy it into the `/tmp` directory.
+1. **Stop and remove** the existing container:
 
-2. Stop and remove the currently running **MetricsHub** container:
-
-   ```shell-session
-   sudo docker stop metricshub
-   sudo docker rm metricshub
+   ```bash
+   docker stop metricshub-enterprise
+   docker rm metricshub-enterprise
    ```
 
-3. Before upgrading, rename the current **metricshub** directory to **metricshub-previous** to backup your configuration files and preserve any custom settings. Ensure that there isn't already a directory named **metricshub-previous**; if there is, you may need to choose a different name:
+2. **Pull the latest image**:
 
-   ```shell-session
-   sudo mv /docker/metricshub /docker/metricshub-previous
+   ```bash
+   docker pull docker.metricshub.com/metricshub-enterprise:${enterpriseVersion}
    ```
 
-4. Unzip the new version into the same directory where the previous version was installed:
+3. **Restart the container** with your existing configuration and volume mounts:
 
-   ```shell-session
-   sudo tar xzf /tmp/metricshub-enterprise-debian-${enterpriseVersion}-docker.tar.gz -C /docker
-   ```
+   ```bash
+   cd /opt/metricshub
 
-5. Rebuild the **MetricsHub** Docker image with the latest version:
-
-   ```shell-session
-   cd /docker/metricshub
-   sudo docker build -t metricshub:latest .
-   ```
-
-6. Restore the configuration files to the correct locations:
-
-   ```shell-session
-   sudo cp /docker/metricshub-previous/lib/config/metricshub.yaml /docker/metricshub/lib/config/metricshub.yaml
-   sudo cp /docker/metricshub-previous/lib/otel/otel-config.yaml /docker/metricshub/lib/otel/otel-config.yaml
-   ```
-
-7. Start the **MetricsHub** container using the upgraded image:
-
-   ```shell-session
-   sudo docker run -d --name=metricshub -p 24375:24375 -p 13133:13133 -v /docker/metricshub/lib/config:/opt/metricshub/lib/config -v /docker/metricshub/lib/otel:/opt/metricshub/lib/otel -v /docker/metricshub/lib/logs:/opt/metricshub/lib/logs -v /docker/metricshub/lib/security:/opt/metricshub/lib/security metricshub:latest
+   docker run -d \
+     --name=metricshub-enterprise \
+     -p 24375:24375 -p 13133:13133 \
+     -v $(pwd)/config/metricshub.yaml:/opt/metricshub/lib/config/metricshub.yaml \
+     -v $(pwd)/otel/otel-config.yaml:/opt/metricshub/lib/otel/otel-config.yaml \
+     -v $(pwd)/logs:/opt/metricshub/lib/logs \
+     --hostname=localhost \
+     docker.metricshub.com/metricshub-enterprise:${enterpriseVersion}
    ```
 
 ## Community Edition
