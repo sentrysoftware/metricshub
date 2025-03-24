@@ -158,12 +158,12 @@ sudo tar xzf /tmp/metricshub-linux-${communityVersion}-docker.tar.gz -C /docker
 
 ### Configure
 
-In the `./lib/config/metricshub.yaml` file, locally under the `./metricshub` installation directory, configure:
+In the `./lib/config/metricshub.yaml` file, located under the `./metricshub` installation directory, configure:
 
 * the [resources to be monitored.](../configuration/configure-monitoring.md#configure-resources)
 * the [OpenTelemetry Protocol endpoint](../configuration/send-telemetry.html#configure-the-otlp-exporter-28community-edition-29) that will receive the MetricsHub signals.
 
-To assist with the setup process, the configuration example `./lib/config/metricshub-example.yaml` is provided for guidance in the installation directory (`./metricshub`).
+To assist with the setup process, a configuration example `./lib/config/metricshub-example.yaml` is provided in the installation directory (`./metricshub`).
 
 ### Build the docker image
 
@@ -217,19 +217,21 @@ services:
 
 ### Stop
 
-To stop **MetricsHub** started as a docker container, run the following command:
+Adjust the below commands to meet your specific requirements for stopping and removing the Docker container running **MetricsHub**.
 
-```shell-session
-sudo docker stop metricshub
-```
+If:
 
-**Docker Compose**:
+* **MetricsHub** is started as a docker container, run:
 
-If you are using docker compose from the `./metricshub` directory, run the following command to stop **MetricsHub**:
+    ```shell-session
+    sudo docker stop metricshub
+    ```
 
-```shell-session
-sudo docker compose down
-```
+* you are using **Docker Compose** from the `./metricshub` directory, run:
+
+  ```shell-session
+  sudo docker compose down
+  ```
 
 ### Uninstall
 
@@ -240,5 +242,3 @@ cd /docker/metricshub
 sudo docker stop -f metricshub
 sudo docker rm -f metricshub
 ```
-
-Adjust the commands to meet your specific requirements for stopping and removing the Docker container running **MetricsHub**.
