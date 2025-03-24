@@ -47,6 +47,7 @@ import org.sentrysoftware.metricshub.agent.helper.AgentConstants;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
 import org.sentrysoftware.metricshub.agent.helper.PostConfigDeserializeHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
 import org.sentrysoftware.metricshub.agent.service.OtelCollectorProcessService;
 import org.sentrysoftware.metricshub.agent.service.TaskSchedulingService;
 import org.sentrysoftware.metricshub.engine.common.helpers.JsonHelper;
@@ -58,7 +59,7 @@ import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 
 /**
  * AgentContext represents the context of the MetricsHub agent, containing various components such as agent information,
- * configuration, telemetry managers, OpenTelemetry SDK configuration, OtelCollector process service, task scheduling service,
+ * configuration, telemetry managers, OpenTelemetry configuration, OtelCollector process service, task scheduling service,
  * and metric definitions. It also includes methods for building the context and logging product information.
  */
 @Data
@@ -70,12 +71,13 @@ public class AgentContext {
 	private AgentConfig agentConfig;
 	private ConnectorStore connectorStore;
 	private String pid;
-	private Map<String, String> otelSdkConfiguration;
+	private Map<String, String> otelConfiguration;
 	private Map<String, Map<String, TelemetryManager>> telemetryManagers;
 	private OtelCollectorProcessService otelCollectorProcessService;
 	private TaskSchedulingService taskSchedulingService;
 	private MetricDefinitions hostMetricDefinitions;
 	protected ExtensionManager extensionManager;
+	private MetricsExporter metricsExporter;
 
 	/**
 	 * Instantiate the global context
@@ -132,14 +134,17 @@ public class AgentContext {
 
 		telemetryManagers = ConfigHelper.buildTelemetryManagers(agentConfig, connectorStore);
 
-		// Build OpenTelemetry SDK configuration
-		otelSdkConfiguration = OtelConfigHelper.buildOtelSdkConfiguration(agentConfig);
+		// Build OpenTelemetry configuration
+		otelConfiguration = OtelConfigHelper.buildOtelConfiguration(agentConfig);
 
 		// Build the OpenTelemetry Collector Service
 		otelCollectorProcessService = new OtelCollectorProcessService(agentConfig);
 
 		// Build the Host Metric Definitions
 		hostMetricDefinitions = ConfigHelper.readHostMetricDefinitions();
+
+		// Build the Metrics Exporter
+		metricsExporter = MetricsExporter.builder().withConfiguration(otelConfiguration).build();
 
 		// Build the TaskScheduling Service
 		taskSchedulingService =
@@ -152,7 +157,7 @@ public class AgentContext {
 				.withTaskScheduler(TaskSchedulingService.newScheduler(agentConfig.getJobPoolSize()))
 				.withTelemetryManagers(telemetryManagers)
 				.withSchedules(new HashMap<>())
-				.withOtelSdkConfiguration(otelSdkConfiguration)
+				.withMetricsExporter(metricsExporter)
 				.withHostMetricDefinitions(hostMetricDefinitions)
 				.withExtensionManager(extensionManager)
 				.build();

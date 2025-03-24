@@ -21,14 +21,9 @@ package org.sentrysoftware.metricshub.agent.service.scheduling;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.Meter;
-import io.opentelemetry.api.metrics.MeterProvider;
-import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.resources.Resource;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
@@ -37,15 +32,20 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.sentrysoftware.metricshub.agent.config.AgentConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
-import org.sentrysoftware.metricshub.agent.helper.OtelHelper;
-import org.sentrysoftware.metricshub.agent.service.signal.SimpleGaugeMetricObserver;
+import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
+import org.sentrysoftware.metricshub.agent.opentelemetry.ResourceMeter;
+import org.sentrysoftware.metricshub.agent.opentelemetry.ResourceMeterProvider;
+import org.sentrysoftware.metricshub.agent.opentelemetry.metric.MetricContext;
+import org.sentrysoftware.metricshub.engine.connector.model.metric.MetricType;
 import org.sentrysoftware.metricshub.engine.telemetry.MetricFactory;
+import org.sentrysoftware.metricshub.engine.telemetry.metric.NumberMetric;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
 /**
  * Scheduling class responsible for scheduling resource group-related tasks in
- * MetricsHub. This class creates and schedules observers for metrics defined in
+ * MetricsHub. This class creates and schedules recorders for metrics defined in
  * a {@link ResourceGroupConfig}, and also schedules periodic flush tasks for
  * the resource group.
  */
@@ -97,23 +97,23 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 	/**
 	 * Constructs a new instance of {@code ResourceGroupScheduling}.
 	 *
-	 * @param taskScheduler        The task scheduler to use for scheduling.
-	 * @param schedules            The map to store scheduled tasks.
-	 * @param otelSdkConfiguration The OpenTelemetry SDK configuration.
-	 * @param resourceGroupKey     Key for identifying the resource group.
-	 * @param resourceGroupConfig  Configuration for the resource group.
-	 * @param agentConfig          Configuration for the MetricsHub agent.
+	 * @param taskScheduler       The task scheduler to use for scheduling.
+	 * @param schedules           The map to store scheduled tasks.
+	 * @param metricsExporter     The exporter to use for exporting metrics.
+	 * @param resourceGroupKey    Key for identifying the resource group.
+	 * @param resourceGroupConfig Configuration for the resource group.
+	 * @param agentConfig         Configuration for the MetricsHub agent.
 	 */
 	@Builder(setterPrefix = "with")
 	public ResourceGroupScheduling(
 		@NonNull final TaskScheduler taskScheduler,
 		@NonNull final Map<String, ScheduledFuture<?>> schedules,
-		@NonNull final Map<String, String> otelSdkConfiguration,
+		@NonNull final MetricsExporter metricsExporter,
 		@NonNull final String resourceGroupKey,
 		@NonNull final ResourceGroupConfig resourceGroupConfig,
 		@NonNull final AgentConfig agentConfig
 	) {
-		super(taskScheduler, schedules, otelSdkConfiguration);
+		super(taskScheduler, schedules, metricsExporter);
 		this.resourceGroupConfig = resourceGroupConfig;
 		this.resourceGroupKey = resourceGroupKey;
 		this.agentConfig = agentConfig;
@@ -121,28 +121,38 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 
 	@Override
 	public void schedule() {
-		// Create the resource group OTEL Resource
-		final Resource resource = OtelHelper.createOpenTelemetryResource(resourceGroupConfig.getAttributes());
-
-		final AutoConfiguredOpenTelemetrySdk autoConfiguredOpenTelemetrySdk = OtelHelper.initOpenTelemetrySdk(
-			resource,
-			otelSdkConfiguration
-		);
-
 		// Need a periodic trigger because we need the job to be scheduled based on the configured collect period
 		final PeriodicTrigger trigger = new PeriodicTrigger(
 			Duration.of(agentConfig.getCollectPeriod(), ChronoUnit.SECONDS)
 		);
 
-		// Get the SDK Meter provider
-		final SdkMeterProvider meterProvider = autoConfiguredOpenTelemetrySdk.getOpenTelemetrySdk().getSdkMeterProvider();
+		// Schedule the flush task
+		final ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(this::recordAndExport, trigger);
 
-		// Build resource group attributes
-		final Attributes resourceGroupAttributes = OtelHelper.buildOtelAttributesFromMap(
-			resourceGroupConfig.getAttributes()
+		// Save the delayed result-bearing action that can be cancelled
+		schedules.put(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, resourceGroupKey), scheduledFuture);
+
+		log.info("Resource Group {} scheduled.", resourceGroupKey);
+	}
+
+	/**
+	 * Records and pushes resource group metrics.
+	 */
+	void recordAndExport() {
+		// Create a new meter provider with the metrics exporter
+		final ResourceMeterProvider meterProvider = new ResourceMeterProvider(metricsExporter);
+
+		final Map<String, String> resourceAttributes = new HashMap<>();
+		ConfigHelper.mergeAttributes(agentConfig.getAttributes(), resourceAttributes);
+		ConfigHelper.mergeAttributes(resourceGroupConfig.getAttributes(), resourceAttributes);
+
+		// Create a new resource meter
+		final ResourceMeter meter = meterProvider.newResourceMeter(
+			"org.sentrysoftware.metricshub.resource.group.%s".formatted(resourceGroupKey),
+			resourceAttributes
 		);
 
-		// Initialize a simple metric observer for each metric defined in the configuration
+		// Initialize a simple metric recorder for each metric defined in the configuration
 		resourceGroupConfig
 			.getMetrics()
 			.entrySet()
@@ -154,44 +164,23 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 				// The metric name can define a set of attributes
 				final String metricName = MetricFactory.extractName(metricKey);
 
-				// Build OTEL SDK Attributes
-				final Attributes attributes = OtelHelper.mergeOtelAttributes(
-					resourceGroupAttributes,
-					OtelHelper.buildOtelAttributesFromMap(MetricFactory.extractAttributesFromMetricName(metricKey))
+				meter.registerRecorder(
+					MetricContext
+						.builder()
+						.withDescription("Reports metric %s".formatted(metricName))
+						.withType(MetricType.GAUGE)
+						.withUnit(KNOWN_METRIC_UNITS.get(metricName))
+						.build(),
+					NumberMetric
+						.builder()
+						.value(metricEntry.getValue())
+						.name(metricName)
+						.attributes(MetricFactory.extractAttributesFromMetricName(metricKey))
+						.collectTime(System.currentTimeMillis())
+						.build()
 				);
-
-				// Initialize the Observer
-				SimpleGaugeMetricObserver
-					.builder()
-					.withMetricName(metricName)
-					.withMetricValue(metricEntry.getValue())
-					.withMeter(getMeter(meterProvider, metricKey))
-					.withAttributes(attributes)
-					.withUnit(KNOWN_METRIC_UNITS.get(metricName))
-					.withDescription(String.format("Reports metric %s", metricName))
-					.build()
-					.init();
 			});
 
-		// Schedule the flush task
-		final ScheduledFuture<?> scheduledFuture = taskScheduler.schedule(meterProvider::forceFlush, trigger);
-
-		// Save the delayed result-bearing action that can be cancelled
-		schedules.put(String.format(METRICSHUB_RESOURCE_GROUP_KEY_FORMAT, resourceGroupKey), scheduledFuture);
-
-		log.info("Resource Group {} scheduled.", resourceGroupKey);
-	}
-
-	/**
-	 * Build this resource group metric meter
-	 *
-	 * @param sdkMeterProvider SDK implementation for {@link MeterProvider}
-	 * @param metricName       the name of the metric in this {@link ResourceGroupConfig}
-	 * @return Meter instruments used to record measurements
-	 */
-	private Meter getMeter(final SdkMeterProvider sdkMeterProvider, final String metricName) {
-		return sdkMeterProvider.get(
-			String.format("org.sentrysoftware.metricshub.resource.group.%s.%s", resourceGroupKey, metricName)
-		);
+		meterProvider.exportMetrics();
 	}
 }

@@ -20,7 +20,7 @@ import static org.sentrysoftware.metricshub.agent.helper.TestConstants.SITE_ATTR
 import static org.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupScheduling.HW_SITE_PUE_METRIC;
 import static org.sentrysoftware.metricshub.agent.service.scheduling.ResourceGroupScheduling.METRICSHUB_RESOURCE_GROUP_KEY_FORMAT;
 import static org.sentrysoftware.metricshub.agent.service.scheduling.ResourceScheduling.METRICSHUB_RESOURCE_KEY_FORMAT;
-import static org.sentrysoftware.metricshub.agent.service.scheduling.SelfObserverScheduling.METRICSHUB_OVERALL_SELF_TASK_KEY;
+import static org.sentrysoftware.metricshub.agent.service.scheduling.SelfScheduling.METRICSHUB_OVERALL_SELF_TASK_KEY;
 import static org.sentrysoftware.metricshub.engine.common.helpers.MetricsHubConstants.HOST_NAME;
 
 import java.io.IOException;
@@ -34,7 +34,8 @@ import org.sentrysoftware.metricshub.agent.config.ResourceConfig;
 import org.sentrysoftware.metricshub.agent.config.ResourceGroupConfig;
 import org.sentrysoftware.metricshub.agent.context.AgentInfo;
 import org.sentrysoftware.metricshub.agent.helper.ConfigHelper;
-import org.sentrysoftware.metricshub.agent.helper.OtelConfigHelper;
+import org.sentrysoftware.metricshub.agent.opentelemetry.MetricsExporter;
+import org.sentrysoftware.metricshub.agent.opentelemetry.client.NoopClient;
 import org.sentrysoftware.metricshub.engine.extension.ExtensionManager;
 import org.sentrysoftware.metricshub.engine.telemetry.TelemetryManager;
 import org.sentrysoftware.metricshub.extension.snmp.SnmpConfiguration;
@@ -46,7 +47,7 @@ class TaskSchedulingServiceTest {
 	private static final String NO_CONFIG_RESOURCE_GROUP_KEY = "no-config";
 
 	@Test
-	void testScheduleSelfObserver() {
+	void testScheduleSelfRecorder() {
 		final AgentConfig agentConfig = AgentConfig
 			.builder()
 			.attributes(Map.of(COMPANY_ATTRIBUTE_KEY, COMPANY_ATTRIBUTE_VALUE))
@@ -63,12 +64,12 @@ class TaskSchedulingServiceTest {
 			.builder()
 			.withAgentConfig(agentConfig)
 			.withAgentInfo(agentInfo)
-			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
+			.withMetricsExporter(MetricsExporter.builder().withClient(new NoopClient()).build())
 			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
 			.build();
 
-		taskSchedulingService.scheduleSelfObserver();
+		taskSchedulingService.scheduleSelfRecorder();
 
 		verify(taskSchedulerMock, times(1)).schedule(any(Runnable.class), any(Trigger.class));
 
@@ -76,7 +77,7 @@ class TaskSchedulingServiceTest {
 	}
 
 	@Test
-	void testScheduleResourceGroupObservers() {
+	void testScheduleResourceGroupRecorders() {
 		final Map<String, ResourceGroupConfig> resourceGroups = new HashMap<>();
 		resourceGroups.put(
 			SENTRY_PARIS_RESOURCE_GROUP_KEY,
@@ -106,12 +107,12 @@ class TaskSchedulingServiceTest {
 		final TaskSchedulingService taskSchedulingService = TaskSchedulingService
 			.builder()
 			.withAgentConfig(agentConfig)
-			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
+			.withMetricsExporter(MetricsExporter.builder().withClient(new NoopClient()).build())
 			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
 			.build();
 
-		taskSchedulingService.scheduleResourceGroupObservers();
+		taskSchedulingService.scheduleResourceGroupRecorders();
 
 		verify(taskSchedulerMock, times(2)).schedule(any(Runnable.class), any(Trigger.class));
 
@@ -180,7 +181,7 @@ class TaskSchedulingServiceTest {
 		final TaskSchedulingService taskSchedulingService = TaskSchedulingService
 			.builder()
 			.withAgentConfig(agentConfig)
-			.withOtelSdkConfiguration(OtelConfigHelper.buildOtelSdkConfiguration(agentConfig))
+			.withMetricsExporter(MetricsExporter.builder().withClient(new NoopClient()).build())
 			.withSchedules(new HashMap<>())
 			.withTaskScheduler(taskSchedulerMock)
 			.withTelemetryManagers(

@@ -27,7 +27,6 @@ import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_IN
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_INFO_VERSION_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY;
-import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY;
 import static org.sentrysoftware.metricshub.agent.helper.AgentConstants.AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY;
@@ -101,10 +100,7 @@ public class AgentInfo {
 	private ApplicationProperties applicationProperties;
 
 	@Getter
-	private Map<String, String> metricAttributes = new HashMap<>();
-
-	@Getter
-	private Map<String, String> resourceAttributes = new HashMap<>();
+	private Map<String, String> attributes = new HashMap<>();
 
 	/**
 	 * Creates an instance of AgentInfo, initializing metric and resource attributes
@@ -124,28 +120,20 @@ public class AgentInfo {
 
 		final Project project = applicationProperties.project();
 
-		// Update metric attributes
+		// Update resource attributes
 		// @formatter:off
-		metricAttributes =
+		attributes =
 			Map.of(
+				AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY, project.name(),
+				AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
+				AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
+				AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY, "compute",
+				AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY, OTEL_LOCAL_OS_TYPE,
 				AGENT_INFO_NAME_ATTRIBUTE_KEY, project.name(),
 				AGENT_INFO_VERSION_ATTRIBUTE_KEY, project.version(),
 				AGENT_INFO_BUILD_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildNumber(),
 				AGENT_INFO_BUILD_DATE_NUMBER_ATTRIBUTE_KEY, applicationProperties.buildDate(),
 				AGENT_INFO_CC_VERSION_NUMBER_ATTRIBUTE_KEY, applicationProperties.ccVersion()
-			);
-		// @formatter:on
-
-		// Update resource attributes
-		// @formatter:off
-		resourceAttributes =
-			Map.of(
-				AGENT_RESOURCE_SERVICE_NAME_ATTRIBUTE_KEY, project.name(),
-				AGENT_RESOURCE_HOST_ID_ATTRIBUTE_KEY, AGENT_HOSTNAME,
-				AGENT_RESOURCE_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
-				AGENT_RESOURCE_AGENT_HOST_NAME_ATTRIBUTE_KEY, AGENT_HOSTNAME,
-				AGENT_RESOURCE_HOST_TYPE_ATTRIBUTE_KEY, "compute",
-				AGENT_RESOURCE_OS_TYPE_ATTRIBUTE_KEY, OTEL_LOCAL_OS_TYPE
 			);
 		// @formatter:on
 	}

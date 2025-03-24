@@ -258,6 +258,15 @@ public class MetricsHubCliService implements Callable<Integer> {
 	)
 	boolean resolveHostnameToFqdn;
 
+	@Option(
+		names = { "-jt", "--job-timeout" },
+		order = 13,
+		defaultValue = "300",
+		description = "Sets the maximum duration in seconds allowed for job execution. (default: ${DEFAULT-VALUE})",
+		help = true
+	)
+	long jobTimeout;
+
 	@Override
 	public Integer call() throws Exception {
 		// Check whether iterations is greater than 0. If it's not the case, throw a ParameterException
@@ -284,6 +293,7 @@ public class MetricsHubCliService implements Callable<Integer> {
 			.hostType(deviceType)
 			.sequential(sequential)
 			.resolveHostnameToFqdn(resolveHostnameToFqdn)
+			.strategyTimeout(jobTimeout)
 			.build();
 
 		// Connectors

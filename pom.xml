@@ -96,7 +96,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
 		<hwgraf.version>4</hwgraf.version>
-		<metricshub-jre.version>1.0.01</metricshub-jre.version>
+		<metricshub-jre.version>17.0.14_7</metricshub-jre.version>
 		<project.build.outputTimestamp>2025-02-03T13:45:18Z</project.build.outputTimestamp>
 
 	</properties>
@@ -416,40 +416,24 @@
 				<version>2.3.4</version>
 			</dependency>
 			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-api</artifactId>
-				<version>1.45.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk</artifactId>
-				<version>1.45.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-exporter-otlp</artifactId>
-				<version>1.45.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
-				<version>1.45.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk-testing</artifactId>
-				<version>1.45.0</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>io.opentelemetry</groupId>
-				<artifactId>opentelemetry-sdk-common</artifactId>
-				<version>1.45.0</version>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-netty-shaded</artifactId>
+				<version>1.71.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.grpc</groupId>
-				<artifactId>grpc-netty-shaded</artifactId>
-				<version>1.69.0</version>
+				<artifactId>grpc-protobuf</artifactId>
+				<version>1.71.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.grpc</groupId>
+				<artifactId>grpc-stub</artifactId>
+				<version>1.71.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>4.29.3</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sentrysoftware</groupId>
@@ -460,6 +444,11 @@
 				<groupId>io.opentelemetry.instrumentation</groupId>
 				<artifactId>opentelemetry-instrumentation-annotations</artifactId>
 				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>io.opentelemetry.proto</groupId>
+				<artifactId>opentelemetry-proto</artifactId>
+				<version>1.5.0-alpha</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>

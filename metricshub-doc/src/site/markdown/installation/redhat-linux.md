@@ -5,6 +5,8 @@ description: How to install MetricsHub on RedHat Enterprise Linux.
 
 <!-- MACRO{toc|fromDepth=1|toDepth=1|id=toc} -->
 
+> MetricsHub supports RedHat/CentOS v8.
+
 ## Enterprise Edition
 
 ### Download
