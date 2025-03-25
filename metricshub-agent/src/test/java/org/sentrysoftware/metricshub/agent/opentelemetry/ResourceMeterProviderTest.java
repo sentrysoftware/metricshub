@@ -33,7 +33,7 @@ class ResourceMeterProviderTest {
 		provider.newResourceMeter("test.instrumentation1", Map.of("key1", "value1"));
 		provider.newResourceMeter("test.instrumentation2", Map.of("key2", "value2"));
 
-		provider.exportMetrics();
+		provider.exportMetrics(() -> {});
 
 		assertEquals(2, client.getRequest().getResourceMetricsList().size(), "All registered meters should be exported");
 	}
@@ -47,7 +47,7 @@ class ResourceMeterProviderTest {
 		provider.newResourceMeter("test.instrumentation1", Map.of("key1", "value1"));
 		provider.newResourceMeter("test.instrumentation2", Map.of("key2", "value2"));
 
-		provider.exportMetrics();
+		provider.exportMetrics(() -> {});
 
 		assertEquals(2, client.getRequest().getResourceMetricsList().size(), "All registered meters should be exported");
 	}

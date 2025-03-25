@@ -22,6 +22,7 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.client;
  */
 
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
+import org.sentrysoftware.metricshub.agent.opentelemetry.LogContextSetter;
 
 /**
  * Interface defining the methods for OpenTelemetry clients.
@@ -29,9 +30,10 @@ import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 public interface IOtelClient {
 	/**
 	 * Sends the given metrics to the OpenTelemetry receiver.
-	 * @param request the request containing the metrics to send.
+	 * @param request          The request containing the metrics to send.
+	 * @param logContextSetter The log context setter to use for logging.
 	 */
-	void send(ExportMetricsServiceRequest request);
+	void send(ExportMetricsServiceRequest request, LogContextSetter logContextSetter);
 
 	/**
 	 * Shuts down the client.

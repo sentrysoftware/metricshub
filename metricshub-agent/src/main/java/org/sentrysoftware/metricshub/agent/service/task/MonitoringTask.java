@@ -114,7 +114,7 @@ public class MonitoringTask implements Runnable {
 			initHostAttributes(telemetryManager, resourceConfig);
 
 			// Record metrics and export them all
-			registerTelemetryManagerRecorders(telemetryManager).exportMetrics();
+			registerTelemetryManagerRecorders(telemetryManager).exportMetrics(() -> configureLoggerContext(hostId));
 		}
 
 		log.info("Calling the engine to collect resource: {}.", hostId);
@@ -134,7 +134,7 @@ public class MonitoringTask implements Runnable {
 		telemetryManager.run(new HardwareStrategy(telemetryManager, collectTime));
 
 		// Record metrics and export them all
-		registerTelemetryManagerRecorders(telemetryManager).exportMetrics();
+		registerTelemetryManagerRecorders(telemetryManager).exportMetrics(() -> configureLoggerContext(hostId));
 
 		// Increment the number of collects
 		numberOfCollects++;

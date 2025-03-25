@@ -53,12 +53,16 @@ public class MetricsExporter {
 	/**
 	 * Exports the metrics to the OptenTelemetry Collector.
 	 *
-	 * @param resourceMetrics A list of the ScopeMetrics collection from a Resource.
+	 * @param resourceMetrics  A list of the ScopeMetrics collection from a Resource.
+	 * @param logContextSetter The log context setter to use for asynchronous logging.
 	 */
-	public void export(final List<ResourceMetrics> resourceMetrics) {
+	public void export(final List<ResourceMetrics> resourceMetrics, final LogContextSetter logContextSetter) {
 		try {
 			// Simply send the metrics using the client
-			client.send(ExportMetricsServiceRequest.newBuilder().addAllResourceMetrics(resourceMetrics).build());
+			client.send(
+				ExportMetricsServiceRequest.newBuilder().addAllResourceMetrics(resourceMetrics).build(),
+				logContextSetter
+			);
 		} catch (Exception e) {
 			log.error("Failed to export metrics. Message: {}", e.getMessage());
 			log.debug("Failed to export metrics", e);
