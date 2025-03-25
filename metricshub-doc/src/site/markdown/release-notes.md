@@ -3,6 +3,146 @@ description: Learn more about the new features, changes and improvements, and bu
 
 # Release Notes
 
+## MetricsHub Enterprise Edition v1.2.00
+
+### MetricsHub Enterprise Edition v1.2.00
+
+#### What's New
+
+| ID       | Description                                                                                         |
+| -------- | --------------------------------------------------------------------------------------------------- |
+| M8BEE-45 | Simplified deployment with new Docker image for MetricsHub Enterprise                               |
+| M8BEE-49 | Added `jawk` CLI, a command-line interface for executing AWK scripts                                |
+| M8BEE-50 | Integrated MetricsHub Community metrics exporter for optimized resource usage and memory efficiency |
+| M8BEE-53 | Published configuration examples needed for Docker setup                                            |
+| M8BEE-55 | Integrated Datadog pipeline into `otel-config-example.yaml`                                         |
+
+#### Changes and Improvements
+
+| ID       | Description                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------- |
+| M8BEE-46 | Prometheus AlertManager: Alerts are now triggered for degraded voltage levels (both low and high) |
+| M8BEE-48 | Added SNMPv3 authentication examples to `metricshub-example.yaml`                                 |
+
+#### Fixed Issues
+
+| ID       | Description                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------- |
+| M8BEE-47 | Security Vulnerabilities: CVE-2022-46364, CVE-2024-28752, CVE-2022-46363, CVE-2025-23184, CVE-2024-7254 |
+
+### MetricsHub Enterprise Connectors v105
+
+#### What's New
+
+| ID     | Description                                      |
+| ------ | ------------------------------------------------ |
+| EC-3   | Added support for Dell EMC PowerMax              |
+| EC-4   | Added support for Hitachi Disk Arrays            |
+| EC-70  | Added support for HPE MSA 2060 via HTTP API      |
+| EC-107 | Added support for Oracle databases               |
+| EC-109 | Added support for Microsoft SQL Server databases |
+| EC-118 | Added support for DotHill storage systems        |
+
+#### Changes and Improvements
+
+| ID     | Description                                                                                     |
+| ------ | ----------------------------------------------------------------------------------------------- |
+| EC-32  | **HPE OneView (Frames and Blades)**: Blade ID now corresponds to the Blade Server Hostname/FQDN |
+| EC-33  | **HPE OneView (Frames and Blades)**: Added Ambient Temperature on Enclosure Frames              |
+| EC-36  | **HPE OneView (Frames and Blades)**: Added Blades Server Network Card monitoring                |
+| EC-92  | **HPE OneView (Frames and Blades)**: Added InterConnect port monitoring                         |
+| EC-126 | **NetApp Filer (REST)**: Improved controller visibility and network metrics collection          |
+| EC-130 | **Cisco Ethernet Switch**: `hw.network.name` and `hw.network.alias` now reported                |
+| EC-134 | **Juniper Switch**: `hw.network.name` and `hw.network.alias` now reported                       |
+| EC-135 | **Cisco Entity Sensor (SNMP)**: `hw.network.name` and `hw.network.alias` now reported           |
+
+#### Fixed Issues
+
+| ID     | Description                                                                                                      |
+| ------ | ---------------------------------------------------------------------------------------------------------------- |
+| EC-34  | **HPE OneView (Frames and Blades)**: CPU instances are not reported under Blades                                 |
+| EC-117 | **Dell MX Chassis and Blades (REST)**: Sled Inlet Temperature is in ALARM after blade reboot                     |
+| EC-119 | **Lenovo ThinkSystem (IMM, XCC)**: Threshold is not computed for `hw.voltage.limit` metric                       |
+| EC-120 | **Citrix Netscaler (SNMP)**: Connector incorrectly activates on a Linux server                                   |
+| EC-123 | **Cisco Ethernet Switch**: Connector may fail to activate for some Cisco switches                                |
+| EC-129 | **IBM Director Agent 6 - Windows**: Enclosures are duplicated                                                    |
+| EC-132 | **HPE iLO 5 (ProLiant Gen10 and Gen10 Plus)**: `hw.network.bandwidth.limit` is reported in bits instead of bytes |
+
+## MetricsHub Community Edition v1.0.02
+
+#### What's New
+
+| ID                                                                   | Description                                                          |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [**\#583**](https://github.com/sentrysoftware/metricshub/issues/583) | Added `jawk` CLI, a command-line interface for executing AWK scripts |
+
+#### Changes and Improvements
+
+| ID                                                                   | Description                                                                                            |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [**\#339**](https://github.com/sentrysoftware/metricshub/issues/339) | **MetricsHub Agent**: Improved OpenTelemetry resource usage                                            |
+| [**\#575**](https://github.com/sentrysoftware/metricshub/issues/575) | **Authentication Protocols**: Added support for SNMPv3 HMAC-SHA-2 (SHA224, SHA256, SHA384, and SHA512) |
+| [**\#576**](https://github.com/sentrysoftware/metricshub/issues/576) | **Authentication Protocols**: Added support for IPMI-over-LAN (SHA-256 and MD5)                        |
+| [**\#582**](https://github.com/sentrysoftware/metricshub/issues/582) | **HTTP CLI**: Improved usability with simplified syntax                                                |
+| [**\#620**](https://github.com/sentrysoftware/metricshub/issues/620) | **Health Check**: Added support for Oracle and Cassandra databases                                     |
+| [**\#626**](https://github.com/sentrysoftware/metricshub/issues/626) | **Metrics Collection**: The `id` attribute is now optional                                             |
+| [**\#634**](https://github.com/sentrysoftware/metricshub/issues/634) | **MetricsHub CLI**: Added the `--job-timeout` option                                                   |
+
+#### Fixed Issues
+
+| ID                                                                   | Description                                                                                                 |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [**\#572**](https://github.com/sentrysoftware/metricshub/issues/572) | **HTTP CLI**: A `NullPointerException` occurs when no password is provided                                  |
+| [**\#574**](https://github.com/sentrysoftware/metricshub/issues/574) | Extensions are not updated during upgrade                                                                   |
+| [**\#577**](https://github.com/sentrysoftware/metricshub/issues/577) | **IPMI CLI**: An `ArrayIndexOutOfBoundsException` occurs when running the `ipmitool` command                |
+| [**\#580**](https://github.com/sentrysoftware/metricshub/issues/580) | **SNMPv3 CLI**: The `--snmpv3-retry-intervals` option is not standardized                                   |
+| [**\#584**](https://github.com/sentrysoftware/metricshub/issues/584) | **Security Vulnerabilities**: CVE-2022-46364, CVE-2024-28752, CVE-2022-46363, CVE-2025-23184, CVE-2024-7254 |
+| [**\#590**](https://github.com/sentrysoftware/metricshub/issues/590) | **Metrics Collection**: `hw_voltage_limit_volts{limit_type="low.critical"}` is incorrectly collected        |
+| [**\#597**](https://github.com/sentrysoftware/metricshub/issues/597) | **[BREAKING_CHANGE]** Renamed `metricshub.host.up.response_time` to `metricshub.host.response_time`         |
+| [**\#605**](https://github.com/sentrysoftware/metricshub/issues/605) | An incorrect JAR name prevents MetricsHub from starting                                                     |
+| [**\#608**](https://github.com/sentrysoftware/metricshub/issues/608) | **SNMP CLI**: The `--snmp-retry-intervals` option is not standardized                                       |
+| [**\#614**](https://github.com/sentrysoftware/metricshub/issues/614) | **Metrics Collection**: `metricshub.host.response_time` is reported even when `metricshub.host.up` is down  |
+| [**\#619**](https://github.com/sentrysoftware/metricshub/issues/619) | **SNMP Logs**: Text tables are not properly displayed                                                       |
+| [**\#623**](https://github.com/sentrysoftware/metricshub/issues/623) | **JDBC Protocol:** URL is not generated when database type is `mssql`                                       |
+
+#### Documentation Updates
+
+| ID                                                                   | Description                                                      |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [**\#631**](https://github.com/sentrysoftware/metricshub/issues/631) | Documented the Docker deployment setup for MetricsHub Enterprise |
+| [**\#632**](https://github.com/sentrysoftware/metricshub/issues/632) | Listed the supported operating systems                           |
+
+## MetricsHub Community Connectors v1.0.09
+
+#### What's New
+
+| ID                                                                                        | Description                                                                        |
+| ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [**\#188**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/188) | Defined semantic conventions for Oracle and SQL Server database metrics            |
+| [**\#190**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/190) | **MySQL:** `db.server.name` attribute is now reported                              |
+| [**\#193**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/193) | **Generic Ethernet Switch:** `hw.network.name` and `hw.network.alias` now reported |
+
+#### Changes and Improvements
+
+| ID                                                                                        | Description                                                                  |
+| ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [**\#177**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/177) | **Linux OS and Windows OS**: `network.interface.name` attribute now reported |
+
+#### Fixed Issues
+
+| ID                                                                                        | Description                                                                          |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [**\#173**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/173) | **Generic UPS:** Some voltage sensors are not discovered                             |
+| [**\#176**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/176) | **Linux and Windows OS**: `system.device` attribute missing from FS and disk metrics |
+| [**\#178**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/178) | **Linux OS**: Incorrect attribute names and invalid mapping syntax on disk metrics   |
+| [**\#187**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/187) | **Linux OS**: Docker overlay FS causes inaccurate capacity reporting                 |
+
+#### Documentation Updates
+
+| ID                                                                                        | Description                                                |
+| ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| [**\#184**](https://github.com/sentrysoftware/metricshub-community-connectors/issues/184) | Documented `awk` source in the Connector Developer’s Guide |
+
 ## MetricsHub Enterprise Edition v1.1.00
 
 ### MetricsHub Enterprise Edition v1.1.00
@@ -155,7 +295,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | [**\#379**](https://github.com/sentrysoftware/metricshub/issues/379) | Added support for escaped macros                                                                   |
 | [**\#422**](https://github.com/sentrysoftware/metricshub/issues/422) | Developed a **JDBC** Extension to enable support for SQL-based connectors                          |
 | [**\#432**](https://github.com/sentrysoftware/metricshub/issues/432) | Standardized the log messages for all the criteria tests                                           |
-| [**\#435**](https://github.com/sentrysoftware/metricshub/issues/435) | [BREAKING_CHANGE] Added support for multiple variable values for the same connector                |
+| [**\#435**](https://github.com/sentrysoftware/metricshub/issues/435) | **[BREAKING_CHANGE]** Added support for multiple variable values for the same connector            |
 | [**\#468**](https://github.com/sentrysoftware/metricshub/issues/468) | Added support for shared-characteristics for centralized resource configuration                    |
 | [**\#470**](https://github.com/sentrysoftware/metricshub/issues/470) | Added support for `host.id`, `host.name`, and other attributes as arrays in resource configuration |
 | [**\#472**](https://github.com/sentrysoftware/metricshub/issues/472) | Prevented sensitive configuration details from being displayed in error logs                       |
@@ -238,7 +378,7 @@ description: Learn more about the new features, changes and improvements, and bu
 
 | ID                                                                   | Description                                                                                                              |
 |----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| [**\#433**](https://github.com/sentrysoftware/metricshub/issues/433) | [BREAKING_CHANGE] Disabled Automatic Hostname to FQDN resolution                                                         |
+| [**\#433**](https://github.com/sentrysoftware/metricshub/issues/433) | **[BREAKING_CHANGE]** Disabled Automatic Hostname to FQDN resolution                                                     |
 | [**\#427**](https://github.com/sentrysoftware/metricshub/issues/427) | BMC Helix Integration: Added the `StatusInformation` internal text parameter to the connector monitor                    |
 | [**\#421**](https://github.com/sentrysoftware/metricshub/issues/421) | Reduced Alert noise for `hw.status{state="present"}`                                                                     |
 | [**\#414**](https://github.com/sentrysoftware/metricshub/issues/414) | Added a link to MetricsHub Community Connectors 1.0.06                                                                   |
