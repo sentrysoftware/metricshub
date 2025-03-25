@@ -15,7 +15,7 @@ description: Learn more about the new features, changes and improvements, and bu
 | M8BEE-49 | Added `jawk` CLI, a command-line interface for executing AWK scripts                                |
 | M8BEE-50 | Integrated MetricsHub Community metrics exporter for optimized resource usage and memory efficiency |
 | M8BEE-53 | Published configuration examples needed for Docker setup                                            |
-| M8BEE-55 | Integrated Datadog pipeline into `otel-config.yaml`                                                 |
+| M8BEE-55 | Integrated Datadog pipeline into `otel-config-example.yaml`                                         |
 
 #### Changes and Improvements
 
