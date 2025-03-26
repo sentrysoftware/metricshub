@@ -6,7 +6,7 @@
 
 	<groupId>org.sentrysoftware</groupId>
 	<artifactId>metricshub-parent</artifactId>
-	<version>1.0.02</version>
+	<version>1.0.03-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 
@@ -97,7 +97,7 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<hwgraf.version>4</hwgraf.version>
 		<metricshub-jre.version>17.0.14_7</metricshub-jre.version>
-		<project.build.outputTimestamp>2025-03-26T10:18:03Z</project.build.outputTimestamp>
+		<project.build.outputTimestamp>2025-03-26T10:18:10Z</project.build.outputTimestamp>
 
 	</properties>
 
