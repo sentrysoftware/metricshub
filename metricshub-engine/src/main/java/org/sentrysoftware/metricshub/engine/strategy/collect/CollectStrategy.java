@@ -175,17 +175,22 @@ public class CollectStrategy extends AbstractStrategy {
 		// Run monitor jobs defined in monitor jobs priority map (host, enclosure, blade, disk_controller and cpu)  in sequential mode
 		sequentialMonitorJobs.entrySet().forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
 
+		final boolean isSequential = telemetryManager.getHostConfiguration().isSequential();
+		final String mode = isSequential ? "sequential" : "parallel";
+
+		log.info(
+			"Hostname {} - Running collect in {} mode. Connector: {}.",
+			hostname,
+			mode,
+			currentConnector.getConnectorIdentity().getCompiledFilename()
+		);
+
 		// If monitor jobs execution is set to "sequential", execute monitor jobs one by one
-		if (telemetryManager.getHostConfiguration().isSequential()) {
+		if (isSequential) {
 			otherMonitorJobs.entrySet().forEach(entry -> processMonitorJob(currentConnector, hostname, entry));
 		} else {
 			// Execute monitor jobs in parallel
-			log.info(
-				"Hostname {} - Running collect in parallel mode. Connector: {}.",
-				hostname,
-				currentConnector.getConnectorIdentity().getCompiledFilename()
-			);
-
+			// Create a thread pool with a fixed number of threads
 			final ExecutorService threadsPool = Executors.newFixedThreadPool(MAX_THREADS_COUNT);
 
 			otherMonitorJobs
