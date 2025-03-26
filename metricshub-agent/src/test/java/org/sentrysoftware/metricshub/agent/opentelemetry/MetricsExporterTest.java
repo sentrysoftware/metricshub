@@ -40,17 +40,17 @@ class MetricsExporterTest {
 	void export_shouldCallClientSend() {
 		final List<ResourceMetrics> metrics = List.of(ResourceMetrics.getDefaultInstance());
 
-		exporter.export(metrics);
+		exporter.export(metrics, () -> {});
 
-		verify(mockClient, times(1)).send(any(ExportMetricsServiceRequest.class));
+		verify(mockClient, times(1)).send(any(ExportMetricsServiceRequest.class), any());
 	}
 
 	@Test
 	void export_shouldHandleExceptionGracefully() {
-		doThrow(new RuntimeException("Test exception")).when(mockClient).send(any());
+		doThrow(new RuntimeException("Test exception")).when(mockClient).send(any(), any());
 
 		assertDoesNotThrow(
-			() -> exporter.export(List.of(ResourceMetrics.getDefaultInstance())),
+			() -> exporter.export(List.of(ResourceMetrics.getDefaultInstance()), () -> {}),
 			"Exporter should handle exceptions gracefully"
 		);
 	}

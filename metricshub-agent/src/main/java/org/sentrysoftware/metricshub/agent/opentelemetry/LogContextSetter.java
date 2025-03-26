@@ -1,4 +1,4 @@
-package org.sentrysoftware.metricshub.agent.opentelemetry.client;
+package org.sentrysoftware.metricshub.agent.opentelemetry;
 
 /*-
  * ╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲
@@ -21,32 +21,21 @@ package org.sentrysoftware.metricshub.agent.opentelemetry.client;
  * ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱
  */
 
-import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
-import lombok.NoArgsConstructor;
-import org.sentrysoftware.metricshub.agent.opentelemetry.LogContextSetter;
-
 /**
- * Noop client that does nothing.
+ * Functional interface used to explicitly set the logging context for asynchronous operations.
+ * <p>
+ * This interface should be implemented to manage the {@link org.apache.logging.log4j.ThreadContext}
+ * within callbacks running on different threads, ensuring consistent context propagation in log entries.
+ * </p>
  */
-@NoArgsConstructor
-public class NoopClient implements IOtelClient {
-
+@FunctionalInterface
+public interface LogContextSetter {
 	/**
-	 * Does nothing.
-	 * @param request          The request containing the metrics to send.
-	 * @param logContextSetter The log context setter to use for logging.
-	 * This method is a no-op and does not send any metrics.
+	 * Sets the logging context using {@code ThreadContext.put()} before executing log statements.
+	 * <p>
+	 * Implementations of this method should explicitly set all necessary context entries required
+	 * for log correlation.
+	 * </p>
 	 */
-	@Override
-	public void send(ExportMetricsServiceRequest request, LogContextSetter logContextSetter) {
-		// NO-OP
-	}
-
-	/**
-	 * Does nothing.
-	 */
-	@Override
-	public void shutdown() {
-		// NO-OP
-	}
+	void setContext();
 }

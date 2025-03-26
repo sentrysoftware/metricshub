@@ -4,6 +4,7 @@ import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import lombok.Getter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
+import org.sentrysoftware.metricshub.agent.opentelemetry.LogContextSetter;
 import org.sentrysoftware.metricshub.agent.opentelemetry.client.IOtelClient;
 
 /**
@@ -20,7 +21,7 @@ public class TestHelper {
 		private ExportMetricsServiceRequest request;
 
 		@Override
-		public void send(ExportMetricsServiceRequest request) {
+		public void send(ExportMetricsServiceRequest request, LogContextSetter logContextSetter) {
 			this.request = request;
 		}
 

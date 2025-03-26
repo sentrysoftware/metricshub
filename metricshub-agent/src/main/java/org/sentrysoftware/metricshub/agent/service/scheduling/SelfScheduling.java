@@ -134,6 +134,8 @@ public class SelfScheduling extends AbstractScheduling {
 		);
 
 		// Export the metric
-		meterProvider.exportMetrics();
+		meterProvider.exportMetrics(() ->
+			ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory())
+		);
 	}
 }

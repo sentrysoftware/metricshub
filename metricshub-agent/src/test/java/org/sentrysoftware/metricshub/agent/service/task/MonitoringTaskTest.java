@@ -237,7 +237,7 @@ class MonitoringTaskTest {
 		final ResourceConfig resourceConfig = ResourceConfig.builder().attributes(hostAttributes).build();
 		monitoringTask.initHostAttributes(telemetryManager, resourceConfig);
 
-		monitoringTask.registerTelemetryManagerRecorders(telemetryManager).exportMetrics();
+		monitoringTask.registerTelemetryManagerRecorders(telemetryManager).exportMetrics(() -> {});
 
 		final ExportMetricsServiceRequest request = otelClient.getRequest();
 		assertNotNull(request);

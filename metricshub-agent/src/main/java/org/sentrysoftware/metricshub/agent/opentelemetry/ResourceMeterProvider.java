@@ -48,9 +48,11 @@ public class ResourceMeterProvider {
 
 	/**
 	 * Records the metrics for all resource meters and exports them.
+	 *
+	 * @param logContextSetter The log context setter to use for asynchronous logging.
 	 */
-	public void exportMetrics() {
-		metricsExporter.export(meters.stream().map(ResourceMeter::recordSafe).toList());
+	public void exportMetrics(final LogContextSetter logContextSetter) {
+		metricsExporter.export(meters.stream().map(ResourceMeter::recordSafe).toList(), logContextSetter);
 	}
 
 	/**

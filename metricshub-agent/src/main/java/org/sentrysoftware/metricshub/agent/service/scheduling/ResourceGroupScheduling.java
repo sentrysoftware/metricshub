@@ -181,6 +181,8 @@ public class ResourceGroupScheduling extends AbstractScheduling {
 				);
 			});
 
-		meterProvider.exportMetrics();
+		meterProvider.exportMetrics(() ->
+			ConfigHelper.configureGlobalLogger(agentConfig.getLoggerLevel(), agentConfig.getOutputDirectory())
+		);
 	}
 }

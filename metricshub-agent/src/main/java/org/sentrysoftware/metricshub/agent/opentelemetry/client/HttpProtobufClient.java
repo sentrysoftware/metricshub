@@ -35,6 +35,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.sentrysoftware.metricshub.agent.opentelemetry.LogContextSetter;
 
 /**
  * OpenTelemetry client for sending metrics to an HTTP endpoint using Protobuf.
@@ -71,10 +72,11 @@ public class HttpProtobufClient extends AbstractOtelClient {
 	 * Sends an ExportMetricsServiceRequest to the OpenTelemetry receiver.
 	 * The request is serialized into a Protobuf byte array and sent as the request body.
 	 * The response is logged to the console in case of an error.
-	 * @param request the ExportMetricsServiceRequest to send.
+	 * @param request          The {@link ExportMetricsServiceRequest} instance to send.
+	 * @param logContextSetter The {@link LogContextSetter} to use for asynchronous logging.
 	 */
 	@Override
-	public void send(final ExportMetricsServiceRequest request) {
+	public void send(final ExportMetricsServiceRequest request, final LogContextSetter logContextSetter) {
 		try {
 			final byte[] requestBody = request.toByteArray(); // Serialize Protobuf request
 
@@ -96,6 +98,9 @@ public class HttpProtobufClient extends AbstractOtelClient {
 			client
 				.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
 				.thenAccept(response -> {
+					// Set the log context
+					logContextSetter.setContext();
+
 					if (response.statusCode() == 200) {
 						log.debug("Metrics sent successfully. Duration: {} ms", System.currentTimeMillis() - startTime);
 					} else {
@@ -107,6 +112,9 @@ public class HttpProtobufClient extends AbstractOtelClient {
 					}
 				})
 				.exceptionally(e -> {
+					// Set the log context
+					logContextSetter.setContext();
+
 					log.error("Failed to send metrics: {}", e.getMessage());
 					log.debug("Failed to send metrics:", e);
 					return null;
